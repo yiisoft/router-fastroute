@@ -28,7 +28,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Yiisoft\\Router\\FastRoute": "src"
+            "Yiisoft\\Router\\FastRoute\\": "src"
         }
     },
     "autoload-dev": {
