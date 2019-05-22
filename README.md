@@ -13,9 +13,25 @@ The package provides FastRoute adapter for [Yii Router](https://github.com/yiiso
 [![Build Status](https://travis-ci.org/yiisoft/validator.svg?branch=master)](https://travis-ci.org/yiisoft/router-fastroute)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yiisoft/router/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/router-fastroute/?branch=master)
 
-## Features
-
-
-
 ## General usage
 
+Router instance could be obtained like the following:
+
+```php
+use FastRoute\DataGenerator\GroupCountBased;
+use FastRoute\RouteCollector;
+use FastRoute\RouteParser\Std;
+use Yiisoft\Router\FastRoute\FastRoute;
+
+$collector = new RouteCollector(
+    new Std(),
+    new GroupCountBased()
+);
+
+$router = new FastRoute(
+    $collector,
+    function ($data) {
+        return new \FastRoute\Dispatcher\GroupCountBased($data);
+    }
+);
+```
