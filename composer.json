@@ -1,8 +1,8 @@
 {
-    "name": "yiisoft/router",
+    "name": "yiisoft/router-fastroute",
     "type": "library",
-    "description": "Yii router",
-    "keywords": ["web", "router", "middleware"],
+    "description": "Yii router FastRoute adpapter",
+    "keywords": ["router", "fastroute"],
     "homepage": "http://www.yiiframework.com/",
     "license": "BSD-3-Clause",
     "authors": [
@@ -14,11 +14,11 @@
         }
     ],
     "support": {
-        "issues": "https://github.com/yiisoft/router/issues?state=open",
+        "issues": "https://github.com/yiisoft/router-fastroute/issues?state=open",
         "forum": "http://www.yiiframework.com/forum/",
         "wiki": "http://www.yiiframework.com/wiki/",
         "irc": "irc://irc.freenode.net/yii",
-        "source": "https://github.com/yiisoft/router"
+        "source": "https://github.com/yiisoft/router-fastroute"
     },
     "require": {
         "php": "^7.2"
