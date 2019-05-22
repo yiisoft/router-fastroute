@@ -22,10 +22,12 @@
     },
     "require": {
         "php": "^7.2",
+        "yiisoft/router": "^3.0@dev",
         "nikic/fast-route": "^1.3"
     },
     "require-dev": {
-        "phpunit/phpunit": "^7.2"
+        "phpunit/phpunit": "^7.2",
+        "nyholm/psr7": "^1.0"
     },
     "autoload": {
         "psr-4": {
