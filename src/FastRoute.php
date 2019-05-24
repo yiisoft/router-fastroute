@@ -364,9 +364,9 @@ EOT;
      */
     private function marshalFailedRoute(array $result): MatchingResult
     {
-        [$resultCode, $path,] = $result;
+        $resultCode = $result[0];
         if ($resultCode === Dispatcher::METHOD_NOT_ALLOWED) {
-            return MatchingResult::fromFailure($path);
+            return MatchingResult::fromFailure($result[1]);
         }
 
         return MatchingResult::fromFailure(Method::ANY);
