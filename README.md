@@ -18,20 +18,8 @@ The package provides FastRoute adapter for [Yii Router](https://github.com/yiiso
 Router instance could be obtained like the following:
 
 ```php
-use FastRoute\DataGenerator\GroupCountBased;
-use FastRoute\RouteCollector;
-use FastRoute\RouteParser\Std;
-use Yiisoft\Router\FastRoute\FastRoute;
+use Yiisoft\Router\FastRoute\FastRouteFactory;
 
-$collector = new RouteCollector(
-    new Std(),
-    new GroupCountBased()
-);
-
-$router = new FastRoute(
-    $collector,
-    function ($data) {
-        return new \FastRoute\Dispatcher\GroupCountBased($data);
-    }
-);
+$factory = new FastRouteFactory();
+$router = $factory();
 ```
