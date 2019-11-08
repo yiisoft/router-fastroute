@@ -222,29 +222,17 @@ EOT;
         // Inject any pending routes
         $this->injectRoutes();
 
-        if (!array_key_exists($name, $this->routes)) {
-            throw new \RuntimeException(sprintf(
-                'Cannot generate URI for route "%s"; route not found',
-                $name
-            ));
-        }
-
-        $route = $this->routes[$name];
+        $route = $this->getRoute($name);
         $parameters = array_merge($route->getDefaults(), $parameters);
 
-        $defaultValues = [];
-        if (!empty($parameters['defaults'])) {
-            $defaultValues = $parameters['defaults'];
-        }
-
-        $routeParser = new RouteParser();
-        $routes = array_reverse($routeParser->parse($route->getPattern()));
+        $parsedRoutes = $this->routerParser->parse($route->getPattern());
+        $routes = array_reverse($parsedRoutes);
         $missingParameters = [];
 
         // One route pattern can correspond to multiple routes if it has optional parts
         foreach ($routes as $parts) {
             // Check if all parameters can be substituted
-            $missingParameters = $this->missingParameters($parts, $defaultValues);
+            $missingParameters = $this->missingParameters($parts, $parameters);
 
             // If not all parameters can be substituted, try the next route
             if (!empty($missingParameters)) {
@@ -261,7 +249,7 @@ EOT;
                 }
 
                 // Check substitute value with regex
-                if (!preg_match('~^' . $part[1] . '$~', (string)$defaultValues[$part[0]])) {
+                if (!preg_match('~^' . $part[1] . '$~', (string)$parameters[$part[0]])) {
                     throw new \RuntimeException(sprintf(
                         'Parameter value for [%s] did not match the regex `%s`',
                         $part[0],
@@ -270,7 +258,7 @@ EOT;
                 }
 
                 // Append the substituted value
-                $path .= $defaultValues[$part[0]];
+                $path .= $parameters[$part[0]];
             }
 
             // Return generated path
@@ -282,7 +270,7 @@ EOT;
             'Route `%s` expects at least parameter values for [%s], but received [%s]',
             $name,
             implode(',', $missingParameters),
-            implode(',', array_keys($defaultValues))
+            implode(',', array_keys($parameters))
         ));
     }
 
@@ -527,14 +515,28 @@ EOT;
     {
         $path = $result[1];
 
-        $allowedMethods = array_unique(array_reduce($this->routes, static function ($allowedMethods, Route $route) use ($path) {
-            if ($path !== $route->getPattern()) {
-                return $allowedMethods;
-            }
+        $allowedMethods = array_unique(array_reduce($this->routes,
+            static function ($allowedMethods, Route $route) use ($path) {
+                if ($path !== $route->getPattern()) {
+                    return $allowedMethods;
+                }
 
-            return array_merge($allowedMethods, $route->getMethods());
-        }, []));
+                return array_merge($allowedMethods, $route->getMethods());
+            }, []));
 
         return MatchingResult::fromFailure($allowedMethods);
+    }
+
+    /**
+     * @param string $name
+     * @return \Yiisoft\Router\Route
+     */
+    private function getRoute(string $name): Route
+    {
+        if (!array_key_exists($name, $this->routes)) {
+            throw new RouteNotFoundException($name);
+        }
+
+        return $this->routes[$name];
     }
 }
