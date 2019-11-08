@@ -321,7 +321,7 @@ EOT;
      */
     private function createRouter(): RouteCollector
     {
-        return new RouteCollector(new RouteParser, new RouteGenerator);
+        return new RouteCollector(new RouteParser(), new RouteGenerator());
     }
 
     /**
