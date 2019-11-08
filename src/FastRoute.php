@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Router\FastRoute;
 
-use FastRoute\DataGenerator\GroupCountBased as RouteGenerator;
 use FastRoute\Dispatcher;
 use FastRoute\Dispatcher\GroupCountBased;
 use FastRoute\RouteCollector;
@@ -132,15 +131,11 @@ EOT;
      * @param array $config Array of custom configuration options.
      */
     public function __construct(
-        RouteCollector $router = null,
+        RouteCollector $router,
         callable $dispatcherFactory = null,
         array $config = null
     )
     {
-        if (null === $router) {
-            $router = $this->createRouter();
-        }
-
         $this->router = $router;
         $this->dispatcherCallback = $dispatcherFactory;
 
@@ -314,14 +309,6 @@ EOT;
 
         // All required parameters are available
         return [];
-    }
-
-    /**
-     * Create a default FastRoute Collector instance
-     */
-    private function createRouter(): RouteCollector
-    {
-        return new RouteCollector(new RouteParser(), new RouteGenerator());
     }
 
     /**
