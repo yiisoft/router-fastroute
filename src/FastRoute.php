@@ -6,8 +6,8 @@ namespace Yiisoft\Router\FastRoute;
 use FastRoute\Dispatcher;
 use FastRoute\Dispatcher\GroupCountBased;
 use FastRoute\RouteCollector;
-use FastRoute\RouteParser\Std as RouteParser;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use FastRoute\RouteParser\Std;
+use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Router\MatchingResult;
 use Yiisoft\Router\Method;
 use Yiisoft\Router\Route;
@@ -178,7 +178,7 @@ EOT;
         $this->routesToInject[] = $route;
     }
 
-    public function match(Request $request): MatchingResult
+    public function match(ServerRequestInterface $request): MatchingResult
     {
         // Inject any pending routes
         $this->injectRoutes();
