@@ -111,6 +111,10 @@ EOT;
      * @var Route[]
      */
     private $routesToInject = [];
+    /**
+     * @var \FastRoute\RouteParser\Std
+     */
+    private $routerParser;
 
     /**
      * Constructor
@@ -126,18 +130,21 @@ EOT;
      *
      * @param null|RouteCollector $router If not provided, a default
      *     implementation will be used.
+     * @param \FastRoute\RouteParser\Std $routerParser
      * @param null|callable $dispatcherFactory Callable that will return a
      *     FastRoute dispatcher.
      * @param array $config Array of custom configuration options.
      */
     public function __construct(
         RouteCollector $router,
+        Std $routerParser,
         callable $dispatcherFactory = null,
         array $config = null
     )
     {
         $this->router = $router;
         $this->dispatcherCallback = $dispatcherFactory;
+        $this->routerParser = $routerParser;
 
         $this->loadConfig($config);
     }
