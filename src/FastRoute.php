@@ -225,6 +225,11 @@ EOT;
         $route = $this->getRoute($name);
         $parameters = array_merge($route->getDefaults(), $parameters);
 
+        /**
+         * TODO may loop be removed?
+         * what's it for?
+         * more than one route by name cannot exist
+         */
         $parsedRoutes = $this->routerParser->parse($route->getPattern());
         $routes = array_reverse($parsedRoutes);
         $missingParameters = [];
