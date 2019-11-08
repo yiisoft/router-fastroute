@@ -179,6 +179,7 @@ EOT;
      * Uses the HTTP methods associated (creating sane defaults for an empty
      * list or Route::HTTP_METHOD_ANY) and the path, and uses the path as
      * the name (to allow later lookup of the middleware).
+     * @param \Yiisoft\Router\Route $route
      */
     public function addRoute(Route $route): void
     {
@@ -214,8 +215,7 @@ EOT;
      *     in route used to generate URI.
      *
      * @return string URI path generated.
-     * @throws \RuntimeException if the route name is not known
-     *     or a parameter value does not match its regex.
+     * @throws \RuntimeException if the route name is not known or a parameter value does not match its regex.
      */
     public function generate(string $name, array $parameters = []): string
     {
@@ -288,9 +288,9 @@ EOT;
 
     /**
      * Checks for any missing route parameters
-     *
-     * @return array with minimum required parameters if any are missing or
-     *     an empty array if none are missing
+     * @param array $parts
+     * @param array $substitutions
+     * @return array with minimum required parameters if any are missing or an empty array if none are missing
      */
     private function missingParameters(array $parts, array $substitutions): array
     {
@@ -326,7 +326,6 @@ EOT;
      * approach is done to allow testing against the dispatcher.
      *
      * @param array|object $data Data from RouteCollection::getData()
-     *
      * @return Dispatcher
      */
     private function getDispatcher($data): Dispatcher
@@ -355,6 +354,8 @@ EOT;
      *
      * If the failure was due to the HTTP method, passes the allowed HTTP
      * methods to the factory.
+     * @param array $result
+     * @return \Yiisoft\Router\MatchingResult
      */
     private function marshalFailedRoute(array $result): MatchingResult
     {
@@ -368,6 +369,9 @@ EOT;
 
     /**
      * Marshals a route result based on the results of matching and the current HTTP method.
+     * @param array $result
+     * @param string $method
+     * @return \Yiisoft\Router\MatchingResult
      */
     private function marshalMatchedRoute(array $result, string $method): MatchingResult
     {
@@ -415,6 +419,7 @@ EOT;
 
     /**
      * Inject a Route instance into the underlying router.
+     * @param \Yiisoft\Router\Route $route
      */
     private function injectRoute(Route $route): void
     {
@@ -452,9 +457,7 @@ EOT;
 
     /**
      * Load dispatch data from cache
-     *
-     * @throws \RuntimeException( If the cache file contains
-     *     invalid data
+     * @throws \RuntimeException If the cache file contains invalid data
      */
     private function loadDispatchData(): void
     {
@@ -481,7 +484,7 @@ EOT;
 
     /**
      * Save dispatch data to cache
-     *
+     * @param array $dispatchData
      * @return int|false bytes written to file or false if error
      * @throws \RuntimeException If the cache directory
      *     does not exist.
