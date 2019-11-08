@@ -2,9 +2,7 @@
 
 namespace Yiisoft\Router\FastRoute\Tests;
 
-use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
-use Psr\Container\NotFoundExceptionInterface;
 
 class DummyContainer implements ContainerInterface
 {
