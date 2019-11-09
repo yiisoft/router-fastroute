@@ -23,3 +23,50 @@ use Yiisoft\Router\FastRoute\FastRouteFactory;
 $factory = new FastRouteFactory();
 $router = $factory();
 ```
+
+## Custom route factory
+
+If you need to make custom route factory you can do something like the following:
+
+```php
+namespace App\Factory;
+
+use Psr\Container\ContainerInterface;
+use Yiisoft\Router\FastRoute\FastRouteFactory;
+use Yiisoft\Router\Route;
+use Yiisoft\Router\RouterFactory;
+use Yiisoft\Router\RouterInterface;
+use Yiisoft\Yii\Web\Middleware\ActionCaller;
+use App\Controller\SiteController;
+
+class RouteFactory
+{
+    public function __invoke(ContainerInterface $container): RouterInterface
+    {
+        $routes = [
+            Route::get('/')->to(new ActionCaller(SiteController::class, 'index', $container))->name('site/index'),
+            Route::get('/about')->to(new ActionCaller(SiteController::class, 'about', $container))->name('site/about'),
+        ];
+
+        return (new RouterFactory(new FastRouteFactory(), $routes))($container);
+    }
+}
+```
+
+setting up your container
+
+```php
+use App\Factory\RouteFactory;
+use Yiisoft\Router\RouterInterface;
+use Yiisoft\Factory\Definitions\Reference;
+
+return [
+    /** 
+     * ...
+     * There other container configuration. 
+     * ...
+     */
+
+    RouterInterface::class => new RouteFactory(),
+];
+```
