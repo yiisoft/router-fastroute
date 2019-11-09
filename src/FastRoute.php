@@ -140,8 +140,7 @@ EOT;
         Std $routerParser,
         callable $dispatcherFactory = null,
         array $config = null
-    )
-    {
+    ) {
         $this->router = $router;
         $this->dispatcherCallback = $dispatcherFactory;
         $this->routerParser = $routerParser;
