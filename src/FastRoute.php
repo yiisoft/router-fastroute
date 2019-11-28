@@ -11,6 +11,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Router\MatchingResult;
 use Yiisoft\Router\Method;
 use Yiisoft\Router\Route;
+use Yiisoft\Router\RouteNotFoundException;
 use Yiisoft\Router\RouterInterface;
 use function array_key_exists;
 use function array_keys;

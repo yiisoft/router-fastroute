@@ -3,7 +3,7 @@
 namespace Yiisoft\Router\FastRoute\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Yiisoft\Router\FastRoute\RouteNotFoundException;
+use Yiisoft\Router\RouteNotFoundException;
 use Yiisoft\Router\RouterInterface;
 
 class FastRouteTest extends TestCase
