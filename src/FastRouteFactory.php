@@ -10,7 +10,6 @@ class FastRouteFactory
 {
     public function __invoke()
     {
-        // TODO may it be used via di?
         $routeParser = new Std();
         $collector = new RouteCollector(
             $routeParser,
