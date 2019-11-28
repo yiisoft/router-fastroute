@@ -435,12 +435,9 @@ EOT;
      * Save dispatch data to cache
      * @param array $dispatchData
      * @return int|false bytes written to file or false if error
-     * @throws \RuntimeException If the cache directory
-     *     does not exist.
-     * @throws \RuntimeException If the cache directory
-     *     is not writable.
-     * @throws \RuntimeException If the cache file exists but is
-     *     not writable
+     * @throws \RuntimeException If the cache directory does not exist.
+     * @throws \RuntimeException If the cache directory is not writable.
+     * @throws \RuntimeException If the cache file exists but is not writable
      */
     private function cacheDispatchData(array $dispatchData)
     {
