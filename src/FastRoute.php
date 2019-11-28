@@ -16,7 +16,6 @@ use function array_key_exists;
 use function array_keys;
 use function array_merge;
 use function array_reduce;
-use function array_reverse;
 use function array_unique;
 use function dirname;
 use function file_exists;
@@ -224,58 +223,16 @@ EOT;
         $route = $this->getRoute($name);
         $parameters = array_merge($route->getDefaults(), $parameters);
 
-        /**
-         * TODO may loop be removed?
-         * what's it for?
-         * more than one route by name cannot exist
-         */
         $parsedRoutes = $this->routerParser->parse($route->getPattern());
-        $routes = array_reverse($parsedRoutes);
-        $missingParameters = [];
 
-        // One route pattern can correspond to multiple routes if it has optional parts
-        foreach ($routes as $parts) {
-            // Check if all parameters can be substituted
-            $missingParameters = $this->missingParameters($parts, $parameters);
-
-            // If not all parameters can be substituted, try the next route
-            if (!empty($missingParameters)) {
-                continue;
-            }
-
-            // Generate the path
-            $path = '';
-            foreach ($parts as $part) {
-                if (is_string($part)) {
-                    // Append the string
-                    $path .= $part;
-                    continue;
-                }
-
-                // Check substitute value with regex
-                if (!preg_match('~^' . $part[1] . '$~', (string)$parameters[$part[0]])) {
-                    throw new \RuntimeException(sprintf(
-                        'Parameter value for [%s] did not match the regex `%s`',
-                        $part[0],
-                        $part[1]
-                    ));
-                }
-
-                // Append the substituted value
-                $path .= $parameters[$part[0]];
-            }
-
-            // Return generated path
-            return $path;
+        if (count($parsedRoutes) === 0) {
+            throw new RouteNotFoundException();
         }
+        $parts = reset($parsedRoutes);
 
-        // No valid route was found: list minimal required parameters
-        throw new \RuntimeException(sprintf(
-            'Route `%s` expects at least parameter values for [%s], but received [%s]',
-            $name,
-            implode(',', $missingParameters),
-            implode(',', array_keys($parameters))
-        ));
+        $this->checkUrlParameters($name, $parameters, $parts);
+
+        return $this->generatePath($parameters, $parts);
     }
 
     /**
@@ -542,5 +499,57 @@ EOT;
         }
 
         return $this->routes[$name];
+    }
+
+    /**
+     * @param string $name
+     * @param array $parameters
+     * @param array $parts
+     */
+    private function checkUrlParameters(string $name, array $parameters, array $parts): void
+    {
+        // Check if all parameters can be substituted
+        $missingParameters = $this->missingParameters($parts, $parameters);
+
+        // If not all parameters can be substituted, try the next route
+        if (!empty($missingParameters)) {
+            throw new  \RuntimeException(sprintf(
+                'Route `%s` expects at least parameter values for [%s], but received [%s]',
+                $name,
+                implode(',', $missingParameters),
+                implode(',', array_keys($parameters))
+            ));
+        }
+    }
+
+    /**
+     * @param array $parameters
+     * @param array $parts
+     * @return string
+     */
+    private function generatePath(array $parameters, array $parts): string
+    {
+        $path = '';
+        foreach ($parts as $part) {
+            if (is_string($part)) {
+                // Append the string
+                $path .= $part;
+                continue;
+            }
+
+            // Check substitute value with regex
+            if (!preg_match('~^' . $part[1] . '$~', (string)$parameters[$part[0]])) {
+                throw new \RuntimeException(sprintf(
+                    'Parameter value for [%s] did not match the regex `%s`',
+                    $part[0],
+                    $part[1]
+                ));
+            }
+
+            // Append the substituted value
+            $path .= $parameters[$part[0]];
+        }
+
+        return $path;
     }
 }
