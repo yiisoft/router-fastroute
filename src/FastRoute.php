@@ -200,6 +200,16 @@ EOT;
             : $this->marshalMatchedRoute($result, $method);
     }
 
+    public function getUriPrefix(): string
+    {
+        return $this->uriPrefix;
+    }
+
+    public function setUriPrefix(string $prefix): void
+    {
+        $this->uriPrefix = $prefix;
+    }
+
     /**
      * Generate a URI based on a given route.
      *
@@ -527,7 +537,7 @@ EOT;
      */
     private function generatePath(array $parameters, array $parts): string
     {
-        $path = '';
+        $path = $this->getUriPrefix();
         foreach ($parts as $part) {
             if (is_string($part)) {
                 // Append the string
