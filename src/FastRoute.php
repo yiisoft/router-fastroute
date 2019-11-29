@@ -6,7 +6,7 @@ namespace Yiisoft\Router\FastRoute;
 use FastRoute\Dispatcher;
 use FastRoute\Dispatcher\GroupCountBased;
 use FastRoute\RouteCollector;
-use FastRoute\RouteParser\Std;
+use FastRoute\RouteParser;
 use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Router\MatchingResult;
 use Yiisoft\Router\Method;
@@ -112,7 +112,7 @@ EOT;
      */
     private $routesToInject = [];
     /**
-     * @var \FastRoute\RouteParser\Std
+     * @var RouteParser
      */
     private $routeParser;
 
@@ -130,14 +130,14 @@ EOT;
      *
      * @param null|RouteCollector $router If not provided, a default
      *     implementation will be used.
-     * @param \FastRoute\RouteParser\Std $routeParser
+     * @param RouteParser $routeParser
      * @param null|callable $dispatcherFactory Callable that will return a
      *     FastRoute dispatcher.
      * @param array $config Array of custom configuration options.
      */
     public function __construct(
         RouteCollector $router,
-        Std $routeParser,
+        RouteParser $routeParser,
         callable $dispatcherFactory = null,
         array $config = null
     ) {
@@ -178,7 +178,7 @@ EOT;
      * Uses the HTTP methods associated (creating sane defaults for an empty
      * list or Route::HTTP_METHOD_ANY) and the path, and uses the path as
      * the name (to allow later lookup of the middleware).
-     * @param \Yiisoft\Router\Route $route
+     * @param Route $route
      */
     public function addRoute(Route $route): void
     {
@@ -305,7 +305,7 @@ EOT;
      * If the failure was due to the HTTP method, passes the allowed HTTP
      * methods to the factory.
      * @param array $result
-     * @return \Yiisoft\Router\MatchingResult
+     * @return MatchingResult
      */
     private function marshalFailedRoute(array $result): MatchingResult
     {
@@ -321,7 +321,7 @@ EOT;
      * Marshals a route result based on the results of matching and the current HTTP method.
      * @param array $result
      * @param string $method
-     * @return \Yiisoft\Router\MatchingResult
+     * @return MatchingResult
      */
     private function marshalMatchedRoute(array $result, string $method): MatchingResult
     {
@@ -369,7 +369,7 @@ EOT;
 
     /**
      * Inject a Route instance into the underlying router.
-     * @param \Yiisoft\Router\Route $route
+     * @param Route $route
      */
     private function injectRoute(Route $route): void
     {
@@ -488,7 +488,7 @@ EOT;
 
     /**
      * @param string $name
-     * @return \Yiisoft\Router\Route
+     * @return Route
      */
     private function getRoute(string $name): Route
     {
