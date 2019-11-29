@@ -3,15 +3,16 @@
 namespace Yiisoft\Router\FastRoute\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteNotFoundException;
 use Yiisoft\Router\RouterInterface;
 
 class FastRouteTest extends TestCase
 {
-    public function testSimpleNamedRoute()
+    public function testSimpleNamedRoute(): void
     {
         $routes = [
-            \Yiisoft\Router\Route::get('/home/index')->name('index'),
+            Route::get('/home/index')->name('index'),
         ];
         $routerCollector = $this->createRouterCollector($routes);
 
@@ -20,12 +21,12 @@ class FastRouteTest extends TestCase
         $this->assertEquals('/home/index', $url);
     }
 
-    public function testRouteWithoutNameNotFound()
+    public function testRouteWithoutNameNotFound(): void
     {
         $routes = [
-            \Yiisoft\Router\Route::get('/home/index'),
-            \Yiisoft\Router\Route::get('/index'),
-            \Yiisoft\Router\Route::get('index'),
+            Route::get('/home/index'),
+            Route::get('/index'),
+            Route::get('index'),
         ];
         $routerCollector = $this->createRouterCollector($routes);
 
@@ -33,10 +34,10 @@ class FastRouteTest extends TestCase
         $routerCollector->generate('index');
     }
 
-    public function testRouteWithParameters()
+    public function testRouteWithParameters(): void
     {
         $routes = [
-            \Yiisoft\Router\Route::get('/view/{id:\d+}#{tag:\w+}')->name('view'),
+            Route::get('/view/{id:\d+}#{tag:\w+}')->name('view'),
         ];
         $routerCollector = $this->createRouterCollector($routes);
 
@@ -45,10 +46,10 @@ class FastRouteTest extends TestCase
         $this->assertEquals('/view/100#yii', $url);
     }
 
-    public function testRouteWithoutParameters()
+    public function testRouteWithoutParameters(): void
     {
         $routes = [
-            \Yiisoft\Router\Route::get('/view/{id:\d+}#{tag:\w+}')->name('view'),
+            Route::get('/view/{id:\d+}#{tag:\w+}')->name('view'),
         ];
         $routerCollector = $this->createRouterCollector($routes);
 
@@ -58,7 +59,7 @@ class FastRouteTest extends TestCase
 
     /**
      * @param array $routes
-     * @return \Yiisoft\Router\RouterInterface
+     * @return RouterInterface
      */
     private function createRouterCollector(array $routes): RouterInterface
     {
