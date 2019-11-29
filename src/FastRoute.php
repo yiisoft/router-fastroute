@@ -114,7 +114,7 @@ EOT;
     /**
      * @var \FastRoute\RouteParser\Std
      */
-    private $routerParser;
+    private $routeParser;
 
     /**
      * Constructor
@@ -130,20 +130,20 @@ EOT;
      *
      * @param null|RouteCollector $router If not provided, a default
      *     implementation will be used.
-     * @param \FastRoute\RouteParser\Std $routerParser
+     * @param \FastRoute\RouteParser\Std $routeParser
      * @param null|callable $dispatcherFactory Callable that will return a
      *     FastRoute dispatcher.
      * @param array $config Array of custom configuration options.
      */
     public function __construct(
         RouteCollector $router,
-        Std $routerParser,
+        Std $routeParser,
         callable $dispatcherFactory = null,
         array $config = null
     ) {
         $this->router = $router;
         $this->dispatcherCallback = $dispatcherFactory;
-        $this->routerParser = $routerParser;
+        $this->routeParser = $routeParser;
 
         $this->loadConfig($config);
     }
@@ -224,7 +224,7 @@ EOT;
         $route = $this->getRoute($name);
         $parameters = array_merge($route->getDefaults(), $parameters);
 
-        $parsedRoutes = $this->routerParser->parse($route->getPattern());
+        $parsedRoutes = $this->routeParser->parse($route->getPattern());
 
         if (count($parsedRoutes) === 0) {
             throw new RouteNotFoundException();
