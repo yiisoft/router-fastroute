@@ -6,8 +6,9 @@ namespace Yiisoft\Router\FastRoute;
 use FastRoute\Dispatcher;
 use FastRoute\Dispatcher\GroupCountBased;
 use FastRoute\RouteCollector;
-use FastRoute\RouteParser;
+use FastRoute\RouteParser\Std;
 use Psr\Http\Message\ServerRequestInterface;
+use Yiisoft\Router\Group;
 use Yiisoft\Router\MatchingResult;
 use Yiisoft\Router\Method;
 use Yiisoft\Router\Route;
@@ -117,6 +118,13 @@ EOT;
     private $routeParser;
 
     /**
+     * Groups to inject into the underlying RouteCollector.
+     *
+     * @var Group[]
+     */
+    private $groupsToInject = [];
+
+    /**
      * Constructor
      *
      * Accepts optionally a FastRoute RouteCollector and a callable factory
@@ -185,10 +193,18 @@ EOT;
         $this->routesToInject[] = $route;
     }
 
+    public function addGroup(Group $group): void
+    {
+        $this->groupsToInject[] = $group;
+    }
+
     public function match(ServerRequestInterface $request): MatchingResult
     {
         // Inject any pending routes
         $this->injectRoutes();
+
+        // Inject any pending groups
+        $this->injectGroups();
 
         $dispatchData = $this->getDispatchData();
         $path = rawurldecode($request->getUri()->getPath());
@@ -382,6 +398,32 @@ EOT;
         }
 
         $this->router->addRoute($route->getMethods(), $route->getPattern(), $route->getPattern());
+    }
+
+    /**
+     * Inject queued Group instances into the underlying router.
+     */
+    private function injectGroups(): void
+    {
+        foreach ($this->groupsToInject as $index => $group) {
+            $this->injectGroup($group);
+            unset($this->groupsToInject[$index]);
+        }
+    }
+
+    /**
+     * Inject a Group instance into the underlying router.
+     */
+    private function injectGroup(Group $group): void
+    {
+        $this->router->addGroup(
+            $group->getPrefix(),
+            static function (RouteCollector $r) use ($group) {
+                foreach ($group->getRoutes() as $route) {
+                    $r->addRoute($route->getMethod(), $route->getPattern(), $route->getMiddleware());
+                }
+            }
+        );
     }
 
     /**
