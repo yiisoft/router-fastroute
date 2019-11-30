@@ -2,7 +2,10 @@
     "name": "yiisoft/router-fastroute",
     "type": "library",
     "description": "Yii router FastRoute adpapter",
-    "keywords": ["router", "fastroute"],
+    "keywords": [
+        "router",
+        "fastroute"
+    ],
     "homepage": "http://www.yiiframework.com/",
     "license": "BSD-3-Clause",
     "support": {
@@ -35,5 +38,8 @@
         "branch-alias": {
             "dev-master": "3.0.x-dev"
         }
+    },
+    "config": {
+        "sort-packages": true
     }
 }
