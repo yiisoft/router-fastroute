@@ -12,6 +12,7 @@ The package provides FastRoute adapter for [Yii Router](https://github.com/yiiso
 [![Total Downloads](https://poser.pugx.org/yiisoft/router-fastroute/downloads.png)](https://packagist.org/packages/yiisoft/router-fastroute)
 [![Build Status](https://travis-ci.com/yiisoft/router-fastroute.svg?branch=master)](https://travis-ci.com/yiisoft/router-fastroute)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yiisoft/router-fastroute/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/router-fastroute/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/yiisoft/router-fastroute/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/router-fastroute/?branch=master)
 
 ## General usage
 
