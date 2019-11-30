@@ -116,7 +116,7 @@ EOT;
      */
     private $routeParser;
     /** @var string */
-    private $uriPrefix;
+    private $uriPrefix = '';
 
     /**
      * Constructor
