@@ -5,24 +5,23 @@ namespace Yiisoft\Router\FastRoute;
 use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
-use Psr\Container\ContainerInterface;
 
 class FastRouteFactory
 {
-    public function __invoke(ContainerInterface $container)
+    public function __invoke()
     {
+        $routeParser = new Std();
         $collector = new RouteCollector(
-            new Std(),
+            $routeParser,
             new GroupCountBased()
         );
 
-        $router = new FastRoute(
+        return new FastRoute(
             $collector,
-            function ($data) {
+            $routeParser,
+            static function ($data) {
                 return new \FastRoute\Dispatcher\GroupCountBased($data);
             }
         );
-
-        return $router;
     }
 }

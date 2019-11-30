@@ -3,21 +3,20 @@ declare(strict_types=1);
 
 namespace Yiisoft\Router\FastRoute;
 
-use FastRoute\DataGenerator\GroupCountBased as RouteGenerator;
 use FastRoute\Dispatcher;
 use FastRoute\Dispatcher\GroupCountBased;
 use FastRoute\RouteCollector;
-use FastRoute\RouteParser\Std as RouteParser;
-use Psr\Http\Message\ServerRequestInterface as Request;
+use FastRoute\RouteParser;
+use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Router\MatchingResult;
 use Yiisoft\Router\Method;
 use Yiisoft\Router\Route;
+use Yiisoft\Router\RouteNotFoundException;
 use Yiisoft\Router\RouterInterface;
 use function array_key_exists;
 use function array_keys;
 use function array_merge;
 use function array_reduce;
-use function array_reverse;
 use function array_unique;
 use function dirname;
 use function file_exists;
@@ -112,6 +111,10 @@ EOT;
      * @var Route[]
      */
     private $routesToInject = [];
+    /**
+     * @var RouteParser
+     */
+    private $routeParser;
 
     /**
      * Constructor
@@ -127,22 +130,20 @@ EOT;
      *
      * @param null|RouteCollector $router If not provided, a default
      *     implementation will be used.
+     * @param RouteParser $routeParser
      * @param null|callable $dispatcherFactory Callable that will return a
      *     FastRoute dispatcher.
      * @param array $config Array of custom configuration options.
      */
     public function __construct(
-        RouteCollector $router = null,
+        RouteCollector $router,
+        RouteParser $routeParser,
         callable $dispatcherFactory = null,
         array $config = null
-    )
-    {
-        if (null === $router) {
-            $router = $this->createRouter();
-        }
-
+    ) {
         $this->router = $router;
         $this->dispatcherCallback = $dispatcherFactory;
+        $this->routeParser = $routeParser;
 
         $this->loadConfig($config);
     }
@@ -177,13 +178,14 @@ EOT;
      * Uses the HTTP methods associated (creating sane defaults for an empty
      * list or Route::HTTP_METHOD_ANY) and the path, and uses the path as
      * the name (to allow later lookup of the middleware).
+     * @param Route $route
      */
     public function addRoute(Route $route): void
     {
         $this->routesToInject[] = $route;
     }
 
-    public function match(Request $request): MatchingResult
+    public function match(ServerRequestInterface $request): MatchingResult
     {
         // Inject any pending routes
         $this->injectRoutes();
@@ -212,83 +214,33 @@ EOT;
      *     in route used to generate URI.
      *
      * @return string URI path generated.
-     * @throws \RuntimeException if the route name is not known
-     *     or a parameter value does not match its regex.
+     * @throws \RuntimeException if the route name is not known or a parameter value does not match its regex.
      */
     public function generate(string $name, array $parameters = []): string
     {
         // Inject any pending routes
         $this->injectRoutes();
 
-        if (!array_key_exists($name, $this->routes)) {
-            throw new \RuntimeException(sprintf(
-                'Cannot generate URI for route "%s"; route not found',
-                $name
-            ));
-        }
-
-        $route = $this->routes[$name];
+        $route = $this->getRoute($name);
         $parameters = array_merge($route->getDefaults(), $parameters);
 
-        $defaultValues = [];
-        if (!empty($parameters['defaults'])) {
-            $defaultValues = $parameters['defaults'];
+        $parsedRoutes = $this->routeParser->parse($route->getPattern());
+
+        if (count($parsedRoutes) === 0) {
+            throw new RouteNotFoundException();
         }
+        $parts = reset($parsedRoutes);
 
-        $routeParser = new RouteParser();
-        $routes = array_reverse($routeParser->parse($route->getPattern()));
-        $missingParameters = [];
+        $this->checkUrlParameters($name, $parameters, $parts);
 
-        // One route pattern can correspond to multiple routes if it has optional parts
-        foreach ($routes as $parts) {
-            // Check if all parameters can be substituted
-            $missingParameters = $this->missingParameters($parts, $defaultValues);
-
-            // If not all parameters can be substituted, try the next route
-            if (!empty($missingParameters)) {
-                continue;
-            }
-
-            // Generate the path
-            $path = '';
-            foreach ($parts as $part) {
-                if (is_string($part)) {
-                    // Append the string
-                    $path .= $part;
-                    continue;
-                }
-
-                // Check substitute value with regex
-                if (!preg_match('~^' . $part[1] . '$~', (string)$defaultValues[$part[0]])) {
-                    throw new \RuntimeException(sprintf(
-                        'Parameter value for [%s] did not match the regex `%s`',
-                        $part[0],
-                        $part[1]
-                    ));
-                }
-
-                // Append the substituted value
-                $path .= $defaultValues[$part[0]];
-            }
-
-            // Return generated path
-            return $path;
-        }
-
-        // No valid route was found: list minimal required parameters
-        throw new \RuntimeException(sprintf(
-            'Route `%s` expects at least parameter values for [%s], but received [%s]',
-            $name,
-            implode(',', $missingParameters),
-            implode(',', array_keys($defaultValues))
-        ));
+        return $this->generatePath($parameters, $parts);
     }
 
     /**
      * Checks for any missing route parameters
-     *
-     * @return array with minimum required parameters if any are missing or
-     *     an empty array if none are missing
+     * @param array $parts
+     * @param array $substitutions
+     * @return array with minimum required parameters if any are missing or an empty array if none are missing
      */
     private function missingParameters(array $parts, array $substitutions): array
     {
@@ -317,14 +269,6 @@ EOT;
     }
 
     /**
-     * Create a default FastRoute Collector instance
-     */
-    private function createRouter(): RouteCollector
-    {
-        return new RouteCollector(new RouteParser, new RouteGenerator);
-    }
-
-    /**
      * Retrieve the dispatcher instance.
      *
      * Uses the callable factory in $dispatcherCallback, passing it $data
@@ -332,7 +276,6 @@ EOT;
      * approach is done to allow testing against the dispatcher.
      *
      * @param array|object $data Data from RouteCollection::getData()
-     *
      * @return Dispatcher
      */
     private function getDispatcher($data): Dispatcher
@@ -361,6 +304,8 @@ EOT;
      *
      * If the failure was due to the HTTP method, passes the allowed HTTP
      * methods to the factory.
+     * @param array $result
+     * @return MatchingResult
      */
     private function marshalFailedRoute(array $result): MatchingResult
     {
@@ -374,6 +319,9 @@ EOT;
 
     /**
      * Marshals a route result based on the results of matching and the current HTTP method.
+     * @param array $result
+     * @param string $method
+     * @return MatchingResult
      */
     private function marshalMatchedRoute(array $result, string $method): MatchingResult
     {
@@ -421,6 +369,7 @@ EOT;
 
     /**
      * Inject a Route instance into the underlying router.
+     * @param Route $route
      */
     private function injectRoute(Route $route): void
     {
@@ -458,9 +407,7 @@ EOT;
 
     /**
      * Load dispatch data from cache
-     *
-     * @throws \RuntimeException( If the cache file contains
-     *     invalid data
+     * @throws \RuntimeException If the cache file contains invalid data
      */
     private function loadDispatchData(): void
     {
@@ -487,14 +434,11 @@ EOT;
 
     /**
      * Save dispatch data to cache
-     *
+     * @param array $dispatchData
      * @return int|false bytes written to file or false if error
-     * @throws \RuntimeException If the cache directory
-     *     does not exist.
-     * @throws \RuntimeException If the cache directory
-     *     is not writable.
-     * @throws \RuntimeException If the cache file exists but is
-     *     not writable
+     * @throws \RuntimeException If the cache directory does not exist.
+     * @throws \RuntimeException If the cache directory is not writable.
+     * @throws \RuntimeException If the cache file exists but is not writable
      */
     private function cacheDispatchData(array $dispatchData)
     {
@@ -530,14 +474,80 @@ EOT;
     {
         $path = $result[1];
 
-        $allowedMethods = array_unique(array_reduce($this->routes, static function ($allowedMethods, Route $route) use ($path) {
-            if ($path !== $route->getPattern()) {
-                return $allowedMethods;
-            }
+        $allowedMethods = array_unique(array_reduce($this->routes,
+            static function ($allowedMethods, Route $route) use ($path) {
+                if ($path !== $route->getPattern()) {
+                    return $allowedMethods;
+                }
 
-            return array_merge($allowedMethods, $route->getMethods());
-        }, []));
+                return array_merge($allowedMethods, $route->getMethods());
+            }, []));
 
         return MatchingResult::fromFailure($allowedMethods);
+    }
+
+    /**
+     * @param string $name
+     * @return Route
+     */
+    private function getRoute(string $name): Route
+    {
+        if (!array_key_exists($name, $this->routes)) {
+            throw new RouteNotFoundException($name);
+        }
+
+        return $this->routes[$name];
+    }
+
+    /**
+     * @param string $name
+     * @param array $parameters
+     * @param array $parts
+     */
+    private function checkUrlParameters(string $name, array $parameters, array $parts): void
+    {
+        // Check if all parameters can be substituted
+        $missingParameters = $this->missingParameters($parts, $parameters);
+
+        // If not all parameters can be substituted, try the next route
+        if (!empty($missingParameters)) {
+            throw new  \RuntimeException(sprintf(
+                'Route `%s` expects at least parameter values for [%s], but received [%s]',
+                $name,
+                implode(',', $missingParameters),
+                implode(',', array_keys($parameters))
+            ));
+        }
+    }
+
+    /**
+     * @param array $parameters
+     * @param array $parts
+     * @return string
+     */
+    private function generatePath(array $parameters, array $parts): string
+    {
+        $path = '';
+        foreach ($parts as $part) {
+            if (is_string($part)) {
+                // Append the string
+                $path .= $part;
+                continue;
+            }
+
+            // Check substitute value with regex
+            if (!preg_match('~^' . $part[1] . '$~', (string)$parameters[$part[0]])) {
+                throw new \RuntimeException(sprintf(
+                    'Parameter value for [%s] did not match the regex `%s`',
+                    $part[0],
+                    $part[1]
+                ));
+            }
+
+            // Append the substituted value
+            $path .= $parameters[$part[0]];
+        }
+
+        return $path;
     }
 }
