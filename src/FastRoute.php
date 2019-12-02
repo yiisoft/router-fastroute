@@ -428,7 +428,7 @@ EOT;
                 $groupMiddleware = $group->getMiddleware();
                 foreach ($group->getRoutes() as $route) {
                     $r->addRoute(
-                        $route->getMethod(),
+                        $route->getMethods(),
                         $route->getPattern(),
                         $groupMiddleware->withRouteMiddleware($route->getMiddleware())
                     );
