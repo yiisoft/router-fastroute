@@ -427,10 +427,15 @@ EOT;
             static function (RouteCollector $r) use ($group) {
                 $groupMiddleware = $group->getMiddleware();
                 foreach ($group->getRoutes() as $route) {
+                    $routeMiddleware = $route->getMiddleware();
+                    if ($groupMiddleware !== null) {
+                        $routeMiddleware = $groupMiddleware->withRouteMiddleware($routeMiddleware);
+                    }
+
                     $r->addRoute(
                         $route->getMethods(),
                         $route->getPattern(),
-                        $groupMiddleware->withRouteMiddleware($route->getMiddleware())
+                        $routeMiddleware
                     );
                 }
             }
