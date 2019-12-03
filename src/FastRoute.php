@@ -41,7 +41,7 @@ use const E_WARNING;
  * Router implementation bridging nikic/fast-route.
  * Adapted from https://github.com/zendframework/zend-expressive-fastroute/
  */
-class FastRoute implements RouterInterface
+class FastRoute extends Group implements RouterInterface
 {
     /**
      * Template used when generating the cache file.
@@ -110,22 +110,9 @@ EOT;
     private $routes = [];
 
     /**
-     * Routes to inject into the underlying RouteCollector.
-     *
-     * @var Route[]
-     */
-    private $routesToInject = [];
-    /**
      * @var RouteParser
      */
     private $routeParser;
-
-    /**
-     * Groups to inject into the underlying RouteCollector.
-     *
-     * @var Group[]
-     */
-    private $groupsToInject = [];
 
     /**
      * Constructor
@@ -183,31 +170,10 @@ EOT;
         }
     }
 
-    /**
-     * Add a route to the collection.
-     *
-     * Uses the HTTP methods associated (creating sane defaults for an empty
-     * list or Route::HTTP_METHOD_ANY) and the path, and uses the path as
-     * the name (to allow later lookup of the middleware).
-     * @param Route $route
-     */
-    public function addRoute(Route $route): void
-    {
-        $this->routesToInject[] = $route;
-    }
-
-    public function addGroup(Group $group): void
-    {
-        $this->groupsToInject[] = $group;
-    }
-
     public function match(ServerRequestInterface $request): MatchingResult
     {
-        // Inject any pending routes
-        $this->injectRoutes();
-
-        // Inject any pending groups
-        $this->injectGroups();
+        // Inject any pending route items
+        $this->injectItems();
 
         $dispatchData = $this->getDispatchData();
         $path = rawurldecode($request->getUri()->getPath());
@@ -236,8 +202,8 @@ EOT;
      */
     public function generate(string $name, array $parameters = []): string
     {
-        // Inject any pending routes
-        $this->injectRoutes();
+        // Inject any pending route items
+        $this->injectItems();
 
         $route = $this->getRoute($name);
         $parameters = array_merge($route->getDefaults(), $parameters);
@@ -348,7 +314,7 @@ EOT;
         /* @var Route $route */
         $route = array_reduce(
             $this->routes,
-            function ($matched, Route $route) use ($path, $method) {
+            static function ($matched, Route $route) use ($path, $method) {
                 if ($matched) {
                     return $matched;
                 }
@@ -379,22 +345,26 @@ EOT;
     }
 
     /**
-     * Inject queued Route instances into the underlying router.
+     * Inject queued items into the underlying router
      */
-    private function injectRoutes(): void
+    private function injectItems(): void
     {
-        foreach ($this->routesToInject as $index => $route) {
-            $this->injectRoute($route);
-            unset($this->routesToInject[$index]);
+        foreach ($this->items as $index => $item) {
+            $this->injectItem($item);
+            unset($this->items[$index]);
         }
     }
 
     /**
-     * Inject a Route instance into the underlying router.
-     * @param Route $route
+     * Inject an item into the underlying router
+     * @param Route|Group $route
      */
-    private function injectRoute(Route $route): void
+    private function injectItem($route): void
     {
+        if ($route instanceof Group) {
+            $this->injectGroup($route);
+        }
+
         // Filling the routes' hash-map is required by the `generateUri` method
         $this->routes[$route->getName()] = $route;
 
@@ -407,35 +377,35 @@ EOT;
     }
 
     /**
-     * Inject queued Group instances into the underlying router.
-     */
-    private function injectGroups(): void
-    {
-        foreach ($this->groupsToInject as $index => $group) {
-            $this->injectGroup($group);
-            unset($this->groupsToInject[$index]);
-        }
-    }
-
-    /**
      * Inject a Group instance into the underlying router.
      */
-    private function injectGroup(Group $group): void
+    private function injectGroup(Group $group, RouteCollector $collector = null): void
     {
-        $this->router->addGroup(
-            $group->getPrefix(),
-            static function (RouteCollector $r) use ($group) {
-                $groupMiddleware = $group->getMiddleware();
-                foreach ($group->getRoutes() as $route) {
-                    $routeMiddleware = $route->getMiddleware();
-                    if ($groupMiddleware !== null) {
-                        $routeMiddleware = $groupMiddleware->withRouteMiddleware($routeMiddleware);
+        if ($collector === null) {
+            $collector = $this->router;
+        }
+        $collector->addGroup(
+            $group->prefix,
+            function (RouteCollector $r) use ($group) {
+                foreach ($group->items as $item) {
+                    if ($item instanceof Group) {
+                        $this->injectGroup($item, $r);
                     }
 
+                    $middlware = $item->getMiddleware();
+
+                    if ($group->middleware !== null) {
+                        // TODO: wrap middleware w/ group middlware
+                    }
+
+                    // TODO: do it properly :(
+                    // Filling the routes' hash-map is required by the `generateUri` method
+                    $this->routes[$item->getName()] = $item;
+
                     $r->addRoute(
-                        $route->getMethods(),
-                        $route->getPattern(),
-                        $routeMiddleware
+                        $item->getMethods(),
+                        $item->getPattern(),
+                        $middlware
                     );
                 }
             }
