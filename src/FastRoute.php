@@ -9,6 +9,7 @@ use FastRoute\Dispatcher\GroupCountBased;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\MatchingResult;
 use Yiisoft\Router\Method;
@@ -363,6 +364,7 @@ EOT;
     {
         if ($route instanceof Group) {
             $this->injectGroup($route);
+            return;
         }
 
         // Filling the routes' hash-map is required by the `generateUri` method
@@ -385,28 +387,30 @@ EOT;
             $collector = $this->router;
         }
         $collector->addGroup(
-            $group->prefix,
+            $group->getPrefix(),
             function (RouteCollector $r) use ($group) {
-                foreach ($group->items as $item) {
+                foreach ($group->items as $index => $item) {
                     if ($item instanceof Group) {
                         $this->injectGroup($item, $r);
+                        return;
                     }
 
-                    $middlware = $item->getMiddleware();
+                    $modifiedItem = $item->pattern($group->getPrefix() . $item->getPattern());
+                    $groupMiddlewares = $group->getMiddlewares();
 
-                    if ($group->middleware !== null) {
-                        // TODO: wrap middleware w/ group middlware
+                    for (end($groupMiddlewares); key($groupMiddlewares) !== null; prev($groupMiddlewares)) {
+                        $item = $modifiedItem->prepend(current($groupMiddlewares));
                     }
 
-                    // TODO: do it properly :(
                     // Filling the routes' hash-map is required by the `generateUri` method
-                    $this->routes[$item->getName()] = $item;
+                    $this->routes[$modifiedItem->getName()] = $modifiedItem;
 
-                    $r->addRoute(
-                        $item->getMethods(),
-                        $item->getPattern(),
-                        $middlware
-                    );
+                    // Skip feeding FastRoute collector if valid cached data was already loaded
+                    if ($this->hasCache) {
+                        return;
+                    }
+
+                    $r->addRoute($item->getMethods(), $item->getPattern(), $item->getPattern());
                 }
             }
         );
@@ -440,7 +444,7 @@ EOT;
     private function loadDispatchData(): void
     {
         set_error_handler(
-            function () {
+            static function () {
             },
             E_WARNING
         ); // suppress php warnings
