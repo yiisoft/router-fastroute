@@ -59,7 +59,6 @@ setting up your container
 ```php
 use App\Factory\RouteFactory;
 use Yiisoft\Router\RouterInterface;
-use Yiisoft\Factory\Definitions\Reference;
 
 return [
     /** 

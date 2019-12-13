@@ -1,8 +1,17 @@
 language: php
 
-php:
-  - 7.2
-  - 7.3
+env:
+  global:
+    - DEFAULT_COMPOSER_FLAGS="--prefer-dist --no-interaction --no-progress --optimize-autoloader"
+    - TASK_STATIC_ANALYSIS=0
+    - TASK_TESTS_COVERAGE=0
+
+matrix:
+  include:
+    - php: "7.4"
+      env:
+        - TASK_STATIC_ANALYSIS=0 # set to 1 to enable static analysis
+        - TASK_TESTS_COVERAGE=1
 
 # faster builds on new travis setup not using sudo
 sudo: false
@@ -12,15 +21,59 @@ cache:
   directories:
     - $HOME/.composer/cache
 
+before_install:
+  - phpenv config-rm xdebug.ini || echo "xdebug is not installed"
+
 install:
   - travis_retry composer self-update && composer --version
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
-  - travis_retry composer install --prefer-dist --no-interaction
+  - travis_retry composer install $DEFAULT_COMPOSER_FLAGS
+  - |
+    if [ $TASK_STATIC_ANALYSIS == 1 ]; then
+      pecl install ast
+    fi
+
+before_script:
+  - php --version
+  - composer --version
+  # enable code coverage
+  - |
+    if [ $TASK_TESTS_COVERAGE == 1 ]; then
+        PHPUNIT_COVERAGE_FLAG="--coverage-clover=coverage.clover"
+    fi
 
 script:
+  - phpdbg -qrr vendor/bin/phpunit --verbose $PHPUNIT_COVERAGE_FLAG
   - |
-    vendor/bin/phpunit $PHPUNIT_FLAGS --coverage-clover=coverage.clover
+    if [ $TASK_STATIC_ANALYSIS == 1 ]; then
+      composer phan
+    fi
+  - |
+    if [ $TASK_STATIC_ANALYSIS == 1 ]; then
+      cat analysis.txt
+    fi
 
 after_script:
-    - wget -c https://scrutinizer-ci.com/ocular.phar
-    - php php-ocular code-coverage:upload --format=php-clover coverage.clover
+  - |
+    if [ $TASK_TESTS_COVERAGE == 1 ]; then
+      travis_retry wget https://scrutinizer-ci.com/ocular.phar
+      php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+    fi
+
+
+notifications:
+  slack:
+    -
+      rooms:
+        -
+          secure: HJ/haPD+QhRp7T7duFa9yFxTAzm+LMJPkzLhZLnIv/NsyUAVV0XxVsOVlHW+/TF2mD7YzL314dMvpmidIL+y/1wtqXkKwy3URV98a8UHFaiiSgbkkaTYZOKmhw6Phpf0bZ0XgEtmw8oP7cN8FSkY8jUBm18wqBa3JwPw6k19lHNXCRcdQaiIq/hCVFmg7+DCIJwWqKfK2trSByxVzj/bWN2tooiMmC8NuI2ItfDqZttgmnasM+5X8435qhJzrzSLRXUms0VQAvkjW8g0MVYxaQnwSyjALxk9+aW7nAr3htlsVOQI+lTj0kW2Rkjj7pJTplSeIrZ4BW1qys4LXFgWa7Pp2I5LinC0+A9ETDlxmRSHAE89ZZf2N0dCdTn6djEC4MtPWTi47d1rFALDbinCwbJvUPdVrcng//RyomKq1S/M/Qx9OacR0E1a1zA/Ju0MHzV8qExkpfKsL9S59XofPFBQkTKwA5NxdCvnk6TD0mhoix4hEI6z7nQsB5rgIryFzmZRgwiOhJN3pmg0xGTUhhcC068CvBNOB01B7QE/7pIC+qOfGUh5YiBvVCqrKZv6nOYKx88Af+9YLwfabD0UVkXoKRRFPHv8PE/Nt+3w15CyriWkM52tGobYgXIBA40VoqAbgSDZ40vDxwuJTGZNTpDACwbP7NsRJrVN2qL6dlk=
+      on_success: always
+      on_failure: never
+      on_pull_requests: false
+    -
+      rooms:
+        -
+          secure: ML31L64/xmTvIbTlXo9mDNnWzA0yGFG9F8QS/nwQrpSWmopOquZPTyz2lMLnL8jBkmiW97Bmz6RSar3EN8MVL77xP+W7w9ifhuqXysyUlCRc9a8laiITSmhzxOZfNo2mxj6u3o4lu9zEHlR6amtHlpJkSSbYbcjQ94X94S0JUmGsPoiYlCzVhllsa7tEyafsi2rxs+YyCIi5GgUK3Tj0mABm76aE3tiiURFxYYOJ2sQkVMDZKWo3eyCHcFtlmy4uF4H+BoReLFme900Hl/3ijABW2HZz43lPKLNJ9p3XIsDNDrRuvvHyKEdBMyL8JIxwj4Ww7IAYpYQUe7xzupZiZ4IFG3JF5DSswSBMXaFfYWDYSB9I8PtD2MsfR1DvCqIwEjBMH2Ky/k8NZqrnMPClX7afbKnikE3rUuOktdu2ZNW2MPTSp+bpsGp6aQRBGpY58qka0nuEkMOz2Xz8zBR3LQtVIbffEH/nH8H4COfCktJAZ5JTGKyRkQrbnweVo1CppnAub3eD9UDcUEurEnLg+rdTJTuA1aT5MB8VjD4gR9m1gtkwiUcS7+zinCS2oY8UP5fBj0GSJOj3+1mYYqMMjppzkHxX5UDhA7a1Gt/TnZlTKgLpOz/YFFtByQK2cNTlwDc/3PgSBwSQ0PXTts51UzUR1B6FDOUCMegav9pDo1M=
+      on_success: never
+      on_failure: always
+      on_pull_requests: false
