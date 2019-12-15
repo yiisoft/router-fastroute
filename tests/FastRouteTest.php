@@ -38,13 +38,13 @@ class FastRouteTest extends TestCase
     public function testRouteWithParameters(): void
     {
         $routes = [
-            Route::get('/view/{id:\d+}#{tag:\w+}')->name('view'),
+            Route::get('/view/{id:\d+}/{text:~[\w]+}#{tag:\w+}')->name('view'),
         ];
         $routerCollector = $this->createRouterCollector($routes);
 
-        $url = $routerCollector->generate('view', ['id' => 100, 'tag' => 'yii']);
+        $url = $routerCollector->generate('view', ['id' => 100, 'tag' => 'yii', 'text' => '~test']);
 
-        $this->assertEquals('/view/100#yii', $url);
+        $this->assertEquals('/view/100/~test#yii', $url);
     }
 
     public function testRouteWithoutParameters(): void

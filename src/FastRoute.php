@@ -588,7 +588,8 @@ EOT;
             }
 
             // Check substitute value with regex
-            if (!preg_match('~^' . $part[1] . '$~', (string)$parameters[$part[0]])) {
+            $pattern = str_replace('~', '\~', $part[1]);
+            if (preg_match('~^' . $pattern . '$~', (string)$parameters[$part[0]]) === 0) {
                 throw new \RuntimeException(
                     sprintf(
                         'Parameter value for [%s] did not match the regex `%s`',
