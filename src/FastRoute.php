@@ -114,6 +114,8 @@ EOT;
      * @var RouteParser
      */
     private $routeParser;
+    /** @var string */
+    private $uriPrefix = '';
 
     /**
      * Constructor
@@ -184,6 +186,16 @@ EOT;
         return $result[0] !== Dispatcher::FOUND
             ? $this->marshalFailedRoute($result)
             : $this->marshalMatchedRoute($result, $method);
+    }
+
+    public function getUriPrefix(): string
+    {
+        return $this->uriPrefix;
+    }
+
+    public function setUriPrefix(string $prefix): void
+    {
+        $this->uriPrefix = $prefix;
     }
 
     /**
@@ -579,7 +591,7 @@ EOT;
      */
     private function generatePath(array $parameters, array $parts): string
     {
-        $path = '';
+        $path = $this->getUriPrefix();
         foreach ($parts as $part) {
             if (is_string($part)) {
                 // Append the string
