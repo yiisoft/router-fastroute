@@ -407,21 +407,22 @@ EOT;
                         return;
                     }
 
+                    $modifiedItem = $item->pattern($group->getPrefix() . $item->getPattern());
                     $groupMiddlewares = $group->getMiddlewares();
 
                     for (end($groupMiddlewares); key($groupMiddlewares) !== null; prev($groupMiddlewares)) {
-                        $item = $item->prepend(current($groupMiddlewares));
+                        $item = $modifiedItem->prepend(current($groupMiddlewares));
                     }
 
                     // Filling the routes' hash-map is required by the `generateUri` method
-                    $this->routes[$item->getName()] = $item;
+                    $this->routes[$modifiedItem->getName()] = $modifiedItem;
 
                     // Skip feeding FastRoute collector if valid cached data was already loaded
                     if ($this->hasCache) {
                         return;
                     }
 
-                    $r->addRoute($item->getMethods(), $item->getPattern(), $item->getPattern());
+                    $r->addRoute($item->getMethods(), $item->getPattern(), $modifiedItem->getPattern());
                 }
             }
         );
