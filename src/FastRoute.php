@@ -422,7 +422,7 @@ EOT;
                         return;
                     }
 
-                    $r->addRoute($item->getMethods(), $item->getPattern(), $item->getPattern());
+                    $r->addRoute($item->getMethods(), $item->getPattern(), $modifiedItem->getPattern());
                 }
             }
         );
