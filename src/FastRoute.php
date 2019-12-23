@@ -254,7 +254,7 @@ EOT;
 
         // Check if all parameters exist
         foreach ($missingParameters as $param) {
-            if (!isset($substitutions[$param])) {
+            if (!array_key_exists($param, $substitutions)) {
                 // Return the parameters so they can be used in an
                 // exception if needed
                 return $missingParameters;
