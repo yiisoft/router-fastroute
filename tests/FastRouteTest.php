@@ -47,6 +47,39 @@ class FastRouteTest extends TestCase
         $this->assertEquals('/view/100/~test#yii', $url);
     }
 
+    public function testParamPattern(): void
+    {
+        $routes = [
+            Route::get('/view/{id:\w+}')->name('view'),
+        ];
+        $routerCollector = $this->createRouterCollector($routes);
+
+        $this->expectExceptionMessage('Parameter value for [id] did not match the regex `\w+`');
+        $routerCollector->generate('view', ['id' => null]);
+    }
+
+    public function testMissedParams(): void
+    {
+        $routes = [
+            Route::get('/view/{id:\w+}')->name('view'),
+        ];
+        $routerCollector = $this->createRouterCollector($routes);
+
+        $this->expectExceptionMessage('Route `view` expects at least parameter values for [id], but received []');
+        $routerCollector->generate('view');
+    }
+
+    public function testMissedParam(): void
+    {
+        $routes = [
+            Route::get('/view/{id:\d+}/{value}')->name('view'),
+        ];
+        $routerCollector = $this->createRouterCollector($routes);
+
+        $this->expectExceptionMessage('Route `view` expects at least parameter values for [id,value], but received [id]');
+        $routerCollector->generate('view', ['id' => 123]);
+    }
+
     public function testRouteWithoutParameters(): void
     {
         $routes = [
