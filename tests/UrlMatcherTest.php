@@ -3,7 +3,6 @@
 
 namespace Yiisoft\Router\FastRoute\Tests;
 
-
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Router\Route;
