@@ -349,10 +349,7 @@ EOT;
             return $this->marshalMethodNotAllowedResult($result);
         }
 
-        $options = $route->getParameters();
-        if (!empty($options['defaults'])) {
-            $parameters = array_merge($options['defaults'], $parameters);
-        }
+        $parameters = array_merge($route->getDefaults(), $parameters);
 
         return MatchingResult::fromSuccess($route, $parameters);
     }
