@@ -219,18 +219,34 @@ EOT;
         $this->injectItems();
 
         $route = $this->getRoute($name);
-        $parameters = array_merge($route->getDefaults(), $parameters);
 
-        $parsedRoutes = $this->routeParser->parse($route->getPattern());
-
-        if (count($parsedRoutes) === 0) {
-            throw new RouteNotFoundException();
+        $parsedRoutes = array_reverse($this->routeParser->parse($route->getPattern()));
+        if ($parsedRoutes === []) {
+            throw new RouteNotFoundException($name);
         }
-        $parts = reset($parsedRoutes);
 
-        $this->checkUrlParameters($name, $parameters, $parts);
+        $missingParameters = [];
 
-        return $this->generatePath($parameters, $parts);
+        // One route pattern can correspond to multiple routes if it has optional parts
+        foreach ($parsedRoutes as $parsedRouteParts) {
+            // Check if all parameters can be substituted
+            $missingParameters = $this->missingParameters($parsedRouteParts, $parameters);
+
+            // If not all parameters can be substituted, try the next route
+            if (!empty($missingParameters)) {
+                continue;
+            }
+
+            return $this->generatePath($parameters, $parsedRouteParts);
+        }
+
+        // No valid route was found: list minimal required parameters
+        throw new \RuntimeException(sprintf(
+           'Route `%s` expects at least parameter values for [%s], but received [%s]',
+           $name,
+           implode(',', $missingParameters),
+           implode(',', array_keys($parameters))
+       ));
     }
 
     /**
@@ -253,8 +269,8 @@ EOT;
         }
 
         // Check if all parameters exist
-        foreach ($missingParameters as $param) {
-            if (!array_key_exists($param, $substitutions)) {
+        foreach ($missingParameters as $parameter) {
+            if (!array_key_exists($parameter, $substitutions)) {
                 // Return the parameters so they can be used in an
                 // exception if needed
                 return $missingParameters;
@@ -349,10 +365,7 @@ EOT;
             return $this->marshalMethodNotAllowedResult($result);
         }
 
-        $options = $route->getParameters();
-        if (!empty($options['defaults'])) {
-            $parameters = array_merge($options['defaults'], $parameters);
-        }
+        $parameters = array_merge($route->getDefaults(), $parameters);
 
         return MatchingResult::fromSuccess($route, $parameters);
     }
@@ -559,29 +572,6 @@ EOT;
         }
 
         return $this->routes[$name];
-    }
-
-    /**
-     * @param string $name
-     * @param array $parameters
-     * @param array $parts
-     */
-    private function checkUrlParameters(string $name, array $parameters, array $parts): void
-    {
-        // Check if all parameters can be substituted
-        $missingParameters = $this->missingParameters($parts, $parameters);
-
-        // If not all parameters can be substituted, try the next route
-        if (!empty($missingParameters)) {
-            throw new  \RuntimeException(
-                sprintf(
-                    'Route `%s` expects at least parameter values for [%s], but received [%s]',
-                    $name,
-                    implode(',', $missingParameters),
-                    implode(',', array_keys($parameters))
-                )
-            );
-        }
     }
 
     /**
