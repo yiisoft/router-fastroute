@@ -123,4 +123,40 @@ class FastRouteTest extends TestCase
         $url = $routerCollector->generate('post/view', ['id' => 42]);
         $this->assertEquals('/api/post/42', $url);
     }
+
+    public function testDefaultIsNotUsedWithOptionalParameter(): void
+    {
+        $routes = [
+            Route::get('/[{name}]')
+                ->name('defaults')
+                ->defaults(['name' => 'default'])
+        ];
+
+        $url = $this->createRouterCollector($routes)->generate('defaults');
+        $this->assertEquals('/', $url);
+    }
+
+    public function testOptionalParameterIsUsedWhenSpecified(): void
+    {
+        $routes = [
+            Route::get('/[{name}]')
+                ->name('defaults')
+                ->defaults(['name' => 'default'])
+        ];
+
+        $url = $this->createRouterCollector($routes)->generate('defaults', ['name' => 'test']);
+        $this->assertEquals('/test', $url);
+    }
+
+    public function testDefaultIsUsedWithRequiredParameter(): void
+    {
+        $routes = [
+            Route::get('/{name}')
+                ->name('defaults')
+                ->defaults(['name' => 'default'])
+        ];
+
+        $url = $this->createRouterCollector($routes)->generate('defaults', ['name' => 'test']);
+        $this->assertEquals('/test', $url);
+    }
 }
