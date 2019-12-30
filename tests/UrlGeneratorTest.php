@@ -88,19 +88,18 @@ class UrlGeneratorTest extends TestCase
         $urlGenerator->generate('view', ['id' => 123]);
     }
 
-    public function testGroup(): void
+    /**
+     * @test
+     */
+    public function groupPrefixShouldBeAppended(): void
     {
         $routes = [
-            Route::get('/home/index')->name('index'),
             ['/api', static function (RouteCollectorInterface $r) {
                 $r->addRoute(Route::get('/post')->name('post/index'));
                 $r->addRoute(Route::get('/post/{id}')->name('post/view'));
             }],
         ];
         $urlGenerator = $this->createUrlGenerator($routes);
-
-        $url = $urlGenerator->generate('index');
-        $this->assertEquals('/home/index', $url);
 
         $url = $urlGenerator->generate('post/index');
         $this->assertEquals('/api/post', $url);
