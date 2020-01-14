@@ -15,6 +15,7 @@
         "irc": "irc://irc.freenode.net/yii",
         "source": "https://github.com/yiisoft/router-fastroute"
     },
+    "minimum-stability": "dev",
     "require": {
         "php": "^7.4",
         "yiisoft/router": "^3.0@dev",
