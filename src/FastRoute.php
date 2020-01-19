@@ -416,7 +416,7 @@ EOT;
                 foreach ($group->items as $index => $item) {
                     if ($item instanceof Group) {
                         $this->injectGroup($item, $r);
-                        return;
+                        continue;
                     }
 
                     $modifiedItem = $item->pattern($group->getPrefix() . $item->getPattern());
@@ -431,7 +431,7 @@ EOT;
 
                     // Skip feeding FastRoute collector if valid cached data was already loaded
                     if ($this->hasCache) {
-                        return;
+                        continue;
                     }
 
                     $r->addRoute($item->getMethods(), $item->getPattern(), $modifiedItem->getPattern());
