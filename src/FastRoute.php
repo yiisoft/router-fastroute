@@ -113,8 +113,12 @@ EOT;
      * @var RouteParser
      */
     private $routeParser;
+
     /** @var string */
     private $uriPrefix = '';
+
+    /** @var Route|null  */
+    private ?Route $currentRoute = null;
 
     /**
      * Constructor
@@ -241,11 +245,20 @@ EOT;
 
         // No valid route was found: list minimal required parameters
         throw new \RuntimeException(sprintf(
-           'Route `%s` expects at least parameter values for [%s], but received [%s]',
-           $name,
-           implode(',', $missingParameters),
-           implode(',', array_keys($parameters))
-       ));
+            'Route `%s` expects at least parameter values for [%s], but received [%s]',
+            $name,
+            implode(',', $missingParameters),
+            implode(',', array_keys($parameters))
+        ));
+    }
+
+    /**
+     * Returns the current Route object
+     * @return Route|null current route
+     */
+    public function getCurrentRoute(): ?Route
+    {
+        return $this->currentRoute;
     }
 
     /**
@@ -365,6 +378,7 @@ EOT;
         }
 
         $parameters = array_merge($route->getDefaults(), $parameters);
+        $this->currentRoute = $route;
 
         return MatchingResult::fromSuccess($route, $parameters);
     }
@@ -419,11 +433,12 @@ EOT;
                         continue;
                     }
 
+                    /** @var Route $modifiedItem */
                     $modifiedItem = $item->pattern($group->getPrefix() . $item->getPattern());
                     $groupMiddlewares = $group->getMiddlewares();
 
                     for (end($groupMiddlewares); key($groupMiddlewares) !== null; prev($groupMiddlewares)) {
-                        $item = $modifiedItem->prepend(current($groupMiddlewares));
+                        $modifiedItem = $modifiedItem->addMiddleware(current($groupMiddlewares));
                     }
 
                     // Filling the routes' hash-map is required by the `generateUri` method
