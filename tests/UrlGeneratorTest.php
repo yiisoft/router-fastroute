@@ -115,7 +115,7 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/test', $url);
     }
 
-    public function testDefaultShouldNotBeUsedForRequiredParameter(): void
+    public function testDefaultNotUsedForRequiredParameter(): void
     {
         $routes = [
             Route::get('/{name}')
