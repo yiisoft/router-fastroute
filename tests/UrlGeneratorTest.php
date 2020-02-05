@@ -135,9 +135,6 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/', $url);
     }
 
-    /**
-     * @test
-     */
     public function testValueUsedForOptionalParameter(): void
     {
         $routes = [
