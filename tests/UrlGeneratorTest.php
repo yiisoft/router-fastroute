@@ -19,7 +19,7 @@ class UrlGeneratorTest extends TestCase
         return $factory($routes, $container);
     }
 
-    public function testSimpleRouteGenerate(): void
+    public function testSimpleRouteGenerated(): void
     {
         $routes = [
             Route::get('/home/index')->name('index'),
