@@ -42,7 +42,7 @@ class UrlGeneratorTest extends TestCase
         $urlGenerator->generate('index');
     }
 
-    public function testParametersShouldBeSubstituted(): void
+    public function testParametersSubstituted(): void
     {
         $routes = [
             Route::get('/view/{id:\d+}/{text:~[\w]+}#{tag:\w+}')->name('view'),
