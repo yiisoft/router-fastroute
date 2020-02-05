@@ -91,7 +91,7 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/api/post/42', $url);
     }
 
-    public function testDefaultShouldNotBeUsedForOptionalParameter(): void
+    public function testDefaultNotUsedForOptionalParameter(): void
     {
         $routes = [
             Route::get('/[{name}]')
