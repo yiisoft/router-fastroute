@@ -112,7 +112,7 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/api/v1/blog/post/42', $url);
     }
 
-    public function testNotSubstitutedParameters(): void
+    public function testExtraParametersAddedAsQueryString(): void
     {
         $routes = [
             Route::get('/test/{name}')
