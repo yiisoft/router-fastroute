@@ -19,7 +19,7 @@ class UrlGeneratorTest extends TestCase
         return $factory($routes, $container);
     }
 
-    public function testSimpleRouteShouldBeGenerated(): void
+    public function testSimpleRouteGenerated(): void
     {
         $routes = [
             Route::get('/home/index')->name('index'),
@@ -29,7 +29,7 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/home/index', $url);
     }
 
-    public function testRouteWithoutNameShouldNotBeFound(): void
+    public function testRouteWithoutNameNotFound(): void
     {
         $routes = [
             Route::get('/home/index'),
@@ -42,7 +42,7 @@ class UrlGeneratorTest extends TestCase
         $urlGenerator->generate('index');
     }
 
-    public function testParametersShouldBeSubstituted(): void
+    public function testParametersSubstituted(): void
     {
         $routes = [
             Route::get('/view/{id:\d+}/{text:~[\w]+}#{tag:\w+}')->name('view'),
@@ -52,7 +52,7 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/view/100/~test#yii', $url);
     }
 
-    public function testExceptionShouldBeThrownIfParameterPatternDoesntMatch(): void
+    public function testExceptionThrownIfParameterPatternDoesntMatch(): void
     {
         $routes = [
             Route::get('/view/{id:\w+}')->name('view'),
@@ -63,7 +63,7 @@ class UrlGeneratorTest extends TestCase
         $urlGenerator->generate('view', ['id' => null]);
     }
 
-    public function testExceptionShouldBeThrownIfAnyParameterIsMissing(): void
+    public function testExceptionThrownIfAnyParameterIsMissing(): void
     {
         $routes = [
             Route::get('/view/{id:\d+}/{value}')->name('view'),
@@ -74,7 +74,7 @@ class UrlGeneratorTest extends TestCase
         $urlGenerator->generate('view', ['id' => 123]);
     }
 
-    public function testGroupPrefixShouldBeAppended(): void
+    public function testGroupPrefixAppended(): void
     {
         $routes = [
             ['/api', static function (RouteCollectorInterface $r) {
@@ -91,7 +91,7 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/api/post/42', $url);
     }
 
-    public function testNestedGroupsPrefixShouldBeAppended(): void
+    public function testNestedGroupsPrefixAppended(): void
     {
         $routes = [
             Group::create('/api', [
@@ -112,7 +112,18 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/api/v1/blog/post/42', $url);
     }
 
-    public function testDefaultSholdNotBeUsedForOptionalParameter(): void
+    public function testExtraParametersAddedAsQueryString(): void
+    {
+        $routes = [
+            Route::get('/test/{name}')
+                ->name('test')
+        ];
+
+        $url = $this->createUrlGenerator($routes)->generate('test', ['name' => 'post', 'id' => 12, 'sort' => 'asc']);
+        $this->assertEquals('/test/post?id=12&sort=asc', $url);
+    }
+
+    public function testDefaultUsedForOptionalParameter(): void
     {
         $routes = [
             Route::get('/[{name}]')
@@ -124,10 +135,7 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/', $url);
     }
 
-    /**
-     * @test
-     */
-    public function testValueShouldBeUsedForOptionalParameter(): void
+    public function testValueUsedForOptionalParameter(): void
     {
         $routes = [
             Route::get('/[{name}]')
@@ -139,7 +147,7 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/test', $url);
     }
 
-    public function testDefaultShouldNotBeUsedForRequiredParameter(): void
+    public function testDefaultNotUsedForRequiredParameter(): void
     {
         $routes = [
             Route::get('/{name}')
