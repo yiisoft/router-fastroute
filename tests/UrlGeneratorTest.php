@@ -5,6 +5,7 @@ namespace Yiisoft\Router\FastRoute\Tests;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
+use Yiisoft\Router\Group;
 use Yiisoft\Router\RouteCollectorInterface;
 use Yiisoft\Router\RouteNotFoundException;
 use Yiisoft\Router\UrlGeneratorInterface;
@@ -89,6 +90,38 @@ class UrlGeneratorTest extends TestCase
 
         $url = $urlGenerator->generate('post/view', ['id' => 42]);
         $this->assertEquals('/api/post/42', $url);
+    }
+  
+    public function testNestedGroupsPrefixAppended(): void
+    {
+        $routes = [
+            Group::create('/api', [
+                Group::create('/v1', [
+                    Group::create('/blog', [
+                        Route::get('/post')->name('api-v1-post/index'),
+                        Route::get('/post/{id}')->name('api-v1-post/view'),
+                    ]),
+                ])
+            ])
+        ];
+        $urlGenerator = $this->createUrlGenerator($routes);
+
+        $url = $urlGenerator->generate('api-v1-post/index');
+        $this->assertEquals('/api/v1/blog/post', $url);
+
+        $url = $urlGenerator->generate('api-v1-post/view', ['id' => 42]);
+        $this->assertEquals('/api/v1/blog/post/42', $url);
+    }
+
+    public function testExtraParametersAddedAsQueryString(): void
+    {
+        $routes = [
+            Route::get('/test/{name}')
+                ->name('test')
+        ];
+
+        $url = $this->createUrlGenerator($routes)->generate('test', ['name' => 'post', 'id' => 12, 'sort' => 'asc']);
+        $this->assertEquals('/test/post?id=12&sort=asc', $url);
     }
 
     public function testDefaultNotUsedForOptionalParameter(): void
