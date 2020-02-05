@@ -18,10 +18,7 @@ class UrlMatcherTest extends TestCase
         return $factory($routes, $container);
     }
 
-    /**
-     * @test
-     */
-    public function defaultsShouldBeInResult(): void
+    public function testDefaultsAreInResult(): void
     {
         $routes = [
             Route::get('/[{name}]')->defaults(['name' => 'test']),

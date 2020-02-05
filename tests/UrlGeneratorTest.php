@@ -3,9 +3,8 @@
 namespace Yiisoft\Router\FastRoute\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Yiisoft\Router\Route;
 use Yiisoft\Router\Group;
-use Yiisoft\Router\RouteCollectorInterface;
+use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteNotFoundException;
 use Yiisoft\Router\UrlGeneratorInterface;
 
@@ -77,10 +76,10 @@ class UrlGeneratorTest extends TestCase
     public function testGroupPrefixAppended(): void
     {
         $routes = [
-            ['/api', static function (RouteCollectorInterface $r) {
-                $r->addRoute(Route::get('/post')->name('post/index'));
-                $r->addRoute(Route::get('/post/{id}')->name('post/view'));
-            }],
+            Group::create('/api', [
+                Route::get('/post')->name('post/index'),
+                Route::get('/post/{id}')->name('post/view'),
+            ]),
         ];
         $urlGenerator = $this->createUrlGenerator($routes);
 
@@ -123,7 +122,7 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/test/post?id=12&sort=asc', $url);
     }
 
-    public function testDefaultUsedForOptionalParameter(): void
+    public function testDefaultNotUsedForOptionalParameter(): void
     {
         $routes = [
             Route::get('/[{name}]')
