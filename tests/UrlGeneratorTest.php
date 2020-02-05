@@ -103,7 +103,7 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/', $url);
     }
 
-    public function testValueShouldBeUsedForOptionalParameter(): void
+    public function testValueUsedForOptionalParameter(): void
     {
         $routes = [
             Route::get('/[{name}]')
