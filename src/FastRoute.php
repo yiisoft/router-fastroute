@@ -598,7 +598,9 @@ EOT;
      */
     private function generatePath(array $parameters, array $parts): string
     {
+        $notSubstitutedParams = $parameters;
         $path = $this->getUriPrefix();
+
         foreach ($parts as $part) {
             if (is_string($part)) {
                 // Append the string
@@ -620,8 +622,9 @@ EOT;
 
             // Append the substituted value
             $path .= $parameters[$part[0]];
+            unset($notSubstitutedParams[$part[0]]);
         }
 
-        return $path;
+        return $path . ($notSubstitutedParams !== [] ? '?' . http_build_query($notSubstitutedParams) : '');
     }
 }
