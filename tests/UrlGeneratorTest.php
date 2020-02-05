@@ -84,8 +84,8 @@ class UrlGeneratorTest extends TestCase
         ];
         $urlGenerator = $this->createUrlGenerator($routes);
 
-//        $url = $urlGenerator->generate('post/index');
-//        $this->assertEquals('/api/post', $url);
+        $url = $urlGenerator->generate('post/index');
+        $this->assertEquals('/api/post', $url);
 
         $url = $urlGenerator->generate('post/view', ['id' => 42]);
         $this->assertEquals('/api/post/42', $url);
