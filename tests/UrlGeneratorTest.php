@@ -3,6 +3,7 @@
 namespace Yiisoft\Router\FastRoute\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteCollectorInterface;
 use Yiisoft\Router\RouteNotFoundException;
@@ -18,10 +19,7 @@ class UrlGeneratorTest extends TestCase
         return $factory($routes, $container);
     }
 
-    /**
-     * @test
-     */
-    public function simpleRouteShouldBeGenerated(): void
+    public function testSimpleRouteShouldBeGenerated(): void
     {
         $routes = [
             Route::get('/home/index')->name('index'),
@@ -31,10 +29,7 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/home/index', $url);
     }
 
-    /**
-     * @test
-     */
-    public function routeWithoutNameShouldNotBeFound(): void
+    public function testRouteWithoutNameShouldNotBeFound(): void
     {
         $routes = [
             Route::get('/home/index'),
@@ -47,10 +42,7 @@ class UrlGeneratorTest extends TestCase
         $urlGenerator->generate('index');
     }
 
-    /**
-     * @test
-     */
-    public function parametersShouldBeSubstituted(): void
+    public function testParametersShouldBeSubstituted(): void
     {
         $routes = [
             Route::get('/view/{id:\d+}/{text:~[\w]+}#{tag:\w+}')->name('view'),
@@ -60,10 +52,7 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/view/100/~test#yii', $url);
     }
 
-    /**
-     * @test
-     */
-    public function exceptionShouldBeThrownIfParameterPatternDoesntMatch(): void
+    public function testExceptionShouldBeThrownIfParameterPatternDoesntMatch(): void
     {
         $routes = [
             Route::get('/view/{id:\w+}')->name('view'),
@@ -74,10 +63,7 @@ class UrlGeneratorTest extends TestCase
         $urlGenerator->generate('view', ['id' => null]);
     }
 
-    /**
-     * @test
-     */
-    public function exceptionShouldBeThrownIfAnyParameterIsMissing(): void
+    public function testExceptionShouldBeThrownIfAnyParameterIsMissing(): void
     {
         $routes = [
             Route::get('/view/{id:\d+}/{value}')->name('view'),
@@ -88,16 +74,13 @@ class UrlGeneratorTest extends TestCase
         $urlGenerator->generate('view', ['id' => 123]);
     }
 
-    /**
-     * @test
-     */
-    public function groupPrefixShouldBeAppended(): void
+    public function testGroupPrefixShouldBeAppended(): void
     {
         $routes = [
-            ['/api', static function (RouteCollectorInterface $r) {
-                $r->addRoute(Route::get('/post')->name('post/index'));
-                $r->addRoute(Route::get('/post/{id}')->name('post/view'));
-            }],
+            Group::create('/api', [
+                Route::get('/post')->name('post/index'),
+                Route::get('/post/{id}')->name('post/view'),
+            ]),
         ];
         $urlGenerator = $this->createUrlGenerator($routes);
 
@@ -108,10 +91,7 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/api/post/42', $url);
     }
 
-    /**
-     * @test
-     */
-    public function defaultSholdNotBeUsedForOptionalParameter(): void
+    public function testDefaultShouldNotBeUsedForOptionalParameter(): void
     {
         $routes = [
             Route::get('/[{name}]')
@@ -123,10 +103,7 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/', $url);
     }
 
-    /**
-     * @test
-     */
-    public function valueShouldBeUsedForOptionalParameter(): void
+    public function testValueShouldBeUsedForOptionalParameter(): void
     {
         $routes = [
             Route::get('/[{name}]')
@@ -138,10 +115,7 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/test', $url);
     }
 
-    /**
-     * @test
-     */
-    public function defaultShouldNotBeUsedForRequiredParameter(): void
+    public function testDefaultShouldNotBeUsedForRequiredParameter(): void
     {
         $routes = [
             Route::get('/{name}')

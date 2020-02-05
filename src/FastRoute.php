@@ -437,7 +437,7 @@ EOT;
                     $modifiedItem = $item->pattern($group->getPrefix() . $item->getPattern());
                     $groupMiddlewares = $group->getMiddlewares();
 
-                    for (end($groupMiddlewares); key($groupMiddlewares) !== null; prev($groupMiddlewares)) {
+                    for (end($groupMiddlewares), $loopsMax = key($groupMiddlewares); $loopsMax !== null; prev($groupMiddlewares)) {
                         $modifiedItem = $modifiedItem->addMiddleware(current($groupMiddlewares));
                     }
 
