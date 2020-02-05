@@ -63,7 +63,7 @@ class UrlGeneratorTest extends TestCase
         $urlGenerator->generate('view', ['id' => null]);
     }
 
-    public function testExceptionShouldBeThrownIfAnyParameterIsMissing(): void
+    public function testExceptionThrownIfAnyParameterIsMissing(): void
     {
         $routes = [
             Route::get('/view/{id:\d+}/{value}')->name('view'),
