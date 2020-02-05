@@ -74,7 +74,7 @@ class UrlGeneratorTest extends TestCase
         $urlGenerator->generate('view', ['id' => 123]);
     }
 
-    public function testGroupPrefixAppend(): void
+    public function testGroupPrefixAppended(): void
     {
         $routes = [
             ['/api', static function (RouteCollectorInterface $r) {
