@@ -91,7 +91,7 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/api/post/42', $url);
     }
 
-    public function testNestedGroupsPrefixAppend(): void
+    public function testNestedGroupsPrefixAppended(): void
     {
         $routes = [
             Group::create('/api', [
