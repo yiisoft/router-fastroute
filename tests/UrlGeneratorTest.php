@@ -29,7 +29,7 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/home/index', $url);
     }
 
-    public function testRouteWithoutNameShouldNotBeFound(): void
+    public function testRouteWithoutNameNotFound(): void
     {
         $routes = [
             Route::get('/home/index'),
