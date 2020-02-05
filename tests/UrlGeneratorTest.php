@@ -52,7 +52,7 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('/view/100/~test#yii', $url);
     }
 
-    public function testExceptionShouldBeThrownIfParameterPatternDoesntMatch(): void
+    public function testExceptionThrownIfParameterPatternDoesntMatch(): void
     {
         $routes = [
             Route::get('/view/{id:\w+}')->name('view'),
