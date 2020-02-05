@@ -440,7 +440,7 @@ EOT;
 
                     $groupMiddlewares = $group->getMiddlewares();
 
-                    for (end($groupMiddlewares), $loopsMax = key($groupMiddlewares); $loopsMax !== null; prev($groupMiddlewares)) {
+                    for (end($groupMiddlewares); key($groupMiddlewares) !== null; prev($groupMiddlewares)) {
                         $modifiedItem = $modifiedItem->addMiddleware(current($groupMiddlewares));
                     }
 
