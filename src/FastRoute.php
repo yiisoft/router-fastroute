@@ -419,22 +419,25 @@ EOT;
     /**
      * Inject a Group instance into the underlying router.
      */
-    private function injectGroup(Group $group, RouteCollector $collector = null): void
+    private function injectGroup(Group $group, RouteCollector $collector = null, string $prefix = ''): void
     {
         if ($collector === null) {
             $collector = $this->router;
         }
+
         $collector->addGroup(
             $group->getPrefix(),
-            function (RouteCollector $r) use ($group) {
+            function (RouteCollector $r) use ($group, $prefix) {
                 foreach ($group->items as $index => $item) {
                     if ($item instanceof Group) {
-                        $this->injectGroup($item, $r);
+                        $prefix .= $group->getPrefix();
+                        $this->injectGroup($item, $r, $prefix);
                         continue;
                     }
 
                     /** @var Route $modifiedItem */
-                    $modifiedItem = $item->pattern($group->getPrefix() . $item->getPattern());
+                    $modifiedItem = $item->pattern($prefix . $group->getPrefix() . $item->getPattern());
+
                     $groupMiddlewares = $group->getMiddlewares();
 
                     for (end($groupMiddlewares); key($groupMiddlewares) !== null; prev($groupMiddlewares)) {
