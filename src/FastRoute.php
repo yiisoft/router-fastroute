@@ -428,15 +428,15 @@ EOT;
         $collector->addGroup(
             $group->getPrefix(),
             function (RouteCollector $r) use ($group, $prefix) {
+                $prefix .= $group->getPrefix();
                 foreach ($group->items as $index => $item) {
                     if ($item instanceof Group) {
-                        $prefix .= $group->getPrefix();
                         $this->injectGroup($item, $r, $prefix);
                         continue;
                     }
 
                     /** @var Route $modifiedItem */
-                    $modifiedItem = $item->pattern($prefix . $group->getPrefix() . $item->getPattern());
+                    $modifiedItem = $item->pattern($prefix . $item->getPattern());
 
                     $groupMiddlewares = $group->getMiddlewares();
 
