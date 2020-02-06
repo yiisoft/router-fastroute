@@ -95,20 +95,46 @@ class UrlGeneratorTest extends TestCase
         $routes = [
             Group::create('/api', [
                 Group::create('/v1', [
-                    Group::create('/blog', [
-                        Route::get('/post')->name('api-v1-post/index'),
-                        Route::get('/post/{id}')->name('api-v1-post/view'),
+                    Route::get('/user')->name('api-v1-user/index'),
+                    Route::get('/user/{id}')->name('api-v1-user/view'),
+                    Group::create('/news', [
+                        Route::get('/post')->name('api-v1-news-post/index'),
+                        Route::get('/post/{id}')->name('api-v1-news-post/view'),
                     ]),
+                    Group::create('/blog', [
+                        Route::get('/post')->name('api-v1-blog-post/index'),
+                        Route::get('/post/{id}')->name('api-v1-blog-post/view'),
+                    ]),
+                    Route::get('/note')->name('api-v1-note/index'),
+                    Route::get('/note/{id}')->name('api-v1-note/view'),
                 ])
             ])
         ];
         $urlGenerator = $this->createUrlGenerator($routes);
 
-        $url = $urlGenerator->generate('api-v1-post/index');
+        $url = $urlGenerator->generate('api-v1-user/index');
+        $this->assertEquals('/api/v1/user', $url);
+
+        $url = $urlGenerator->generate('api-v1-user/view', ['id' => 42]);
+        $this->assertEquals('/api/v1/user/42', $url);
+
+        $url = $urlGenerator->generate('api-v1-news-post/index');
+        $this->assertEquals('/api/v1/news/post', $url);
+
+        $url = $urlGenerator->generate('api-v1-news-post/view', ['id' => 42]);
+        $this->assertEquals('/api/v1/news/post/42', $url);
+
+        $url = $urlGenerator->generate('api-v1-blog-post/index');
         $this->assertEquals('/api/v1/blog/post', $url);
 
-        $url = $urlGenerator->generate('api-v1-post/view', ['id' => 42]);
+        $url = $urlGenerator->generate('api-v1-blog-post/view', ['id' => 42]);
         $this->assertEquals('/api/v1/blog/post/42', $url);
+
+        $url = $urlGenerator->generate('api-v1-note/index');
+        $this->assertEquals('/api/v1/note', $url);
+
+        $url = $urlGenerator->generate('api-v1-note/view', ['id' => 42]);
+        $this->assertEquals('/api/v1/note/42', $url);
     }
 
     public function testExtraParametersAddedAsQueryString(): void
