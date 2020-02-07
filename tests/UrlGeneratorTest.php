@@ -3,14 +3,24 @@
 namespace Yiisoft\Router\FastRoute\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Nyholm\Psr7\ServerRequest;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteNotFoundException;
 use Yiisoft\Router\UrlGeneratorInterface;
+use Yiisoft\Router\RouterInterface;
 
 class UrlGeneratorTest extends TestCase
 {
     private function createUrlGenerator(array $routes): UrlGeneratorInterface
+    {
+        $container = new DummyContainer();
+        $factory = new RouteFactory();
+
+        return $factory($routes, $container);
+    }
+
+    private function createRouter(array $routes): RouterInterface
     {
         $container = new DummyContainer();
         $factory = new RouteFactory();
@@ -182,5 +192,121 @@ class UrlGeneratorTest extends TestCase
 
         $this->expectExceptionMessage('Route `defaults` expects at least parameter values for [name], but received []');
         $this->createUrlGenerator($routes)->generate('defaults');
+    }
+
+    public function testAbsoluteUrlFromMethodHostParamGenerated(): void
+    {
+        $routes = [
+            Route::get('/home/index')->name('index')->host('http://test.com'),
+        ];
+        $url = $this->createUrlGenerator($routes)->generateAbsolute('index', [], null, 'http://mysite.com');
+
+        $this->assertEquals('http://mysite.com/home/index', $url);
+    }
+
+    public function testAbsoluteUrlFromMethodHostParamWithSchemeParamGenerated(): void
+    {
+        $routes = [
+            Route::get('/home/index')->name('index')->host('http://test.com'),
+        ];
+        $url = $this->createUrlGenerator($routes)->generateAbsolute('index', [], 'https', 'http://mysite.com');
+
+        $this->assertEquals('https://mysite.com/home/index', $url);
+    }
+
+    public function testAbsoluteUrlFromMethodHostParamWithTrailingSlashGenerated(): void
+    {
+        $routes = [
+            Route::get('/home/index')->name('index')->host('http://test.com'),
+        ];
+        $url = $this->createUrlGenerator($routes)->generateAbsolute('index', [], null, 'http://mysite.com/');
+
+        $this->assertEquals('http://mysite.com/home/index', $url);
+    }
+
+    public function testAbsoluteUrlFromRouteHostParamGenerated(): void
+    {
+        $routes = [
+            Route::get('/home/index')->name('index')->host('http://test.com'),
+        ];
+        $url = $this->createUrlGenerator($routes)->generateAbsolute('index');
+
+        $this->assertEquals('http://test.com/home/index', $url);
+    }
+
+    public function testAbsoluteUrlFromRouteHostParamWithSchemeParamGenerated(): void
+    {
+        $routes = [
+            Route::get('/home/index')->name('index')->host('http://test.com'),
+        ];
+        $url = $this->createUrlGenerator($routes)->generateAbsolute('index', [], 'https');
+
+        $this->assertEquals('https://test.com/home/index', $url);
+    }
+
+    public function testAbsoluteUrlFromRouteHostParamWithTrailingSlashGenerated(): void
+    {
+        $routes = [
+            Route::get('/home/index')->name('index')->host('http://test.com/'),
+        ];
+        $url = $this->createUrlGenerator($routes)->generateAbsolute('index');
+
+        $this->assertEquals('http://test.com/home/index', $url);
+    }
+
+    public function testAbsoluteUrlFromCurrentHostGenerated(): void
+    {
+        $request = new ServerRequest('GET', 'http://test.com/home/index');
+        $routes = [
+            Route::get('/home/index')->name('index'),
+        ];
+
+        $router = $this->createUrlGenerator($routes);
+        $router->match($request);
+        $url = $router->generateAbsolute('index');
+
+        $this->assertEquals('http://test.com/home/index', $url);
+    }
+
+    public function testAbsoluteUrlFromCurrentHostWithNonStandardPortGenerated(): void
+    {
+        $request = new ServerRequest('GET', 'http://test.com:8080/home/index');
+        $routes = [
+            Route::get('/home/index')->name('index'),
+        ];
+
+        $router = $this->createRouter($routes);
+        $router->match($request);
+        $url = $router->generateAbsolute('index');
+
+        $this->assertEquals('http://test.com:8080/home/index', $url);
+    }
+
+    public function testAbsoluteUrlFromUrlHostParamWithProtocolRelativeSchemeGenerated(): void
+    {
+        $request = new ServerRequest('GET', 'http://test.com/home/index');
+        $routes = [
+            Route::get('/home/index')->name('index')->host('//test.com'),
+        ];
+
+        $router = $this->createRouter($routes);
+        $router->match($request);
+        $url = $router->generateAbsolute('index');
+
+        $this->assertEquals('http://test.com/home/index', $url);
+    }
+
+    public function testAbsoluteUrlFromMethodHostParamWithProtocolRelativeSchemeGenerated(): void
+    {
+        $request = new ServerRequest('GET', 'http://test.com/home/index');
+        $routes = [
+            Route::get('/home/index')->name('index')->host('//mysite.com'),
+        ];
+
+        $router = $this->createRouter($routes);
+        $router->match($request);
+        $url = $router->generateAbsolute('index', [], null, '//test.com');
+
+        $this->assertEquals('http://test.com/home/index', $url);
     }
 }

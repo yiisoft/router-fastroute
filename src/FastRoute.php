@@ -117,8 +117,15 @@ EOT;
     /** @var string */
     private $uriPrefix = '';
 
-    /** @var Route|null  */
+    /** @var Route|null */
     private ?Route $currentRoute = null;
+
+    /**
+     * Last matched request
+     *
+     * @var ServerRequestInterface|null
+     */
+    private ?ServerRequestInterface $request = null;
 
     /**
      * Constructor
@@ -178,6 +185,7 @@ EOT;
 
     public function match(ServerRequestInterface $request): MatchingResult
     {
+        $this->request = $request;
         // Inject any pending route items
         $this->injectItems();
 
@@ -250,6 +258,83 @@ EOT;
             implode(',', $missingParameters),
             implode(',', array_keys($parameters))
         ));
+    }
+
+    /**
+     * Generates absolute URL from named route and parameters
+     *
+     * @param string $name name of the route
+     * @param array $parameters parameter-value set
+     * @param string|null $scheme host scheme
+     * @param string|null $host host for manual setup
+     * @return string URL generated
+     * @throws RouteNotFoundException in case there is no route with the name specified
+     */
+    public function generateAbsolute(string $name, array $parameters = [], string $scheme = null, string $host = null): string
+    {
+        $url = $this->generate($name, $parameters);
+        $route = $this->getRoute($name);
+        $uri = $this->request !== null ? $this->request->getUri() : null;
+        $scheme = $scheme ?? ($uri !== null ? $uri->getScheme() : null);
+
+        if ($host !== null) {
+            return $this->ensureScheme(rtrim($host, '/') . $url, $scheme);
+        }
+
+        if (($host = $route->getHost()) !== null) {
+            return $this->ensureScheme(rtrim($host, '/') . $url, $scheme);
+        }
+
+        if ($uri !== null) {
+            $port = $uri->getPort() === 80 || $uri->getPort() === null ? '' : ':' . $uri->getPort();
+            return $scheme . '://' . $uri->getHost() . $port . $url;
+        }
+
+        return $url;
+    }
+
+    /**
+     * Normalize URL by ensuring that it use specified scheme.
+     *
+     * If URL is relative or scheme is null, normalization is skipped.
+     *
+     * @param string $url the URL to process
+     * @param string|null $scheme the URI scheme used in URL (e.g. `http` or `https`). Use empty string to
+     * create protocol-relative URL (e.g. `//example.com/path`)
+     * @return string the processed URL
+     * @since 2.0.11
+     */
+    public function ensureScheme(string $url, ?string $scheme): string
+    {
+        if ($this->isRelative($url) || $scheme === null) {
+            return $url;
+        }
+
+        if (substr($url, 0, 2) === '//') {
+            // e.g. //example.com/path/to/resource
+            return $scheme === '' ? $url : "$scheme:$url";
+        }
+
+        if (($pos = strpos($url, '://')) !== false) {
+            if ($scheme === '') {
+                $url = substr($url, $pos + 1);
+            } else {
+                $url = $scheme . substr($url, $pos);
+            }
+        }
+
+        return $url;
+    }
+
+    /**
+     * Returns a value indicating whether a URL is relative.
+     * A relative URL does not have host info part.
+     * @param string $url the URL to be checked
+     * @return bool whether the URL is relative
+     */
+    public function isRelative(string $url): bool
+    {
+        return strncmp($url, '//', 2) && strpos($url, '://') === false;
     }
 
     /**
