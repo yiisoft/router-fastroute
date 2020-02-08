@@ -2,10 +2,12 @@
 
 namespace Yiisoft\Router\FastRoute\Tests;
 
+use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteNotFoundException;
+use Yiisoft\Router\RouterInterface;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 final class UrlGeneratorTest extends TestCase
