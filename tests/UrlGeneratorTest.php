@@ -270,7 +270,7 @@ final class UrlGeneratorTest extends TestCase
             Route::get('/home/index')->name('index'),
         ];
 
-        $router = $this->createUrlGenerator($routes);
+        $router = $this->createRouter($routes);
         $router->match($request);
         $url = $router->generateAbsolute('index');
 
