@@ -275,19 +275,25 @@ EOT;
         $url = $this->generate($name, $parameters);
         $route = $this->getRoute($name);
         $uri = $this->request !== null ? $this->request->getUri() : null;
-        $scheme = $scheme ?? ($uri !== null ? $uri->getScheme() : null);
+        $lastRequestScheme = $uri !== null ? $uri->getScheme() : null;
 
         if ($host !== null) {
-            return $this->ensureScheme(rtrim($host, '/') . $url, $scheme);
+            if ($scheme === null && (strpos($host, '://') !== false || strpos($host, '//') === 0))  {
+                return rtrim($host, '/') . $url;
+            }
+            return $this->ensureScheme(rtrim($host, '/') . $url, $scheme ?? $lastRequestScheme);
         }
 
         if (($host = $route->getHost()) !== null) {
-            return $this->ensureScheme(rtrim($host, '/') . $url, $scheme);
+            if ($scheme === null && (strpos($host, '://') !== false || strpos($host, '//') === 0))  {
+                return rtrim($host, '/') . $url;
+            }
+            return $this->ensureScheme(rtrim($host, '/') . $url, $scheme ?? $lastRequestScheme);
         }
 
         if ($uri !== null) {
             $port = $uri->getPort() === 80 || $uri->getPort() === null ? '' : ':' . $uri->getPort();
-            return $scheme . '://' . $uri->getHost() . $port . $url;
+            return  $lastRequestScheme  . '://' . $uri->getHost() . $port . $url;
         }
 
         return $url;

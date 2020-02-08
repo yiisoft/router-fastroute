@@ -223,12 +223,25 @@ final class UrlGeneratorTest extends TestCase
     /**
      * Scheme specified in generateAbsolute() should override scheme specified in route
      */
-    public function testAbsoluteUrlSchemeOverride(): void
+    public function testAbsoluteUrlSchemeOverrideHostInRouteScheme(): void
     {
         $routes = [
             Route::get('/home/index')->name('index')->host('http://test.com'),
         ];
         $url = $this->createUrlGenerator($routes)->generateAbsolute('index', [], 'https');
+
+        $this->assertEquals('https://test.com/home/index', $url);
+    }
+
+    /**
+     * Scheme specified in generateAbsolute() should override scheme specified in method
+     */
+    public function testAbsoluteUrlSchemeOverrideHostInMethodScheme(): void
+    {
+        $routes = [
+            Route::get('/home/index')->name('index'),
+        ];
+        $url = $this->createUrlGenerator($routes)->generateAbsolute('index', [], 'https', 'http://test.com');
 
         $this->assertEquals('https://test.com/home/index', $url);
     }
@@ -295,7 +308,7 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('http://test.com:8080/home/index', $url);
     }
 
-    public function testAbsoluteUrlFromUrlHostParamWithProtocolRelativeSchemeGenerated(): void
+    public function testHostInRouteWithProtocolRelativeSchemeAbsoluteUrl(): void
     {
         $request = new ServerRequest('GET', 'http://test.com/home/index');
         $routes = [
@@ -306,10 +319,10 @@ final class UrlGeneratorTest extends TestCase
         $router->match($request);
         $url = $router->generateAbsolute('index');
 
-        $this->assertEquals('http://test.com/home/index', $url);
+        $this->assertEquals('//test.com/home/index', $url);
     }
 
-    public function testAbsoluteUrlFromMethodHostParamWithProtocolRelativeSchemeGenerated(): void
+    public function testHostInMethodWithProtocolRelativeSchemeAbsoluteUrl(): void
     {
         $request = new ServerRequest('GET', 'http://test.com/home/index');
         $routes = [
@@ -320,6 +333,34 @@ final class UrlGeneratorTest extends TestCase
         $router->match($request);
         $url = $router->generateAbsolute('index', [], null, '//test.com');
 
-        $this->assertEquals('http://test.com/home/index', $url);
+        $this->assertEquals('//test.com/home/index', $url);
+    }
+
+    public function testHostInRouteProtocolRelativeSchemeAbsoluteUrl(): void
+    {
+        $request = new ServerRequest('GET', 'http://test.com/home/index');
+        $routes = [
+            Route::get('/home/index')->name('index')->host('http://test.com'),
+        ];
+
+        $router = $this->createRouter($routes);
+        $router->match($request);
+        $url = $router->generateAbsolute('index', [], '');
+
+        $this->assertEquals('//test.com/home/index', $url);
+    }
+
+    public function testHostInMethodProtocolRelativeSchemeAbsoluteUrl(): void
+    {
+        $request = new ServerRequest('GET', 'http://test.com/home/index');
+        $routes = [
+            Route::get('/home/index')->name('index')->host('//mysite.com'),
+        ];
+
+        $router = $this->createRouter($routes);
+        $router->match($request);
+        $url = $router->generateAbsolute('index', [], '', 'http://test.com');
+
+        $this->assertEquals('//test.com/home/index', $url);
     }
 }
