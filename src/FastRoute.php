@@ -278,14 +278,14 @@ EOT;
         $lastRequestScheme = $uri !== null ? $uri->getScheme() : null;
 
         if ($host !== null) {
-            if ($scheme === null && (strpos($host, '://') !== false || strpos($host, '//') === 0))  {
+            if ($scheme === null && (strpos($host, '://') !== false || strpos($host, '//') === 0)) {
                 return rtrim($host, '/') . $url;
             }
             return $this->ensureScheme(rtrim($host, '/') . $url, $scheme ?? $lastRequestScheme);
         }
 
         if (($host = $route->getHost()) !== null) {
-            if ($scheme === null && (strpos($host, '://') !== false || strpos($host, '//') === 0))  {
+            if ($scheme === null && (strpos($host, '://') !== false || strpos($host, '//') === 0)) {
                 return rtrim($host, '/') . $url;
             }
             return $this->ensureScheme(rtrim($host, '/') . $url, $scheme ?? $lastRequestScheme);
