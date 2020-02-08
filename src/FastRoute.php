@@ -281,7 +281,7 @@ EOT;
             if ($scheme === null && (strpos($host, '://') !== false || strpos($host, '//') === 0)) {
                 return rtrim($host, '/') . $url;
             } elseif ($scheme === '' && $host !== '' && !(strpos($host, '://') !== false || strpos($host, '//') === 0)) {
-                $host = '//' . rtrim($host, '/');
+                $host = '//' . $host;
             }
             return $this->ensureScheme(rtrim($host, '/') . $url, $scheme ?? $lastRequestScheme);
         }
