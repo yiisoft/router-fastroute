@@ -398,4 +398,16 @@ final class UrlGeneratorTest extends TestCase
 
         $this->assertEquals('//test.com/home/index', $url);
     }
+
+    public function testFallbackAbsoluteUrl(): void
+    {
+        $routes = [
+            Route::get('/home/index')->name('index'),
+        ];
+
+        $router = $this->createRouter($routes);
+        $url = $router->generateAbsolute('index');
+
+        $this->assertEquals('/home/index', $url);
+    }
 }
