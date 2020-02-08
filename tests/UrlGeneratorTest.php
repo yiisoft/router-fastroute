@@ -324,6 +324,9 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('http://test.com:8080/home/index', $url);
     }
 
+    /**
+     * Schema from route host should have more priority than schema from last matched request.
+     */
     public function testHostInRouteWithProtocolRelativeSchemeAbsoluteUrl(): void
     {
         $request = new ServerRequest('GET', 'http://test.com/home/index');
@@ -338,6 +341,10 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('//test.com/home/index', $url);
     }
 
+    /**
+     * Schema from generateAbsolute() should have more priority than both
+     * route and last matched request.
+     */
     public function testHostInMethodWithProtocolRelativeSchemeAbsoluteUrl(): void
     {
         $request = new ServerRequest('GET', 'http://test.com/home/index');
