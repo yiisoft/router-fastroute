@@ -23,7 +23,7 @@
     },
     "require-dev": {
         "nyholm/psr7": "^1.2",
-        "phpunit/phpunit": "^8.4",
+        "phpunit/phpunit": "^9.0",
         "psr/container": "1.0.0"
     },
     "autoload": {
