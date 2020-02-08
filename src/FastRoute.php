@@ -297,7 +297,7 @@ EOT;
 
         if ($uri !== null) {
             $port = $uri->getPort() === 80 || $uri->getPort() === null ? '' : ':' . $uri->getPort();
-            return  $lastRequestScheme  . '://' . $uri->getHost() . $port . $url;
+            return  $this->ensureScheme('://' . $uri->getHost() . $port . $url, $scheme ?? $lastRequestScheme);
         }
 
         return $url;

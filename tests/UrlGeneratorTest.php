@@ -247,6 +247,22 @@ final class UrlGeneratorTest extends TestCase
     }
 
     /**
+     * Scheme specified in generateAbsolute() should override scheme specified in the matched host
+     */
+    public function testAbsoluteUrlSchemeOverrideLastMatchedHostScheme(): void
+    {
+        $request = new ServerRequest('GET', 'http://test.com/home/index');
+        $routes = [
+            Route::get('/home/index')->name('index'),
+        ];
+        $router = $this->createRouter($routes);
+        $router->match($request);
+        $url = $router->generateAbsolute('index', [], 'https');
+
+        $this->assertEquals('https://test.com/home/index', $url);
+    }
+
+    /**
      * If there's host specified in route, it should be used unless there's host parameter in generateAbsolute()
      */
     public function testAbsoluteUrlWithHostInRoute(): void
@@ -367,5 +383,19 @@ final class UrlGeneratorTest extends TestCase
 
         $this->assertEquals('//test.com/home/index', $url1);
         $this->assertEquals('//test.com/home/index', $url2);
+    }
+
+    public function testLastMatchedHostProtocolRelativeSchemeAbsoluteUrl(): void
+    {
+        $request = new ServerRequest('GET', 'http://test.com/home/index');
+        $routes = [
+            Route::get('/home/index')->name('index'),
+        ];
+
+        $router = $this->createRouter($routes);
+        $router->match($request);
+        $url = $router->generateAbsolute('index', [], '');
+
+        $this->assertEquals('//test.com/home/index', $url);
     }
 }
