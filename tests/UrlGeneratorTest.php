@@ -3,14 +3,12 @@
 namespace Yiisoft\Router\FastRoute\Tests;
 
 use PHPUnit\Framework\TestCase;
-use Nyholm\Psr7\ServerRequest;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteNotFoundException;
 use Yiisoft\Router\UrlGeneratorInterface;
-use Yiisoft\Router\RouterInterface;
 
-class UrlGeneratorTest extends TestCase
+final class UrlGeneratorTest extends TestCase
 {
     private function createUrlGenerator(array $routes): UrlGeneratorInterface
     {
@@ -194,7 +192,10 @@ class UrlGeneratorTest extends TestCase
         $this->createUrlGenerator($routes)->generate('defaults');
     }
 
-    public function testAbsoluteUrlFromMethodHostParamGenerated(): void
+    /**
+     * Host specified in generateAbsolute() should override host specified in route
+     */
+    public function testAbsoluteUrlHostHostOverride(): void
     {
         $routes = [
             Route::get('/home/index')->name('index')->host('http://test.com'),
@@ -204,17 +205,10 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('http://mysite.com/home/index', $url);
     }
 
-    public function testAbsoluteUrlFromMethodHostParamWithSchemeParamGenerated(): void
-    {
-        $routes = [
-            Route::get('/home/index')->name('index')->host('http://test.com'),
-        ];
-        $url = $this->createUrlGenerator($routes)->generateAbsolute('index', [], 'https', 'http://mysite.com');
-
-        $this->assertEquals('https://mysite.com/home/index', $url);
-    }
-
-    public function testAbsoluteUrlFromMethodHostParamWithTrailingSlashGenerated(): void
+    /**
+     * Trailing slash in host argument of generateAbsolute() should not break URL generated
+     */
+    public function testAbsoluteUrlHostOverrideWithTrailingSlash(): void
     {
         $routes = [
             Route::get('/home/index')->name('index')->host('http://test.com'),
@@ -224,17 +218,10 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('http://mysite.com/home/index', $url);
     }
 
-    public function testAbsoluteUrlFromRouteHostParamGenerated(): void
-    {
-        $routes = [
-            Route::get('/home/index')->name('index')->host('http://test.com'),
-        ];
-        $url = $this->createUrlGenerator($routes)->generateAbsolute('index');
-
-        $this->assertEquals('http://test.com/home/index', $url);
-    }
-
-    public function testAbsoluteUrlFromRouteHostParamWithSchemeParamGenerated(): void
+    /**
+     * Scheme specified in generateAbsolute() should override scheme specified in route
+     */
+    public function testAbsoluteUrlSchemeOverride(): void
     {
         $routes = [
             Route::get('/home/index')->name('index')->host('http://test.com'),
@@ -244,7 +231,23 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('https://test.com/home/index', $url);
     }
 
-    public function testAbsoluteUrlFromRouteHostParamWithTrailingSlashGenerated(): void
+    /**
+     * If there's host specified in route, it should be used unless there's host parameter in generateAbsolute()
+     */
+    public function testAbsoluteUrlWithHostInRoute(): void
+    {
+        $routes = [
+            Route::get('/home/index')->name('index')->host('http://test.com'),
+        ];
+        $url = $this->createUrlGenerator($routes)->generateAbsolute('index');
+
+        $this->assertEquals('http://test.com/home/index', $url);
+    }
+
+    /**
+     * Trailing slash in route host should not break URL generated
+     */
+    public function testAbsoluteUrlWithTrailingSlashHostInRoute(): void
     {
         $routes = [
             Route::get('/home/index')->name('index')->host('http://test.com/'),
@@ -254,7 +257,11 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('http://test.com/home/index', $url);
     }
 
-    public function testAbsoluteUrlFromCurrentHostGenerated(): void
+    /**
+     * Last matched host is used for absolute URL generation in case
+     * host is not specified in either route or createUrlGenerator()
+     */
+    public function testLastMatchedHostUsedForAbsoluteUrl(): void
     {
         $request = new ServerRequest('GET', 'http://test.com/home/index');
         $routes = [
@@ -268,7 +275,11 @@ class UrlGeneratorTest extends TestCase
         $this->assertEquals('http://test.com/home/index', $url);
     }
 
-    public function testAbsoluteUrlFromCurrentHostWithNonStandardPortGenerated(): void
+    /**
+     * If there's non-standard port used in last matched host,
+     * it should end up in the URL generated
+     */
+    public function testLastMatchedHostWithPortUsedForAbsoluteUrl(): void
     {
         $request = new ServerRequest('GET', 'http://test.com:8080/home/index');
         $routes = [
