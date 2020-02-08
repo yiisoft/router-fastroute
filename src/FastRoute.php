@@ -280,6 +280,8 @@ EOT;
         if ($host !== null) {
             if ($scheme === null && (strpos($host, '://') !== false || strpos($host, '//') === 0)) {
                 return rtrim($host, '/') . $url;
+            } elseif ($scheme === '' && $host !== '' && !(strpos($host, '://') !== false || strpos($host, '//') === 0)) {
+                $host = '//' . $host;
             }
             return $this->ensureScheme(rtrim($host, '/') . $url, $scheme ?? $lastRequestScheme);
         }
@@ -287,6 +289,8 @@ EOT;
         if (($host = $route->getHost()) !== null) {
             if ($scheme === null && (strpos($host, '://') !== false || strpos($host, '//') === 0)) {
                 return rtrim($host, '/') . $url;
+            } elseif ($scheme === '' && $host !== '' && !(strpos($host, '://') !== false || strpos($host, '//') === 0)) {
+                $host = '//' . $host;
             }
             return $this->ensureScheme(rtrim($host, '/') . $url, $scheme ?? $lastRequestScheme);
         }

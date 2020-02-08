@@ -341,13 +341,16 @@ final class UrlGeneratorTest extends TestCase
         $request = new ServerRequest('GET', 'http://test.com/home/index');
         $routes = [
             Route::get('/home/index')->name('index')->host('http://test.com'),
+            Route::get('/home/view')->name('view')->host('test.com'),
         ];
 
         $router = $this->createRouter($routes);
         $router->match($request);
-        $url = $router->generateAbsolute('index', [], '');
+        $url1 = $router->generateAbsolute('index', [], '');
+        $url2 = $router->generateAbsolute('view', [], '');
 
-        $this->assertEquals('//test.com/home/index', $url);
+        $this->assertEquals('//test.com/home/index', $url1);
+        $this->assertEquals('//test.com/home/view', $url2);
     }
 
     public function testHostInMethodProtocolRelativeSchemeAbsoluteUrl(): void
@@ -359,8 +362,10 @@ final class UrlGeneratorTest extends TestCase
 
         $router = $this->createRouter($routes);
         $router->match($request);
-        $url = $router->generateAbsolute('index', [], '', 'http://test.com');
+        $url1 = $router->generateAbsolute('index', [], '', 'http://test.com');
+        $url2 = $router->generateAbsolute('index', [], '', 'test.com');
 
-        $this->assertEquals('//test.com/home/index', $url);
+        $this->assertEquals('//test.com/home/index', $url1);
+        $this->assertEquals('//test.com/home/index', $url2);
     }
 }
