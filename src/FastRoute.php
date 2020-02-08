@@ -302,15 +302,14 @@ EOT;
      * @param string|null $scheme the URI scheme used in URL (e.g. `http` or `https`). Use empty string to
      * create protocol-relative URL (e.g. `//example.com/path`)
      * @return string the processed URL
-     * @since 2.0.11
      */
-    public function ensureScheme(string $url, ?string $scheme): string
+    private function ensureScheme(string $url, ?string $scheme): string
     {
-        if ($this->isRelative($url) || $scheme === null) {
+        if ($scheme === null || $this->isRelative($url)) {
             return $url;
         }
 
-        if (substr($url, 0, 2) === '//') {
+        if (strpos($url, '//') === 0) {
             // e.g. //example.com/path/to/resource
             return $scheme === '' ? $url : "$scheme:$url";
         }
@@ -332,7 +331,7 @@ EOT;
      * @param string $url the URL to be checked
      * @return bool whether the URL is relative
      */
-    public function isRelative(string $url): bool
+    private function isRelative(string $url): bool
     {
         return strncmp($url, '//', 2) && strpos($url, '://') === false;
     }
