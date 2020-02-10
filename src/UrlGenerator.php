@@ -289,9 +289,11 @@ class UrlGenerator implements UrlGeneratorInterface
      */
     private function injectItems(): void
     {
-        $items = $this->collector->getItems();
-        foreach ($items as $index => $item) {
-            $this->injectItem($item);
+        if ($this->routes === []) {
+            $items = $this->collector->getItems();
+            foreach ($items as $index => $item) {
+                $this->injectItem($item);
+            }
         }
     }
 
