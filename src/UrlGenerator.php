@@ -48,7 +48,6 @@ class UrlGenerator implements UrlGeneratorInterface
     /**
      * Constructor
      *
-     * @param RouteParser $routeParser
      * @param UrlMatcherInterface $matcher url matcher
      * @param RouteCollectorInterface $collector route collector
      */
