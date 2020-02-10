@@ -3,6 +3,7 @@
 namespace Yiisoft\Router\FastRoute;
 
 use FastRoute\DataGenerator\GroupCountBased;
+use FastRoute\Dispatcher\GroupCountBased as GroupCountBasedDispatcher;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
 
@@ -18,9 +19,8 @@ class FastRouteFactory
 
         return new FastRoute(
             $collector,
-            $routeParser,
             static function ($data) {
-                return new \FastRoute\Dispatcher\GroupCountBased($data);
+                return new GroupCountBasedDispatcher($data);
             }
         );
     }
