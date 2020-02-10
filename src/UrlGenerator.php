@@ -21,29 +21,29 @@ use function preg_match;
 class UrlGenerator implements UrlGeneratorInterface
 {
     /** @var string */
-    private $uriPrefix = '';
+    private string $uriPrefix = '';
 
     /**
      * All attached routes as Route instances
      *
      * @var Route[]
      */
-    private $routes = [];
+    private array $routes = [];
 
     /**
      * @var UrlMatcherInterface $matcher
      */
-    private $matcher;
+    private UrlMatcherInterface $matcher;
 
     /**
      * @var RouteCollectorInterface $collector
      */
-    private $collector;
+    private RouteCollectorInterface $collector;
 
     /**
      * @var RouteParser
      */
-    private $routeParser;
+    private RouteParser $routeParser;
 
     /**
      * Constructor

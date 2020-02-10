@@ -7,6 +7,7 @@ namespace Yiisoft\Router\FastRoute;
 use FastRoute\Dispatcher;
 use FastRoute\Dispatcher\GroupCountBased;
 use FastRoute\RouteCollector;
+use phpDocumentor\Reflection\Types\Callable_;
 use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\MatchingResult;
@@ -59,14 +60,14 @@ EOT;
      *
      * @var bool
      */
-    private $cacheEnabled = false;
+    private bool $cacheEnabled = false;
 
     /**
      * Cache file path relative to the project directory.
      *
      * @var string
      */
-    private $cacheFile = 'data/cache/fastroute.php.cache';
+    private string $cacheFile = 'data/cache/fastroute.php.cache';
 
     /**
      * @var callable A factory callback that can return a dispatcher.
@@ -78,7 +79,7 @@ EOT;
      *
      * @var array
      */
-    private $dispatchData = [];
+    private array $dispatchData = [];
 
     /**
      * True if cache is enabled and valid dispatch data has been loaded from
@@ -86,21 +87,21 @@ EOT;
      *
      * @var bool
      */
-    private $hasCache = false;
+    private bool $hasCache = false;
 
     /**
      * FastRoute router
      *
      * @var RouteCollector
      */
-    private $router;
+    private RouteCollector $router;
 
     /**
      * All attached routes as Route instances
      *
      * @var Route[]
      */
-    private $routes = [];
+    private array $routes = [];
 
     /** @var Route|null */
     private ?Route $currentRoute = null;
