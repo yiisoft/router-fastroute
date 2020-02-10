@@ -18,7 +18,7 @@ use function implode;
 use function is_string;
 use function preg_match;
 
-class UrlGenerator implements UrlGeneratorInterface
+final class UrlGenerator implements UrlGeneratorInterface
 {
     /** @var string */
     private string $uriPrefix = '';

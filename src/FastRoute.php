@@ -35,7 +35,7 @@ use const E_WARNING;
  * Router implementation bridging nikic/fast-route.
  * Adapted from https://github.com/zendframework/zend-expressive-fastroute/
  */
-class FastRoute extends Group implements RouterInterface
+final class FastRoute extends Group implements RouterInterface
 {
     /**
      * Template used when generating the cache file.
