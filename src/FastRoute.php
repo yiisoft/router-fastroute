@@ -315,8 +315,10 @@ EOT;
      */
     private function injectItems(): void
     {
-        foreach ($this->items as $index => $item) {
-            $this->injectItem($item);
+        if ($this->routes === []) {
+            foreach ($this->items as $index => $item) {
+                $this->injectItem($item);
+            }
         }
     }
 
