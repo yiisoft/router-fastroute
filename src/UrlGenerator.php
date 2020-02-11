@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Router\FastRoute;
 
+use Nyholm\Psr7\Uri;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteCollectorInterface;
@@ -125,6 +126,7 @@ final class UrlGenerator implements UrlGeneratorInterface
     {
         $url = $this->generate($name, $parameters);
         $route = $this->getRoute($name);
+        /** @var Uri $uri */
         $uri = $this->matcher->getLastMatchedRequest() !== null ? $this->matcher->getLastMatchedRequest()->getUri() : null;
         $lastRequestScheme = $uri !== null ? $uri->getScheme() : null;
 
@@ -136,15 +138,17 @@ final class UrlGenerator implements UrlGeneratorInterface
             if ($scheme === '' && $host !== '' && $this->isRelative($host)) {
                 $host = '//' . $host;
             }
+
             return $this->ensureScheme(rtrim($host, '/') . $url, $scheme ?? $lastRequestScheme);
         }
 
-        if ($uri !== null) {
-            $port = $uri->getPort() === 80 || $uri->getPort() === null ? '' : ':' . $uri->getPort();
-            return  $this->ensureScheme('://' . $uri->getHost() . $port . $url, $scheme ?? $lastRequestScheme);
-        }
+        return $uri === null ? $url : $this->generateAbsoluteFromLastMatchedRequest($url, $uri, $scheme);
+    }
 
-        return $url;
+    private function generateAbsoluteFromLastMatchedRequest(string $url, Uri $uri, ?string $scheme)
+    {
+        $port = $uri->getPort() === 80 || $uri->getPort() === null ? '' : ':' . $uri->getPort();
+        return  $this->ensureScheme('://' . $uri->getHost() . $port . $url, $scheme ?? $uri->getScheme());
     }
 
     /**
