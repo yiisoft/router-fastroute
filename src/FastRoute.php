@@ -7,7 +7,6 @@ namespace Yiisoft\Router\FastRoute;
 use FastRoute\Dispatcher;
 use FastRoute\Dispatcher\GroupCountBased;
 use FastRoute\RouteCollector;
-use phpDocumentor\Reflection\Types\Callable_;
 use Psr\Http\Message\ServerRequestInterface;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\MatchingResult;
