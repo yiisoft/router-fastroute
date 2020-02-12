@@ -54,11 +54,12 @@ final class UrlGenerator implements UrlGeneratorInterface
      */
     public function __construct(
         UrlMatcherInterface $matcher,
-        RouteCollectorInterface $collector
+        RouteCollectorInterface $collector,
+        RouteParser $parser = null
     ) {
         $this->matcher = $matcher;
         $this->collector = $collector;
-        $this->routeParser = new RouteParser\Std();
+        $this->routeParser = $parser ?? new RouteParser\Std();
     }
 
     /**
