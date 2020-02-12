@@ -51,6 +51,7 @@ final class UrlGenerator implements UrlGeneratorInterface
      *
      * @param UrlMatcherInterface $matcher url matcher
      * @param RouteCollectorInterface $collector route collector
+     * @param RouteParser|null $parser
      */
     public function __construct(
         UrlMatcherInterface $matcher,
