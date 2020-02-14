@@ -7,6 +7,7 @@ namespace Yiisoft\Router\FastRoute;
 use Nyholm\Psr7\Uri;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
+use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\RouteCollectorInterface;
 use Yiisoft\Router\RouteNotFoundException;
 use Yiisoft\Router\UrlMatcherInterface;
@@ -25,21 +26,16 @@ final class UrlGenerator implements UrlGeneratorInterface
     private string $uriPrefix = '';
 
     /**
-     * All attached routes as Route instances
+     * Route collection
      *
-     * @var Route[]
+     * @var RouteCollectionInterface
      */
-    private array $routes = [];
+    private RouteCollectionInterface $routeCollection;
 
     /**
      * @var UrlMatcherInterface $matcher
      */
     private UrlMatcherInterface $matcher;
-
-    /**
-     * @var RouteCollectorInterface $collector
-     */
-    private RouteCollectorInterface $collector;
 
     /**
      * @var RouteParser
@@ -50,16 +46,14 @@ final class UrlGenerator implements UrlGeneratorInterface
      * Constructor
      *
      * @param UrlMatcherInterface $matcher url matcher
-     * @param RouteCollectorInterface $collector route collector
      * @param RouteParser|null $parser
      */
     public function __construct(
         UrlMatcherInterface $matcher,
-        RouteCollectorInterface $collector,
         RouteParser $parser = null
     ) {
         $this->matcher = $matcher;
-        $this->collector = $collector;
+        $this->routeCollection = $matcher->getRouteCollection();
         $this->routeParser = $parser ?? new RouteParser\Std();
     }
 
@@ -80,10 +74,7 @@ final class UrlGenerator implements UrlGeneratorInterface
      */
     public function generate(string $name, array $parameters = []): string
     {
-        // Inject any pending route items
-        $this->injectItems();
-
-        $route = $this->getRoute($name);
+        $route = $this->routeCollection->getRoute($name);
 
         $parsedRoutes = array_reverse($this->routeParser->parse($route->getPattern()));
         if ($parsedRoutes === []) {
@@ -127,7 +118,7 @@ final class UrlGenerator implements UrlGeneratorInterface
     public function generateAbsolute(string $name, array $parameters = [], string $scheme = null, string $host = null): string
     {
         $url = $this->generate($name, $parameters);
-        $route = $this->getRoute($name);
+        $route = $this->routeCollection->getRoute($name);
         /** @var Uri $uri */
         $uri = $this->matcher->getLastMatchedRequest() !== null ? $this->matcher->getLastMatchedRequest()->getUri() : null;
         $lastRequestScheme = $uri !== null ? $uri->getScheme() : null;
@@ -240,19 +231,6 @@ final class UrlGenerator implements UrlGeneratorInterface
     }
 
     /**
-     * @param string $name
-     * @return Route
-     */
-    private function getRoute(string $name): Route
-    {
-        if (!array_key_exists($name, $this->routes)) {
-            throw new RouteNotFoundException($name);
-        }
-
-        return $this->routes[$name];
-    }
-
-    /**
      * @param array $parameters
      * @param array $parts
      * @return string
@@ -287,52 +265,5 @@ final class UrlGenerator implements UrlGeneratorInterface
         }
 
         return $path . ($notSubstitutedParams !== [] ? '?' . http_build_query($notSubstitutedParams) : '');
-    }
-
-    /**
-     * Inject queued items into the underlying router
-     */
-    private function injectItems(): void
-    {
-        if ($this->routes === []) {
-            $items = $this->collector->getItems();
-            foreach ($items as $index => $item) {
-                $this->injectItem($item);
-            }
-        }
-    }
-
-    /**
-     * Inject an item into the underlying router
-     * @param Route|Group $route
-     */
-    private function injectItem($route): void
-    {
-        if ($route instanceof Group) {
-            $this->injectGroup($route);
-            return;
-        }
-
-        $this->routes[$route->getName()] = $route;
-    }
-
-    /**
-     * Inject a Group instance into the underlying router.
-     */
-    private function injectGroup(Group $group, string $prefix = ''): void
-    {
-        $prefix .= $group->getPrefix();
-        /** @var $items Group[]|Route[]*/
-        $items = $group->getItems();
-        foreach ($items as $index => $item) {
-            if ($item instanceof Group) {
-                $this->injectGroup($item, $prefix);
-                continue;
-            }
-
-            /** @var Route $modifiedItem */
-            $modifiedItem = $item->pattern($prefix . $item->getPattern());
-            $this->routes[$modifiedItem->getName()] = $modifiedItem;
-        }
     }
 }

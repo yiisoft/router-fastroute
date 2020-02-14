@@ -6,13 +6,15 @@ namespace Yiisoft\Router\FastRoute;
 
 use FastRoute\Dispatcher;
 use FastRoute\Dispatcher\GroupCountBased;
+use FastRoute\RouteParser\Std as RouteParser;
+use FastRoute\DataGenerator\GroupCountBased as RouteGenerator;
 use FastRoute\RouteCollector;
 use Psr\Http\Message\ServerRequestInterface;
-use Yiisoft\Router\Group;
-use Yiisoft\Router\MatchingResult;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\Route;
-use Yiisoft\Router\RouterInterface;
+use Yiisoft\Router\MatchingResult;
+use Yiisoft\Router\UrlMatcherInterface;
+use Yiisoft\Router\RouteCollectionInterface;
 
 use function array_merge;
 use function array_reduce;
@@ -28,13 +30,7 @@ use function set_error_handler;
 use function sprintf;
 use function var_export;
 
-use const E_WARNING;
-
-/**
- * Router implementation bridging nikic/fast-route.
- * Adapted from https://github.com/zendframework/zend-expressive-fastroute/
- */
-final class FastRoute extends Group implements RouterInterface
+final class UrlMatcher implements UrlMatcherInterface
 {
     /**
      * Template used when generating the cache file.
@@ -89,18 +85,19 @@ EOT;
     private bool $hasCache = false;
 
     /**
-     * FastRoute router
+     * FastRoute collector
      *
      * @var RouteCollector
      */
-    private RouteCollector $router;
+    private RouteCollector $fastRouteCollector;
 
     /**
-     * All attached routes as Route instances
+     * Route collection
      *
-     * @var Route[]
+     * @var RouteCollectionInterface
      */
-    private array $routes = [];
+    private RouteCollectionInterface $routeCollection;
+
 
     /** @var Route|null */
     private ?Route $currentRoute = null;
@@ -124,18 +121,23 @@ EOT;
      *   RouteGenerator.
      * - A callable that returns a GroupCountBased dispatcher will be created.
      *
-     * @param null|RouteCollector $router If not provided, a default
+     * @param null|RouteCollector $fastRouteCollector If not provided, a default
      *     implementation will be used.
      * @param null|callable $dispatcherFactory Callable that will return a
      *     FastRoute dispatcher.
      * @param array $config Array of custom configuration options.
      */
     public function __construct(
-        RouteCollector $router,
+        RouteCollectionInterface $routeCollection,
+        RouteCollector $fastRouteCollector = null,
         callable $dispatcherFactory = null,
         array $config = null
     ) {
-        $this->router = $router;
+        if (null === $fastRouteCollector) {
+            $fastRouteCollector = $this->createRouteCollector();
+        }
+        $this->routeCollection = $routeCollection;
+        $this->fastRouteCollector = $fastRouteCollector;
         $this->dispatcherCallback = $dispatcherFactory;
 
         $this->loadConfig($config);
@@ -168,8 +170,10 @@ EOT;
     public function match(ServerRequestInterface $request): MatchingResult
     {
         $this->request = $request;
-        // Inject any pending route items
-        $this->injectItems();
+
+        if (!$this->hasCache) {
+            $this->injectRoutes();
+        }
 
         $dispatchData = $this->getDispatchData();
         $path = rawurldecode($request->getUri()->getPath());
@@ -179,26 +183,6 @@ EOT;
         return $result[0] !== Dispatcher::FOUND
             ? $this->marshalFailedRoute($result)
             : $this->marshalMatchedRoute($result, $method);
-    }
-
-    public function generate(string $name, array $parameters = []): string
-    {
-        // TODO: Implement generate() method.
-    }
-
-    public function generateAbsolute(string $name, array $parameters = [], string $scheme = null, string $host = null): string
-    {
-        // TODO: Implement generateAbsolute() method.
-    }
-
-    public function getUriPrefix(): string
-    {
-        // TODO: Implement getUriPrefix() method.
-    }
-
-    public function setUriPrefix(string $name): void
-    {
-        // TODO: Implement setUriPrefix() method.
     }
 
     /**
@@ -219,6 +203,13 @@ EOT;
         return $this->request;
     }
 
+    /**
+     * @return RouteCollectionInterface collection of routes
+     */
+    public function getRouteCollection(): RouteCollectionInterface
+    {
+        return $this->routeCollection;
+    }
 
     /**
      * Retrieve the dispatcher instance.
@@ -227,7 +218,7 @@ EOT;
      * (which should be derived from the router's getData() method); this
      * approach is done to allow testing against the dispatcher.
      *
-     * @param array|object $data Data from RouteCollection::getData()
+     * @param array|object $data Data from RouteCollector::getData()
      * @return Dispatcher
      */
     private function getDispatcher($data): Dispatcher
@@ -239,6 +230,14 @@ EOT;
         $factory = $this->dispatcherCallback;
 
         return $factory($data);
+    }
+
+    /**
+     * Create a default FastRoute Collector instance
+     */
+    private function createRouteCollector(): RouteCollector
+    {
+        return new RouteCollector(new RouteParser(), new RouteGenerator());
     }
 
     /**
@@ -277,30 +276,11 @@ EOT;
      */
     private function marshalMatchedRoute(array $result, string $method): MatchingResult
     {
-        [, $path, $parameters] = $result;
+        [, $name, $parameters] = $result;
 
-        /* @var Route $route */
-        $route = array_reduce(
-            $this->routes,
-            static function ($matched, Route $route) use ($path, $method) {
-                if ($matched) {
-                    return $matched;
-                }
-
-                if ($path !== $route->getPattern()) {
-                    return $matched;
-                }
-
-                if (!in_array($method, $route->getMethods(), true)) {
-                    return $matched;
-                }
-
-                return $route;
-            },
-            false
-        );
-
-        if (false === $route) {
+        $route = $this->routeCollection->getRoute($name);
+        if (!in_array($method, $route->getMethods())) {
+            $result[1] = $route->getPattern();
             return $this->marshalMethodNotAllowedResult($result);
         }
 
@@ -310,80 +290,36 @@ EOT;
         return MatchingResult::fromSuccess($route, $parameters);
     }
 
-    /**
-     * Inject queued items into the underlying router
-     */
-    private function injectItems(): void
+    private function marshalMethodNotAllowedResult(array $result): MatchingResult
     {
-        if ($this->routes === []) {
-            foreach ($this->items as $index => $item) {
-                $this->injectItem($item);
-            }
-        }
-    }
+        $path = $result[1];
 
-    /**
-     * Inject an item into the underlying router
-     * @param Route|Group $route
-     */
-    private function injectItem($route): void
-    {
-        if ($route instanceof Group) {
-            $this->injectGroup($route);
-            return;
-        }
-
-        // Filling the routes' hash-map is required by the `generateUri` method
-        $this->routes[$route->getName()] = $route;
-
-        // Skip feeding FastRoute collector if valid cached data was already loaded
-        if ($this->hasCache) {
-            return;
-        }
-
-        $this->router->addRoute($route->getMethods(), $route->getPattern(), $route->getPattern());
-    }
-
-    /**
-     * Inject a Group instance into the underlying router.
-     */
-    private function injectGroup(Group $group, RouteCollector $collector = null, string $prefix = ''): void
-    {
-        if ($collector === null) {
-            $collector = $this->router;
-        }
-
-        $collector->addGroup(
-            $group->getPrefix(),
-            function (RouteCollector $r) use ($group, $prefix) {
-                $prefix .= $group->getPrefix();
-                foreach ($group->items as $index => $item) {
-                    if ($item instanceof Group) {
-                        $this->injectGroup($item, $r, $prefix);
-                        continue;
+        $allowedMethods = array_unique(
+            array_reduce(
+                $this->routeCollection->getRoutes(),
+                static function ($allowedMethods, Route $route) use ($path) {
+                    if ($path !== $route->getPattern()) {
+                        return $allowedMethods;
                     }
 
-                    /** @var Route $modifiedItem */
-                    $modifiedItem = $item->pattern($prefix . $item->getPattern());
-
-                    $groupMiddlewares = $group->getMiddlewares();
-
-                    for (end($groupMiddlewares); key($groupMiddlewares) !== null; prev($groupMiddlewares)) {
-                        $modifiedItem = $modifiedItem->addMiddleware(current($groupMiddlewares));
-                    }
-
-                    // Filling the routes' hash-map is required by the `generateUri` method
-                    $this->routes[$modifiedItem->getName()] = $modifiedItem;
-
-                    // Skip feeding FastRoute collector if valid cached data was already loaded
-                    if ($this->hasCache) {
-                        continue;
-                    }
-
-                    $r->addRoute($item->getMethods(), $item->getPattern(), $modifiedItem->getPattern());
-                }
-            }
+                    return array_merge($allowedMethods, $route->getMethods());
+                },
+                []
+            )
         );
+
+        return MatchingResult::fromFailure($allowedMethods);
+    }
+
+    /**
+     * Inject routes into the underlying router
+     */
+    private function injectRoutes(): void
+    {
+        foreach ($this->routeCollection->getRoutes() as $index => $route) {
+            /** @var Route $route */
+            $this->fastRouteCollector->addRoute($route->getMethods(), $route->getPattern(), $route->getName());
+        }
     }
 
     /**
@@ -398,7 +334,7 @@ EOT;
             return $this->dispatchData;
         }
 
-        $dispatchData = (array)$this->router->getData();
+        $dispatchData = (array)$this->fastRouteCollector->getData();
 
         if ($this->cacheEnabled) {
             $this->cacheDispatchData($dispatchData);
@@ -483,26 +419,5 @@ EOT;
             sprintf(self::CACHE_TEMPLATE, var_export($dispatchData, true)),
             LOCK_EX
         );
-    }
-
-    private function marshalMethodNotAllowedResult(array $result): MatchingResult
-    {
-        $path = $result[1];
-
-        $allowedMethods = array_unique(
-            array_reduce(
-                $this->routes,
-                static function ($allowedMethods, Route $route) use ($path) {
-                    if ($path !== $route->getPattern()) {
-                        return $allowedMethods;
-                    }
-
-                    return array_merge($allowedMethods, $route->getMethods());
-                },
-                []
-            )
-        );
-
-        return MatchingResult::fromFailure($allowedMethods);
     }
 }
