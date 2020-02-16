@@ -34,19 +34,13 @@ final class UrlGenerator implements UrlGeneratorInterface
     }
 
     /**
-     * Generate a URI based on a given route.
+     * {@inheritDoc}
      *
      * Replacements in FastRoute are written as `{name}` or `{name:<pattern>}`;
      * this method uses `FastRoute\RouteParser\Std` to search for the best route
      * match based on the available substitutions and generates a uri.
      *
-     * @param string $name Route name.
-     * @param array $parameters Key/value option pairs to pass to the router for
-     * purposes of generating a URI; takes precedence over options present
-     * in route used to generate URI.
-     *
-     * @return string URI path generated.
-     * @throws \RuntimeException if the route name is not known or a parameter value does not match its regex.
+     * @throws \RuntimeException if parameter value does not match its regex.
      */
     public function generate(string $name, array $parameters = []): string
     {
