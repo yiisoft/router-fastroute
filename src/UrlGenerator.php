@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Router\FastRoute;
 
 use Nyholm\Psr7\Uri;
-use Yiisoft\Router\Group;
-use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteCollectionInterface;
-use Yiisoft\Router\RouteCollectorInterface;
 use Yiisoft\Router\RouteNotFoundException;
 use Yiisoft\Router\UrlMatcherInterface;
 use Yiisoft\Router\UrlGeneratorInterface;
@@ -22,32 +19,11 @@ use function preg_match;
 
 final class UrlGenerator implements UrlGeneratorInterface
 {
-    /** @var string */
     private string $uriPrefix = '';
-
-    /**
-     * Route collection
-     *
-     * @var RouteCollectionInterface
-     */
     private RouteCollectionInterface $routeCollection;
-
-    /**
-     * @var UrlMatcherInterface $matcher
-     */
     private UrlMatcherInterface $matcher;
-
-    /**
-     * @var RouteParser
-     */
     private RouteParser $routeParser;
 
-    /**
-     * Constructor
-     *
-     * @param UrlMatcherInterface $matcher url matcher
-     * @param RouteParser|null $parser
-     */
     public function __construct(
         UrlMatcherInterface $matcher,
         RouteParser $parser = null
@@ -230,11 +206,6 @@ final class UrlGenerator implements UrlGeneratorInterface
         return [];
     }
 
-    /**
-     * @param array $parameters
-     * @param array $parts
-     * @return string
-     */
     private function generatePath(array $parameters, array $parts): string
     {
         $notSubstitutedParams = $parameters;

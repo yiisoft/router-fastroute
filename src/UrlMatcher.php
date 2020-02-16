@@ -84,22 +84,8 @@ EOT;
      */
     private bool $hasCache = false;
 
-    /**
-     * FastRoute collector
-     *
-     * @var RouteCollector
-     */
     private RouteCollector $fastRouteCollector;
-
-    /**
-     * Route collection
-     *
-     * @var RouteCollectionInterface
-     */
     private RouteCollectionInterface $routeCollection;
-
-
-    /** @var Route|null */
     private ?Route $currentRoute = null;
 
     /**
