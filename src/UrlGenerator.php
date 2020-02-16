@@ -75,16 +75,6 @@ final class UrlGenerator implements UrlGeneratorInterface
         ));
     }
 
-    /**
-     * Generates absolute URL from named route and parameters
-     *
-     * @param string $name name of the route
-     * @param array $parameters parameter-value set
-     * @param string|null $scheme host scheme
-     * @param string|null $host host for manual setup
-     * @return string URL generated
-     * @throws RouteNotFoundException in case there is no route with the name specified
-     */
     public function generateAbsolute(string $name, array $parameters = [], string $scheme = null, string $host = null): string
     {
         $url = $this->generate($name, $parameters);
