@@ -265,7 +265,7 @@ EOT;
         [, $name, $parameters] = $result;
 
         $route = $this->routeCollection->getRoute($name);
-        if (!in_array($method, $route->getMethods())) {
+        if (!in_array($method, $route->getMethods(), true)) {
             $result[1] = $route->getPattern();
             return $this->marshalMethodNotAllowedResult($result);
         }
