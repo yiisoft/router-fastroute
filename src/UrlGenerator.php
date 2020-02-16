@@ -138,7 +138,7 @@ final class UrlGenerator implements UrlGeneratorInterface
         return $uri === null ? $url : $this->generateAbsoluteFromLastMatchedRequest($url, $uri, $scheme);
     }
 
-    private function generateAbsoluteFromLastMatchedRequest(string $url, Uri $uri, ?string $scheme)
+    private function generateAbsoluteFromLastMatchedRequest(string $url, Uri $uri, ?string $scheme): string
     {
         $port = $uri->getPort() === 80 || $uri->getPort() === null ? '' : ':' . $uri->getPort();
         return  $this->ensureScheme('://' . $uri->getHost() . $port . $url, $scheme ?? $uri->getScheme());
