@@ -62,7 +62,7 @@ EOT;
      *
      * @var string
      */
-    private string $cacheFile = 'data/cache/fastroute.php.cache';
+    private string $cacheFile = __DIR__ . '/../../../../runtime/cache/fastroute.php.cache';
 
     /**
      * @var callable A factory callback that can return a dispatcher.
@@ -369,7 +369,7 @@ EOT;
      * @throws \RuntimeException If the cache directory is not writable.
      * @throws \RuntimeException If the cache file exists but is not writable
      */
-    private function cacheDispatchData(array $dispatchData)
+    private function cacheDispatchData(array $dispatchData): void
     {
         $cacheDir = dirname($this->cacheFile);
 
@@ -400,10 +400,19 @@ EOT;
             );
         }
 
-        return file_put_contents(
+        $result = file_put_contents(
             $this->cacheFile,
             sprintf(self::CACHE_TEMPLATE, var_export($dispatchData, true)),
             LOCK_EX
         );
+
+        if ($result === false) {
+            throw new \RuntimeException(
+                sprintf(
+                    'Can\'t write file "%s"',
+                    $this->cacheFile
+                )
+            );
+        }
     }
 }
