@@ -5,6 +5,9 @@ namespace Yiisoft\Router\FastRoute\Tests;
 
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
+use Yiisoft\Router\RouteCollection;
+use Yiisoft\Router\FastRoute\UrlMatcher;
+use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\UrlMatcherInterface;
 
@@ -13,9 +16,8 @@ class UrlMatcherTest extends TestCase
     private function createUrlMatcher(array $routes): UrlMatcherInterface
     {
         $container = new DummyContainer();
-        $factory = new RouteFactory();
-
-        return $factory($routes, $container);
+        $rootGroup = Group::create(null, $routes, $container);
+        return new UrlMatcher(new RouteCollection($rootGroup));
     }
 
     public function testDefaultsAreInResult(): void
