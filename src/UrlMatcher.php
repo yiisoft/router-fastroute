@@ -87,6 +87,7 @@ EOT;
     private RouteCollector $fastRouteCollector;
     private RouteCollectionInterface $routeCollection;
     private ?Route $currentRoute = null;
+    private bool $hasInjectedRoutes = false;
 
     /**
      * Last matched request
@@ -157,7 +158,7 @@ EOT;
     {
         $this->request = $request;
 
-        if (!$this->hasCache) {
+        if (!$this->hasCache && !$this->hasInjectedRoutes) {
             $this->injectRoutes();
         }
 
@@ -306,6 +307,7 @@ EOT;
             /** @var Route $route */
             $this->fastRouteCollector->addRoute($route->getMethods(), $route->getPattern(), $route->getName());
         }
+        $this->hasInjectedRoutes = true;
     }
 
     /**
