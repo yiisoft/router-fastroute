@@ -217,6 +217,7 @@ class UrlMatcherTest extends TestCase
     public function testDisallowedHEADMethod(): void
     {
         $routes = [
+            Route::post('/site/post/view'),
             Route::get('/site/index'),
             Route::post('/site/index'),
         ];
