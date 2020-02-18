@@ -5,6 +5,8 @@ namespace Yiisoft\Router\FastRoute\Tests;
 
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
+use Psr\SimpleCache\CacheInterface;
+use Yiisoft\Router\FastRoute\FastRouteCache;
 use Yiisoft\Router\RouteCollection;
 use Yiisoft\Router\FastRoute\UrlMatcher;
 use Yiisoft\Router\Group;
@@ -13,13 +15,13 @@ use Yiisoft\Router\UrlMatcherInterface;
 
 class UrlMatcherTest extends TestCase
 {
-    private function createUrlMatcher(array $routes): UrlMatcherInterface
+    private function createUrlMatcher(array $routes, $cache = null): UrlMatcherInterface
     {
         $container = new DummyContainer();
         $collector = new Group();
         $rootGroup = Group::create(null, $routes, $container);
         $collector->addGroup($rootGroup);
-        return new UrlMatcher(new RouteCollection($collector));
+        return new UrlMatcher(new RouteCollection($collector), $cache);
     }
 
     public function testDefaultsAreInResult(): void
@@ -275,5 +277,45 @@ class UrlMatcherTest extends TestCase
         $urlMatcher = new UrlMatcher($routeCollection);
 
         $this->assertSame($routeCollection, $urlMatcher->getRouteCollection());
+    }
+
+    public function testCache()
+    {
+        $routes = [
+            Route::get('/')
+                ->name('site/index'),
+            Route::methods(['GET', 'POST'], '/contact')
+                ->name('site/contact'),
+        ];
+
+        $cacheArray = [
+            0 => [
+                'GET' => [
+                    '/' => 'site/index',
+                    '/contact' => 'site/contact',
+                ],
+                'POST' => [
+                    '/contact' => 'site/contact',
+                ],
+            ],
+            1 => []
+        ];
+
+        $request = new ServerRequest('GET', '/contact');
+
+        $cache = $this->createMock(FastRouteCache::class);
+        $cache->method('has')
+            ->willReturn(true);
+        $cache->method('get')
+            ->willReturn($cacheArray);
+        $matcher = $this->createUrlMatcher($routes, $cache);
+        $result = $matcher->match($request);
+        $this->assertTrue($result->isSuccess());
+        $result = $matcher->match($request);
+        $this->assertTrue($result->isSuccess());
+        $cache->method('get')
+            ->will($this->throwException(new \RuntimeException()));
+        $result = $matcher->match($request);
+        $this->assertTrue($result->isSuccess());
     }
 }
