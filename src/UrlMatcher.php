@@ -10,6 +10,7 @@ use FastRoute\RouteParser\Std as RouteParser;
 use FastRoute\DataGenerator\GroupCountBased as RouteGenerator;
 use FastRoute\RouteCollector;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\SimpleCache\CacheInterface;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\MatchingResult;
@@ -19,50 +20,18 @@ use Yiisoft\Router\RouteCollectionInterface;
 use function array_merge;
 use function array_reduce;
 use function array_unique;
-use function dirname;
-use function file_exists;
-use function file_put_contents;
-use function is_array;
-use function is_dir;
-use function is_writable;
-use function restore_error_handler;
-use function set_error_handler;
-use function sprintf;
-use function var_export;
 
 final class UrlMatcher implements UrlMatcherInterface
 {
     /**
-     * Template used when generating the cache file.
+     * @const string Configuration key used to set the cache file path
      */
-    public const CACHE_TEMPLATE = <<< 'EOT'
-<?php
-return %s;
-EOT;
-
-    /**
-     * @const string Configuration key used to enable/disable fastroute caching
-     */
-    public const CONFIG_CACHE_ENABLED = 'cache_enabled';
+    public const CONFIG_CACHE_KEY = 'cache_key';
 
     /**
      * @const string Configuration key used to set the cache file path
      */
-    public const CONFIG_CACHE_FILE = 'cache_file';
-
-    /**
-     * Cache generated route data?
-     *
-     * @var bool
-     */
-    private bool $cacheEnabled = false;
-
-    /**
-     * Cache file path relative to the project directory.
-     *
-     * @var string
-     */
-    private string $cacheFile = __DIR__ . '/../../../../runtime/cache/fastroute.php.cache';
+    private string $cacheKey = 'routes-cache';
 
     /**
      * @var callable A factory callback that can return a dispatcher.
@@ -83,6 +52,7 @@ EOT;
      * @var bool
      */
     private bool $hasCache = false;
+    private ?CacheInterface $cache = null;
 
     private RouteCollector $fastRouteCollector;
     private RouteCollectionInterface $routeCollection;
@@ -116,9 +86,10 @@ EOT;
      */
     public function __construct(
         RouteCollectionInterface $routeCollection,
+        CacheInterface $cache = null,
+        array $config = null,
         RouteCollector $fastRouteCollector = null,
-        callable $dispatcherFactory = null,
-        array $config = null
+        callable $dispatcherFactory = null
     ) {
         if (null === $fastRouteCollector) {
             $fastRouteCollector = $this->createRouteCollector();
@@ -126,32 +97,10 @@ EOT;
         $this->routeCollection = $routeCollection;
         $this->fastRouteCollector = $fastRouteCollector;
         $this->dispatcherCallback = $dispatcherFactory;
-
         $this->loadConfig($config);
-    }
+        $this->cache = $cache;
 
-    /**
-     * Load configuration parameters
-     *
-     * @param null|array $config Array of custom configuration options.
-     */
-    private function loadConfig(array $config = null): void
-    {
-        if (null === $config) {
-            return;
-        }
-
-        if (isset($config[self::CONFIG_CACHE_ENABLED])) {
-            $this->cacheEnabled = (bool)$config[self::CONFIG_CACHE_ENABLED];
-        }
-
-        if (isset($config[self::CONFIG_CACHE_FILE])) {
-            $this->cacheFile = (string)$config[self::CONFIG_CACHE_FILE];
-        }
-
-        if ($this->cacheEnabled) {
-            $this->loadDispatchData();
-        }
+        $this->loadDispatchData();
     }
 
     public function match(ServerRequestInterface $request): MatchingResult
@@ -196,6 +145,22 @@ EOT;
     public function getRouteCollection(): RouteCollectionInterface
     {
         return $this->routeCollection;
+    }
+
+    /**
+     * Load configuration parameters
+     *
+     * @param null|array $config Array of custom configuration options.
+     */
+    private function loadConfig(array $config = null): void
+    {
+        if (null === $config) {
+            return;
+        }
+
+        if (isset($config[self::CONFIG_CACHE_KEY])) {
+            $this->cacheKey = (string)$config[self::CONFIG_CACHE_KEY];
+        }
     }
 
     /**
@@ -324,7 +289,7 @@ EOT;
 
         $dispatchData = (array)$this->fastRouteCollector->getData();
 
-        if ($this->cacheEnabled) {
+        if ($this->cache !== null) {
             $this->cacheDispatchData($dispatchData);
         }
 
@@ -334,87 +299,31 @@ EOT;
     /**
      * Load dispatch data from cache
      * @throws \RuntimeException If the cache file contains invalid data
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     private function loadDispatchData(): void
     {
-        set_error_handler(
-            static function () {
-            },
-            E_WARNING
-        ); // suppress php warnings
-        $dispatchData = include $this->cacheFile;
-        restore_error_handler();
+        if ($this->cache !== null && $this->cache->has($this->cacheKey)) {
+            $dispatchData = $this->cache->get($this->cacheKey);
 
-        // Cache file does not exist
-        if (false === $dispatchData) {
+            $this->hasCache = true;
+            $this->dispatchData = $dispatchData;
             return;
         }
 
-        if (!is_array($dispatchData)) {
-            throw new \RuntimeException(
-                sprintf(
-                    'Invalid cache file "%s"; cache file MUST return an array',
-                    $this->cacheFile
-                )
-            );
-        }
-
-        $this->hasCache = true;
-        $this->dispatchData = $dispatchData;
+        $this->hasCache = false;
     }
 
     /**
      * Save dispatch data to cache
      * @param array $dispatchData
-     * @return int|false bytes written to file or false if error
      * @throws \RuntimeException If the cache directory does not exist.
      * @throws \RuntimeException If the cache directory is not writable.
      * @throws \RuntimeException If the cache file exists but is not writable
+     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     private function cacheDispatchData(array $dispatchData): void
     {
-        $cacheDir = dirname($this->cacheFile);
-
-        if (!is_dir($cacheDir)) {
-            throw new \RuntimeException(
-                sprintf(
-                    'The cache directory "%s" does not exist',
-                    $cacheDir
-                )
-            );
-        }
-
-        if (!is_writable($cacheDir)) {
-            throw new \RuntimeException(
-                sprintf(
-                    'The cache directory "%s" is not writable',
-                    $cacheDir
-                )
-            );
-        }
-
-        if (file_exists($this->cacheFile) && !is_writable($this->cacheFile)) {
-            throw new \RuntimeException(
-                sprintf(
-                    'The cache file %s is not writable',
-                    $this->cacheFile
-                )
-            );
-        }
-
-        $result = file_put_contents(
-            $this->cacheFile,
-            sprintf(self::CACHE_TEMPLATE, var_export($dispatchData, true)),
-            LOCK_EX
-        );
-
-        if ($result === false) {
-            throw new \RuntimeException(
-                sprintf(
-                    'Can\'t write file "%s"',
-                    $this->cacheFile
-                )
-            );
-        }
+        $this->cache->set($this->cacheKey, $dispatchData);
     }
 }
