@@ -6,16 +6,15 @@ namespace Yiisoft\Router\FastRoute\Tests;
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
 use Psr\SimpleCache\CacheInterface;
-use Yiisoft\Router\FastRoute\FastRouteCache;
 use Yiisoft\Router\RouteCollection;
 use Yiisoft\Router\FastRoute\UrlMatcher;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\UrlMatcherInterface;
 
-class UrlMatcherTest extends TestCase
+final class UrlMatcherTest extends TestCase
 {
-    private function createUrlMatcher(array $routes, $cache = null): UrlMatcherInterface
+    private function createUrlMatcher(array $routes, CacheInterface $cache = null): UrlMatcherInterface
     {
         $container = new DummyContainer();
         $collector = new Group();
@@ -279,7 +278,7 @@ class UrlMatcherTest extends TestCase
         $this->assertSame($routeCollection, $urlMatcher->getRouteCollection());
     }
 
-    public function testNoCache()
+    public function testNoCache(): void
     {
         $routes = [
             Route::get('/')
@@ -298,7 +297,7 @@ class UrlMatcherTest extends TestCase
         $this->assertTrue($result->isSuccess());
     }
 
-    public function testHasCache()
+    public function testHasCache(): void
     {
         $routes = [
             Route::get('/')
@@ -332,7 +331,7 @@ class UrlMatcherTest extends TestCase
         $this->assertTrue($result->isSuccess());
     }
 
-    public function testCacheError()
+    public function testCacheError(): void
     {
         $routes = [
             Route::get('/')

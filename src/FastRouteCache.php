@@ -33,7 +33,7 @@ EOT;
      */
     private string $cacheFile;
 
-    public function __construct($cacheFilePath)
+    public function __construct(string $cacheFilePath)
     {
         $this->cacheFile = $cacheFilePath;
     }
@@ -135,7 +135,7 @@ EOT;
         }
     }
 
-    private function checkDirectoryWritable($dir): void
+    private function checkDirectoryWritable(string $dir): void
     {
         if (!is_writable($dir)) {
             throw new \RuntimeException(
