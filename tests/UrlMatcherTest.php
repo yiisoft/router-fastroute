@@ -279,7 +279,26 @@ class UrlMatcherTest extends TestCase
         $this->assertSame($routeCollection, $urlMatcher->getRouteCollection());
     }
 
-    public function testCache()
+    public function testNoCache()
+    {
+        $routes = [
+            Route::get('/')
+                ->name('site/index'),
+            Route::methods(['GET', 'POST'], '/contact')
+                ->name('site/contact'),
+        ];
+
+        $request = new ServerRequest('GET', '/contact');
+
+        $cache = $this->createMock(CacheInterface::class);
+        $cache->method('has')
+            ->willReturn(false);
+        $matcher = $this->createUrlMatcher($routes, $cache);
+        $result = $matcher->match($request);
+        $this->assertTrue($result->isSuccess());
+    }
+
+    public function testHasCache()
     {
         $routes = [
             Route::get('/')
@@ -305,19 +324,26 @@ class UrlMatcherTest extends TestCase
 
         $cache = $this->createMock(CacheInterface::class);
         $cache->method('has')
-            ->willReturn(false);
-        $matcher = $this->createUrlMatcher($routes, $cache);
-        $result = $matcher->match($request);
-        $this->assertTrue($result->isSuccess());
-
-        $cache->method('has')
             ->willReturn(true);
         $cache->method('get')
             ->willReturn($cacheArray);
         $matcher = $this->createUrlMatcher($routes, $cache);
         $result = $matcher->match($request);
         $this->assertTrue($result->isSuccess());
+    }
 
+    public function testCacheError()
+    {
+        $routes = [
+            Route::get('/')
+                ->name('site/index'),
+            Route::methods(['GET', 'POST'], '/contact')
+                ->name('site/contact'),
+        ];
+
+        $request = new ServerRequest('GET', '/contact');
+
+        $cache = $this->createMock(CacheInterface::class);
         $cache->method('get')
             ->will($this->throwException(new \RuntimeException()));
         $matcher = $this->createUrlMatcher($routes, $cache);
