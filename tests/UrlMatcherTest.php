@@ -21,7 +21,7 @@ class UrlMatcherTest extends TestCase
         $collector = new Group();
         $rootGroup = Group::create(null, $routes, $container);
         $collector->addGroup($rootGroup);
-        return new UrlMatcher(new RouteCollection($collector), $cache);
+        return new UrlMatcher(new RouteCollection($collector), $cache, ['cache_key' => 'route-cache']);
     }
 
     public function testDefaultsAreInResult(): void

@@ -167,7 +167,7 @@ final class UrlMatcher implements UrlMatcherInterface
         }
 
         if (isset($config[self::CONFIG_CACHE_KEY])) {
-            $this->cacheKey = (bool)$config[self::CONFIG_CACHE_KEY];
+            $this->cacheKey = (string)$config[self::CONFIG_CACHE_KEY];
         }
     }
 
