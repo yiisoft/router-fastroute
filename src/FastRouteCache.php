@@ -31,13 +31,11 @@ EOT;
      *
      * @var string
      */
-    private string $cacheFile = __DIR__ . '/../../../../runtime/cache/fastroute.php.cache';
+    private string $cacheFile;
 
-    public function __construct($cacheFilePath = null)
+    public function __construct($cacheFilePath)
     {
-        if ($cacheFilePath !== null) {
-            $this->cacheFile = $cacheFilePath;
-        }
+        $this->cacheFile = $cacheFilePath;
     }
 
     public function get($key, $default = null): array

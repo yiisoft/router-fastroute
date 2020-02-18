@@ -314,11 +314,13 @@ class UrlMatcherTest extends TestCase
             ->willReturn(true);
         $cache->method('get')
             ->willReturn($cacheArray);
+        $matcher = $this->createUrlMatcher($routes, $cache);
         $result = $matcher->match($request);
         $this->assertTrue($result->isSuccess());
 
         $cache->method('get')
             ->will($this->throwException(new \RuntimeException()));
+        $matcher = $this->createUrlMatcher($routes, $cache);
         $result = $matcher->match($request);
         $this->assertTrue($result->isSuccess());
     }
