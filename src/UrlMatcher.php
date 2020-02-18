@@ -117,9 +117,7 @@ final class UrlMatcher implements UrlMatcherInterface
         $this->loadConfig($config);
         $this->cache = $cache;
         $this->cacheEnabled = $cache === null ? false : true;
-        if ($this->cacheEnabled) {
-            $this->loadDispatchData();
-        }
+        $this->loadDispatchData();
     }
 
     public function match(ServerRequestInterface $request): MatchingResult
@@ -322,7 +320,7 @@ final class UrlMatcher implements UrlMatcherInterface
      */
     private function loadDispatchData(): void
     {
-        if ($this->cache->has($this->cacheKey)) {
+        if ($this->cacheEnabled && $this->cache->has($this->cacheKey)) {
             $dispatchData = $this->cache->get($this->cacheKey);
 
             $this->hasCache = true;
