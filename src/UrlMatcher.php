@@ -20,16 +20,6 @@ use Yiisoft\Router\RouteCollectionInterface;
 use function array_merge;
 use function array_reduce;
 use function array_unique;
-use function dirname;
-use function file_exists;
-use function file_put_contents;
-use function is_array;
-use function is_dir;
-use function is_writable;
-use function restore_error_handler;
-use function set_error_handler;
-use function sprintf;
-use function var_export;
 
 final class UrlMatcher implements UrlMatcherInterface
 {
@@ -116,7 +106,8 @@ final class UrlMatcher implements UrlMatcherInterface
         $this->dispatcherCallback = $dispatcherFactory;
         $this->loadConfig($config);
         $this->cache = $cache;
-        $this->cacheEnabled = $cache === null ? false : true;
+        $this->cacheEnabled = ($cache === null ? false : true);
+
         $this->loadDispatchData();
     }
 
