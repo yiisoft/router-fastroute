@@ -303,7 +303,7 @@ class UrlMatcherTest extends TestCase
 
         $request = new ServerRequest('GET', '/contact');
 
-        $cache = $this->createMock(FastRouteCache::class);
+        $cache = $this->createMock(CacheInterface::class);
         $cache->method('has')
             ->willReturn(false);
         $matcher = $this->createUrlMatcher($routes, $cache);
