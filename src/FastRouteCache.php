@@ -74,33 +74,9 @@ EOT;
     {
         $cacheDir = dirname($this->cacheFile);
 
-        if (!is_dir($cacheDir)) {
-            throw new \RuntimeException(
-                sprintf(
-                    'The cache directory "%s" does not exist',
-                    $cacheDir
-                )
-            );
-        }
-
-        if (!is_writable($cacheDir)) {
-            throw new \RuntimeException(
-                sprintf(
-                    'The cache directory "%s" is not writable',
-                    $cacheDir
-                )
-            );
-        }
-
-        if (file_exists($this->cacheFile) && !is_writable($this->cacheFile)) {
-            throw new \RuntimeException(
-                sprintf(
-                    'The cache file %s is not writable',
-                    $this->cacheFile
-                )
-            );
-        }
-
+        $this->checkDirectoryExists($cacheDir);
+        $this->checkDirectoryWritable($cacheDir);
+        $this->checkFileExistsAndWritable($this->cacheFile);
         $result = file_put_contents(
             $this->cacheFile,
             sprintf(self::CACHE_TEMPLATE, var_export($value, true)),
@@ -145,5 +121,41 @@ EOT;
     public function deleteMultiple($keys)
     {
         throw new \RuntimeException('Method is not implemented');
+    }
+
+    private function checkDirectoryExists(string $dir): void
+    {
+        if (!is_dir($dir)) {
+            throw new \RuntimeException(
+                sprintf(
+                    'The cache directory "%s" does not exist',
+                    $dir
+                )
+            );
+        }
+    }
+
+    private function checkDirectoryWritable($dir): void
+    {
+        if (!is_writable($dir)) {
+            throw new \RuntimeException(
+                sprintf(
+                    'The cache directory "%s" is not writable',
+                    $dir
+                )
+            );
+        }
+    }
+
+    private function checkFileExistsAndWritable(string $file): void
+    {
+        if (file_exists($file) && !is_writable($file)) {
+            throw new \RuntimeException(
+                sprintf(
+                    'The cache file %s is not writable',
+                    $file
+                )
+            );
+        }
     }
 }
