@@ -34,13 +34,6 @@ final class UrlMatcher implements UrlMatcherInterface
     private string $cacheKey = 'routes-cache';
 
     /**
-     * Cache generated route data?
-     *
-     * @var bool
-     */
-    private bool $cacheEnabled = false;
-
-    /**
      * @var callable A factory callback that can return a dispatcher.
      */
     private $dispatcherCallback;
@@ -106,7 +99,6 @@ final class UrlMatcher implements UrlMatcherInterface
         $this->dispatcherCallback = $dispatcherFactory;
         $this->loadConfig($config);
         $this->cache = $cache;
-        $this->cacheEnabled = ($cache === null ? false : true);
 
         $this->loadDispatchData();
     }
@@ -297,7 +289,7 @@ final class UrlMatcher implements UrlMatcherInterface
 
         $dispatchData = (array)$this->fastRouteCollector->getData();
 
-        if ($this->cacheEnabled) {
+        if ($this->cache !== null) {
             $this->cacheDispatchData($dispatchData);
         }
 
@@ -311,7 +303,7 @@ final class UrlMatcher implements UrlMatcherInterface
      */
     private function loadDispatchData(): void
     {
-        if ($this->cacheEnabled && $this->cache->has($this->cacheKey)) {
+        if ($this->cache !== null && $this->cache->has($this->cacheKey)) {
             $dispatchData = $this->cache->get($this->cacheKey);
 
             $this->hasCache = true;
