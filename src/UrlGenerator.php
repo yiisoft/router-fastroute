@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Router\FastRoute;
 
-use Nyholm\Psr7\Uri;
+use Psr\Http\Message\UriInterface;
 use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\RouteNotFoundException;
 use Yiisoft\Router\UrlMatcherInterface;
@@ -79,7 +79,7 @@ final class UrlGenerator implements UrlGeneratorInterface
     {
         $url = $this->generate($name, $parameters);
         $route = $this->routeCollection->getRoute($name);
-        /** @var Uri $uri */
+        /** @var UriInterface $uri */
         $uri = $this->matcher->getLastMatchedRequest() !== null ? $this->matcher->getLastMatchedRequest()->getUri() : null;
         $lastRequestScheme = $uri !== null ? $uri->getScheme() : null;
 
@@ -98,7 +98,7 @@ final class UrlGenerator implements UrlGeneratorInterface
         return $uri === null ? $url : $this->generateAbsoluteFromLastMatchedRequest($url, $uri, $scheme);
     }
 
-    private function generateAbsoluteFromLastMatchedRequest(string $url, Uri $uri, ?string $scheme): string
+    private function generateAbsoluteFromLastMatchedRequest(string $url, UriInterface $uri, ?string $scheme): string
     {
         $port = $uri->getPort() === 80 || $uri->getPort() === null ? '' : ':' . $uri->getPort();
         return  $this->ensureScheme('://' . $uri->getHost() . $port . $url, $scheme ?? $uri->getScheme());
@@ -222,3 +222,4 @@ final class UrlGenerator implements UrlGeneratorInterface
         return $path . ($notSubstitutedParams !== [] ? '?' . http_build_query($notSubstitutedParams) : '');
     }
 }
+
