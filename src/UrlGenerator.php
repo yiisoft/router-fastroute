@@ -222,4 +222,3 @@ final class UrlGenerator implements UrlGeneratorInterface
         return $path . ($notSubstitutedParams !== [] ? '?' . http_build_query($notSubstitutedParams) : '');
     }
 }
-
