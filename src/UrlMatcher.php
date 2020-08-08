@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Yiisoft\Router\FastRoute;
 
+use FastRoute\DataGenerator\GroupCountBased as RouteGenerator;
 use FastRoute\Dispatcher;
 use FastRoute\Dispatcher\GroupCountBased;
-use FastRoute\RouteParser\Std as RouteParser;
-use FastRoute\DataGenerator\GroupCountBased as RouteGenerator;
 use FastRoute\RouteCollector;
+use FastRoute\RouteParser\Std as RouteParser;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\SimpleCache\CacheInterface;
 use Yiisoft\Http\Method;
-use Yiisoft\Router\Route;
 use Yiisoft\Router\MatchingResult;
-use Yiisoft\Router\UrlMatcherInterface;
+use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteCollectionInterface;
+use Yiisoft\Router\UrlMatcherInterface;
 
 use function array_merge;
 use function array_reduce;
@@ -231,6 +231,10 @@ final class UrlMatcher implements UrlMatcherInterface
         [, $name, $parameters] = $result;
 
         $route = $this->routeCollection->getRoute($name);
+        if ($route->getHost() !== null && !$this->matchHost($route)) {
+            return MatchingResult::fromFailure(Method::ANY);
+        }
+
         if (!in_array($method, $route->getMethods(), true)) {
             $result[1] = $route->getPattern();
             return $this->marshalMethodNotAllowedResult($result);
@@ -261,6 +265,14 @@ final class UrlMatcher implements UrlMatcherInterface
         );
 
         return MatchingResult::fromFailure($allowedMethods);
+    }
+
+    private function matchHost(Route $route): bool
+    {
+        $requestHost = $this->request->getUri()->getHost();
+        $allowedHost = parse_url($route->getHost(), PHP_URL_HOST);
+
+        return $requestHost === $allowedHost;
     }
 
     /**
