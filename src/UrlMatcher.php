@@ -221,7 +221,7 @@ final class UrlMatcher implements UrlMatcherInterface
     }
 
     /**
-     * Marshals a route result based on the results of matching and the current HTTP method.
+     * Marshals a route result based on the results of matching, the current host and the current HTTP method.
      * @param array $result
      * @param string $method
      * @return MatchingResult
