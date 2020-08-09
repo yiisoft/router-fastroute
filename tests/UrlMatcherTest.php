@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types=1);
 
 namespace Yiisoft\Router\FastRoute\Tests;
 
@@ -100,6 +101,7 @@ final class UrlMatcherTest extends TestCase
 
         $request = new ServerRequest('GET', '/site/index');
         $request = $request->withUri($request->getUri()->withHost('example.test'));
+
         $result = $urlMatcher->match($request);
 
         $this->assertTrue($result->isSuccess());
@@ -115,6 +117,7 @@ final class UrlMatcherTest extends TestCase
 
         $request = new ServerRequest('GET', '/site/index');
         $request = $request->withUri($request->getUri()->withHost('examp1e.test'));
+
         $result = $urlMatcher->match($request);
 
         $this->assertFalse($result->isSuccess());
