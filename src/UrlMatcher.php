@@ -269,10 +269,7 @@ final class UrlMatcher implements UrlMatcherInterface
 
     private function matchHost(Route $route): bool
     {
-        $requestHost = $this->request->getUri()->getHost();
-        $allowedHost = parse_url($route->getHost(), PHP_URL_HOST);
-
-        return $requestHost === $allowedHost;
+        return $this->request->getUri()->getHost() === $route->getHost();
     }
 
     /**
