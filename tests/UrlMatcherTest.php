@@ -1,15 +1,16 @@
 <?php
 
+declare(strict_types=1);
 
 namespace Yiisoft\Router\FastRoute\Tests;
 
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
 use Psr\SimpleCache\CacheInterface;
-use Yiisoft\Router\RouteCollection;
 use Yiisoft\Router\FastRoute\UrlMatcher;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
+use Yiisoft\Router\RouteCollection;
 use Yiisoft\Router\UrlMatcherInterface;
 
 final class UrlMatcherTest extends TestCase
@@ -88,6 +89,39 @@ final class UrlMatcherTest extends TestCase
         $this->assertTrue($result->isSuccess());
         $this->assertArrayHasKey('id', $parameters);
         $this->assertSame('23', $parameters['id']);
+    }
+
+    public function testSimpleRouteWithHostSuccess(): void
+    {
+        $routes = [
+            Route::get('/site/index')->host('example.test'),
+        ];
+
+        $urlMatcher = $this->createUrlMatcher($routes);
+
+        $request = new ServerRequest('GET', '/site/index');
+        $request = $request->withUri($request->getUri()->withHost('example.test'));
+
+        $result = $urlMatcher->match($request);
+
+        $this->assertTrue($result->isSuccess());
+    }
+
+    public function testSimpleRouteWithHostFailed(): void
+    {
+        $routes = [
+            Route::get('/site/index')->host('example.test'),
+        ];
+
+        $urlMatcher = $this->createUrlMatcher($routes);
+
+        $request = new ServerRequest('GET', '/site/index');
+        $request = $request->withUri($request->getUri()->withHost('examp1e.test'));
+
+        $result = $urlMatcher->match($request);
+
+        $this->assertFalse($result->isSuccess());
+        $this->assertFalse($result->isMethodFailure());
     }
 
     public function testSimpleRouteWithOptionalPartSuccess(): void
