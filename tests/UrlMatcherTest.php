@@ -94,34 +94,47 @@ final class UrlMatcherTest extends TestCase
     public function testSimpleRouteWithHostSuccess(): void
     {
         $routes = [
-            Route::get('/site/index')->host('example.test'),
+            Route::get('/site/index')->host('yii.test'),
+            Route::get('/site/index')->host('{user}.yiiframework.com'),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
 
         $request = new ServerRequest('GET', '/site/index');
-        $request = $request->withUri($request->getUri()->withHost('example.test'));
+        $request1 = $request->withUri($request->getUri()->withHost('yii.test'));
+        $request2 = $request->withUri($request->getUri()->withHost('rustamwin.yiiframework.com'));
 
-        $result = $urlMatcher->match($request);
+        $result1 = $urlMatcher->match($request1);
+        $result2 = $urlMatcher->match($request2);
 
-        $this->assertTrue($result->isSuccess());
+        $this->assertTrue($result1->isSuccess());
+
+        $this->assertArrayHasKey('user', $result2->parameters());
+        $this->assertSame('rustamwin', $result2->parameters()['user']);
+        $this->assertTrue($result2->isSuccess());
     }
 
     public function testSimpleRouteWithHostFailed(): void
     {
         $routes = [
-            Route::get('/site/index')->host('example.test'),
+            Route::get('/site/index')->host('yii.test'),
+            Route::get('/site/index')->host('yiiframework.{zone:ru|com}'),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
 
         $request = new ServerRequest('GET', '/site/index');
-        $request = $request->withUri($request->getUri()->withHost('examp1e.test'));
+        $request1 = $request->withUri($request->getUri()->withHost('yee.test'));
+        $request2 = $request->withUri($request->getUri()->withHost('yiiframework.uz'));
 
-        $result = $urlMatcher->match($request);
+        $result1 = $urlMatcher->match($request1);
+        $result2 = $urlMatcher->match($request2);
 
-        $this->assertFalse($result->isSuccess());
-        $this->assertFalse($result->isMethodFailure());
+        $this->assertFalse($result1->isSuccess());
+        $this->assertFalse($result1->isMethodFailure());
+
+        $this->assertFalse($result2->isSuccess());
+        $this->assertFalse($result2->isMethodFailure());
     }
 
     public function testSimpleRouteWithOptionalPartSuccess(): void
