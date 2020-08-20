@@ -114,7 +114,7 @@ final class UrlMatcher implements UrlMatcherInterface
         $dispatchData = $this->getDispatchData();
         $path = rawurldecode($request->getUri()->getPath());
         $method = $request->getMethod();
-        $result = $this->getDispatcher($dispatchData)->dispatch($method, $path);
+        $result = $this->getDispatcher($dispatchData)->dispatch($method, $request->getUri()->getHost() . $path);
 
         return $result[0] !== Dispatcher::FOUND
             ? $this->marshalFailedRoute($result)
@@ -231,9 +231,6 @@ final class UrlMatcher implements UrlMatcherInterface
         [, $name, $parameters] = $result;
 
         $route = $this->routeCollection->getRoute($name);
-        if ($route->getHost() !== null && !$this->matchHost($route)) {
-            return MatchingResult::fromFailure(Method::ANY);
-        }
 
         if (!in_array($method, $route->getMethods(), true)) {
             $result[1] = $route->getPattern();
@@ -267,11 +264,6 @@ final class UrlMatcher implements UrlMatcherInterface
         return MatchingResult::fromFailure($allowedMethods);
     }
 
-    private function matchHost(Route $route): bool
-    {
-        return $this->request->getUri()->getHost() === $route->getHost();
-    }
-
     /**
      * Inject routes into the underlying router
      */
@@ -279,7 +271,8 @@ final class UrlMatcher implements UrlMatcherInterface
     {
         foreach ($this->routeCollection->getRoutes() as $index => $route) {
             /** @var Route $route */
-            $this->fastRouteCollector->addRoute($route->getMethods(), $route->getPattern(), $route->getName());
+            $hostPattern = $route->getHost() ?? '{_host:.*}';
+            $this->fastRouteCollector->addRoute($route->getMethods(), $hostPattern . $route->getPattern(), $route->getName());
         }
         $this->hasInjectedRoutes = true;
     }
