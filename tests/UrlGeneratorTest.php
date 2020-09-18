@@ -23,8 +23,8 @@ final class UrlGeneratorTest extends TestCase
 
     private function createMatcher(array $routes): UrlMatcherInterface
     {
-        $container = new DummyContainer();
-        $rootGroup = Group::create(null, $routes, $container);
+        $dispatcher = new DummyDispatcher();
+        $rootGroup = Group::create(null, $routes, $dispatcher);
         return new UrlMatcher(new RouteCollection($rootGroup));
     }
 
