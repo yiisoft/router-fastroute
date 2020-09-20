@@ -301,7 +301,6 @@ final class UrlMatcher implements UrlMatcherInterface
     /**
      * Load dispatch data from cache
      * @throws \RuntimeException If the cache file contains invalid data
-     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     private function loadDispatchData(): void
     {
@@ -322,7 +321,6 @@ final class UrlMatcher implements UrlMatcherInterface
      * @throws \RuntimeException If the cache directory does not exist.
      * @throws \RuntimeException If the cache directory is not writable.
      * @throws \RuntimeException If the cache file exists but is not writable
-     * @throws \Psr\SimpleCache\InvalidArgumentException
      */
     private function cacheDispatchData(array $dispatchData): void
     {
