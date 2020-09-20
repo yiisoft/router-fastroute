@@ -271,7 +271,7 @@ final class UrlMatcher implements UrlMatcherInterface
     {
         foreach ($this->routeCollection->getRoutes() as $index => $route) {
             /** @var Route $route */
-            $hostPattern = $route->getHost() ?? '{_host:.*}';
+            $hostPattern = $route->getHost() ?? '{_host:[a-zA-Z0-9\.\-]*}';
             $this->fastRouteCollector->addRoute($route->getMethods(), $hostPattern . $route->getPattern(), $route->getName());
         }
         $this->hasInjectedRoutes = true;
