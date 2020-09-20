@@ -114,7 +114,7 @@ final class UrlMatcher implements UrlMatcherInterface
         $dispatchData = $this->getDispatchData();
         $path = rawurldecode($request->getUri()->getPath());
         $method = $request->getMethod();
-        $result = $this->getDispatcher($dispatchData)->dispatch($method, $request->getUri()->getHost() . $path);
+        $result = $this->getDispatcher($dispatchData)->dispatch($method, $request->getUri()->getHost() . $request->getUri()->getPort() . $path);
 
         return $result[0] !== Dispatcher::FOUND
             ? $this->marshalFailedRoute($result)
