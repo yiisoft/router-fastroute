@@ -114,7 +114,7 @@ final class UrlMatcher implements UrlMatcherInterface
         $dispatchData = $this->getDispatchData();
         $path = rawurldecode($request->getUri()->getPath());
         $method = $request->getMethod();
-        $result = $this->getDispatcher($dispatchData)->dispatch($method, $request->getUri()->getHost() . $request->getUri()->getPort() . $path);
+        $result = $this->getDispatcher($dispatchData)->dispatch($method, $request->getUri()->getHost() . $path);
 
         return $result[0] !== Dispatcher::FOUND
             ? $this->marshalFailedRoute($result)
@@ -271,7 +271,7 @@ final class UrlMatcher implements UrlMatcherInterface
     {
         foreach ($this->routeCollection->getRoutes() as $index => $route) {
             /** @var Route $route */
-            $hostPattern = $route->getHost() ?? '{_host:[a-zA-Z0-9\.\-]+|[a-zA-Z0-9\.\-]+:[0-9]+}';
+            $hostPattern = $route->getHost() ?? '{_host:[a-zA-Z0-9\.\-]*}';
             $this->fastRouteCollector->addRoute($route->getMethods(), $hostPattern . $route->getPattern(), $route->getName());
         }
         $this->hasInjectedRoutes = true;
