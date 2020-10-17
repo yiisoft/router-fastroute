@@ -1,9 +1,9 @@
 <?php
 
-use Yiisoft\Router\UrlMatcherInterface;
-use Yiisoft\Router\UrlGeneratorInterface;
-use Yiisoft\Router\FastRoute\UrlMatcher;
 use Yiisoft\Router\FastRoute\UrlGenerator;
+use Yiisoft\Router\FastRoute\UrlMatcher;
+use Yiisoft\Router\UrlGeneratorInterface;
+use Yiisoft\Router\UrlMatcherInterface;
 
 return [
     UrlMatcherInterface::class => UrlMatcher::class,
