@@ -44,7 +44,8 @@
             "dev-master": "3.0.x-dev"
         },
         "config-plugin": {
-            "common": "config/common.php"
+            "common": "config/common.php",
+            "web": "config/web.php"
         }
     },
     "config": {
