@@ -21,15 +21,16 @@ final class UrlGenerator implements UrlGeneratorInterface
 {
     private string $uriPrefix = '';
     private RouteCollectionInterface $routeCollection;
-    private UrlMatcherInterface $matcher;
+    private ?UrlMatcherInterface $matcher;
     private RouteParser $routeParser;
 
     public function __construct(
-        UrlMatcherInterface $matcher,
+        RouteCollectionInterface $routeCollection,
+        UrlMatcherInterface $matcher = null,
         RouteParser $parser = null
     ) {
         $this->matcher = $matcher;
-        $this->routeCollection = $matcher->getRouteCollection();
+        $this->routeCollection = $routeCollection;
         $this->routeParser = $parser ?? new RouteParser\Std();
     }
 
@@ -80,7 +81,7 @@ final class UrlGenerator implements UrlGeneratorInterface
         $url = $this->generate($name, $parameters);
         $route = $this->routeCollection->getRoute($name);
         /** @var UriInterface $uri */
-        $uri = $this->matcher->getLastMatchedRequest() !== null ? $this->matcher->getLastMatchedRequest()->getUri() : null;
+        $uri = $this->matcher && $this->matcher->getLastMatchedRequest() !== null ? $this->matcher->getLastMatchedRequest()->getUri() : null;
         $lastRequestScheme = $uri !== null ? $uri->getScheme() : null;
 
         if ($host !== null || ($host = $route->getHost()) !== null) {

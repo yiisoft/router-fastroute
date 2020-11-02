@@ -309,21 +309,6 @@ final class UrlMatcherTest extends TestCase
         $this->assertSame($request, $urlMatcher->getLastMatchedRequest());
     }
 
-    public function testGetRouteCollection(): void
-    {
-        $routes = [
-            Route::get('/site/index')->name('request1'),
-            Route::post('/site/index')->name('request2'),
-        ];
-
-        $collector = Group::create();
-        $collector->addGroup(Group::create(null, $routes));
-        $routeCollection = new RouteCollection($collector);
-        $urlMatcher = new UrlMatcher($routeCollection);
-
-        $this->assertSame($routeCollection, $urlMatcher->getRouteCollection());
-    }
-
     public function testNoCache(): void
     {
         $routes = [
