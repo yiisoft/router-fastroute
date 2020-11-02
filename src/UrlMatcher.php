@@ -10,6 +10,7 @@ use FastRoute\Dispatcher\GroupCountBased;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std as RouteParser;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 use Psr\SimpleCache\CacheInterface;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\MatchingResult;
@@ -60,11 +61,11 @@ final class UrlMatcher implements UrlMatcherInterface
     private bool $hasInjectedRoutes = false;
 
     /**
-     * Last matched request
+     * Current URI
      *
-     * @var ServerRequestInterface|null
+     * @var UriInterface|null
      */
-    private ?ServerRequestInterface $request = null;
+    private ?UriInterface $currentUri = null;
 
     /**
      * Constructor
@@ -105,7 +106,7 @@ final class UrlMatcher implements UrlMatcherInterface
 
     public function match(ServerRequestInterface $request): MatchingResult
     {
-        $this->request = $request;
+        $this->currentUri = $request->getUri();
 
         if (!$this->hasCache && !$this->hasInjectedRoutes) {
             $this->injectRoutes();
@@ -131,12 +132,12 @@ final class UrlMatcher implements UrlMatcherInterface
     }
 
     /**
-     * Returns last matched Request
-     * @return ServerRequestInterface|null current route
+     * Returns current URI
+     * @return UriInterface|null current URI
      */
-    public function getLastMatchedRequest(): ?ServerRequestInterface
+    public function getCurrentUri(): ?UriInterface
     {
-        return $this->request;
+        return $this->currentUri;
     }
 
     /**
