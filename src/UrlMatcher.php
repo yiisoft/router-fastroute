@@ -140,14 +140,6 @@ final class UrlMatcher implements UrlMatcherInterface
     }
 
     /**
-     * @return RouteCollectionInterface collection of routes
-     */
-    public function getRouteCollection(): RouteCollectionInterface
-    {
-        return $this->routeCollection;
-    }
-
-    /**
      * Load configuration parameters
      *
      * @param null|array $config Array of custom configuration options.
