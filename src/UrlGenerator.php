@@ -81,7 +81,7 @@ final class UrlGenerator implements UrlGeneratorInterface
         $url = $this->generate($name, $parameters);
         $route = $this->routeCollection->getRoute($name);
         /** @var UriInterface $uri */
-        $uri = $this->matcher && $this->matcher->getLastMatchedRequest() !== null ? $this->matcher->getLastMatchedRequest()->getUri() : null;
+        $uri = $this->matcher && $this->matcher->getCurrentUri() !== null ? $this->matcher->getCurrentUri() : null;
         $lastRequestScheme = $uri !== null ? $uri->getScheme() : null;
 
         if ($host !== null || ($host = $route->getHost()) !== null) {
