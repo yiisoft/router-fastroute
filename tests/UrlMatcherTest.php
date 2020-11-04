@@ -294,7 +294,7 @@ final class UrlMatcherTest extends TestCase
         $this->assertSame($routes[0]->getName(), $urlMatcher->getCurrentRoute()->getName());
     }
 
-    public function testGetLastMatchedRequest(): void
+    public function testGetCurrentUri(): void
     {
         $routes = [
             Route::get('/site/index')->name('request1'),
@@ -306,22 +306,7 @@ final class UrlMatcherTest extends TestCase
         $request = new ServerRequest('GET', '/site/index');
 
         $urlMatcher->match($request);
-        $this->assertSame($request, $urlMatcher->getLastMatchedRequest());
-    }
-
-    public function testGetRouteCollection(): void
-    {
-        $routes = [
-            Route::get('/site/index')->name('request1'),
-            Route::post('/site/index')->name('request2'),
-        ];
-
-        $collector = Group::create();
-        $collector->addGroup(Group::create(null, $routes));
-        $routeCollection = new RouteCollection($collector);
-        $urlMatcher = new UrlMatcher($routeCollection);
-
-        $this->assertSame($routeCollection, $urlMatcher->getRouteCollection());
+        $this->assertSame($request->getUri(), $urlMatcher->getCurrentUri());
     }
 
     public function testNoCache(): void
