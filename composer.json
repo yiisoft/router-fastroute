@@ -23,7 +23,7 @@
         "yiisoft/router": "^3.0@dev"
     },
     "require-dev": {
-        "nyholm/psr7": "^1.2",
+        "nyholm/psr7": "^1.3",
         "phpunit/phpunit": "^9.3",
         "psr/container": "1.0.0",
         "infection/infection": "^0.20.1",
