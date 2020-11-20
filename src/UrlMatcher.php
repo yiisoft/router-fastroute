@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\Router\FastRoute;
 
+use function array_merge;
+use function array_reduce;
+use function array_unique;
 use FastRoute\DataGenerator\GroupCountBased as RouteGenerator;
 use FastRoute\Dispatcher;
 use FastRoute\Dispatcher\GroupCountBased;
@@ -14,13 +17,10 @@ use Psr\Http\Message\UriInterface;
 use Psr\SimpleCache\CacheInterface;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\MatchingResult;
+
 use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\UrlMatcherInterface;
-
-use function array_merge;
-use function array_reduce;
-use function array_unique;
 
 final class UrlMatcher implements UrlMatcherInterface
 {
@@ -79,9 +79,9 @@ final class UrlMatcher implements UrlMatcherInterface
      *   RouteGenerator.
      * - A callable that returns a GroupCountBased dispatcher will be created.
      *
-     * @param null|RouteCollector $fastRouteCollector If not provided, a default
+     * @param RouteCollector|null $fastRouteCollector If not provided, a default
      *     implementation will be used.
-     * @param null|callable $dispatcherFactory Callable that will return a
+     * @param callable|null $dispatcherFactory Callable that will return a
      *     FastRoute dispatcher.
      * @param array $config Array of custom configuration options.
      */
@@ -124,6 +124,7 @@ final class UrlMatcher implements UrlMatcherInterface
 
     /**
      * Returns the current Route object
+     *
      * @return Route|null current route
      */
     public function getCurrentRoute(): ?Route
@@ -133,6 +134,7 @@ final class UrlMatcher implements UrlMatcherInterface
 
     /**
      * Returns current URI
+     *
      * @return UriInterface|null current URI
      */
     public function getCurrentUri(): ?UriInterface
@@ -143,7 +145,7 @@ final class UrlMatcher implements UrlMatcherInterface
     /**
      * Load configuration parameters
      *
-     * @param null|array $config Array of custom configuration options.
+     * @param array|null $config Array of custom configuration options.
      */
     private function loadConfig(array $config = null): void
     {
@@ -164,6 +166,7 @@ final class UrlMatcher implements UrlMatcherInterface
      * approach is done to allow testing against the dispatcher.
      *
      * @param array|object $data Data from RouteCollector::getData()
+     *
      * @return Dispatcher
      */
     private function getDispatcher($data): Dispatcher
@@ -200,7 +203,9 @@ final class UrlMatcher implements UrlMatcherInterface
      *
      * If the failure was due to the HTTP method, passes the allowed HTTP
      * methods to the factory.
+     *
      * @param array $result
+     *
      * @return MatchingResult
      */
     private function marshalFailedRoute(array $result): MatchingResult
@@ -215,8 +220,10 @@ final class UrlMatcher implements UrlMatcherInterface
 
     /**
      * Marshals a route result based on the results of matching, the current host and the current HTTP method.
+     *
      * @param array $result
      * @param string $method
+     *
      * @return MatchingResult
      */
     private function marshalMatchedRoute(array $result, string $method): MatchingResult
@@ -293,6 +300,7 @@ final class UrlMatcher implements UrlMatcherInterface
 
     /**
      * Load dispatch data from cache
+     *
      * @throws \RuntimeException If the cache file contains invalid data
      */
     private function loadDispatchData(): void
@@ -310,7 +318,9 @@ final class UrlMatcher implements UrlMatcherInterface
 
     /**
      * Save dispatch data to cache
+     *
      * @param array $dispatchData
+     *
      * @throws \RuntimeException If the cache directory does not exist.
      * @throws \RuntimeException If the cache directory is not writable.
      * @throws \RuntimeException If the cache file exists but is not writable

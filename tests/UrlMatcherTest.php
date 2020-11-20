@@ -347,7 +347,7 @@ final class UrlMatcherTest extends TestCase
                     '/contact' => 'site/contact',
                 ],
             ],
-            1 => []
+            1 => [],
         ];
 
         $request = new ServerRequest('GET', '/contact');
