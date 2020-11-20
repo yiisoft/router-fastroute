@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Yiisoft\Router\FastRoute;
 
-use Psr\SimpleCache\CacheInterface;
-
 use function dirname;
+
 use function file_exists;
 use function file_put_contents;
 use function is_array;
 use function is_dir;
 use function is_writable;
+use Psr\SimpleCache\CacheInterface;
 use function restore_error_handler;
 use function set_error_handler;
 use function sprintf;

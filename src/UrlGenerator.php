@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Yiisoft\Router\FastRoute;
 
-use Psr\Http\Message\UriInterface;
-use Yiisoft\Router\RouteCollectionInterface;
-use Yiisoft\Router\RouteNotFoundException;
-use Yiisoft\Router\UrlMatcherInterface;
-use Yiisoft\Router\UrlGeneratorInterface;
-use FastRoute\RouteParser;
-
 use function array_key_exists;
 use function array_keys;
+use FastRoute\RouteParser;
 use function implode;
 use function is_string;
 use function preg_match;
+
+use Psr\Http\Message\UriInterface;
+use Yiisoft\Router\RouteCollectionInterface;
+use Yiisoft\Router\RouteNotFoundException;
+use Yiisoft\Router\UrlGeneratorInterface;
+use Yiisoft\Router\UrlMatcherInterface;
 
 final class UrlGenerator implements UrlGeneratorInterface
 {
@@ -113,6 +113,7 @@ final class UrlGenerator implements UrlGeneratorInterface
      * @param string $url the URL to process
      * @param string|null $scheme the URI scheme used in URL (e.g. `http` or `https`). Use empty string to
      * create protocol-relative URL (e.g. `//example.com/path`)
+     *
      * @return string the processed URL
      */
     private function ensureScheme(string $url, ?string $scheme): string
@@ -140,14 +141,15 @@ final class UrlGenerator implements UrlGeneratorInterface
     /**
      * Returns a value indicating whether a URL is relative.
      * A relative URL does not have host info part.
+     *
      * @param string $url the URL to be checked
+     *
      * @return bool whether the URL is relative
      */
     private function isRelative(string $url): bool
     {
         return strncmp($url, '//', 2) && strpos($url, '://') === false;
     }
-
 
     public function getUriPrefix(): string
     {
@@ -161,8 +163,10 @@ final class UrlGenerator implements UrlGeneratorInterface
 
     /**
      * Checks for any missing route parameters
+     *
      * @param array $parts
      * @param array $substitutions
+     *
      * @return array with minimum required parameters if any are missing or an empty array if none are missing
      */
     private function missingParameters(array $parts, array $substitutions): array
