@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Yiisoft\Router\FastRoute\Tests;
 
 use Nyholm\Psr7\ServerRequest;
@@ -8,11 +10,11 @@ use Yiisoft\Router\FastRoute\UrlGenerator;
 use Yiisoft\Router\FastRoute\UrlMatcher;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
+use Yiisoft\Router\RouteCollection;
+use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\RouteNotFoundException;
 use Yiisoft\Router\UrlGeneratorInterface;
 use Yiisoft\Router\UrlMatcherInterface;
-use Yiisoft\Router\RouteCollection;
-use Yiisoft\Router\RouteCollectionInterface;
 
 final class UrlGeneratorTest extends TestCase
 {
@@ -122,8 +124,8 @@ final class UrlGeneratorTest extends TestCase
                     ]),
                     Route::get('/note')->name('api-v1-note/index'),
                     Route::get('/note/{id}')->name('api-v1-note/view'),
-                ])
-            ])
+                ]),
+            ]),
         ];
         $urlGenerator = $this->createUrlGenerator($routes);
 
@@ -156,7 +158,7 @@ final class UrlGeneratorTest extends TestCase
     {
         $routes = [
             Route::get('/test/{name}')
-                ->name('test')
+                ->name('test'),
         ];
 
         $url = $this->createUrlGenerator($routes)->generate('test', ['name' => 'post', 'id' => 12, 'sort' => 'asc']);
@@ -168,7 +170,7 @@ final class UrlGeneratorTest extends TestCase
         $routes = [
             Route::get('/[{name}]')
                 ->name('defaults')
-                ->defaults(['name' => 'default'])
+                ->defaults(['name' => 'default']),
         ];
 
         $url = $this->createUrlGenerator($routes)->generate('defaults');
@@ -180,7 +182,7 @@ final class UrlGeneratorTest extends TestCase
         $routes = [
             Route::get('/[{name}]')
                 ->name('defaults')
-                ->defaults(['name' => 'default'])
+                ->defaults(['name' => 'default']),
         ];
 
         $url = $this->createUrlGenerator($routes)->generate('defaults', ['name' => 'test']);
@@ -192,7 +194,7 @@ final class UrlGeneratorTest extends TestCase
         $routes = [
             Route::get('/{name}')
                 ->name('defaults')
-                ->defaults(['name' => 'default'])
+                ->defaults(['name' => 'default']),
         ];
 
         $this->expectExceptionMessage('Route `defaults` expects at least parameter values for [name], but received []');
