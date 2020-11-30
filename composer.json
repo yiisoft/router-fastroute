@@ -26,7 +26,8 @@
         "nyholm/psr7": "^1.3",
         "phpunit/phpunit": "^9.4",
         "psr/container": "1.0",
-        "roave/infection-static-analysis-plugin": "^1.4",
+        "roave/infection-static-analysis-plugin": "^1.5",
+        "spatie/phpunit-watcher": "^1.23",
         "vimeo/psalm": "^4.2"
     },
     "autoload": {
@@ -44,6 +45,7 @@
             "dev-master": "3.0.x-dev"
         },
         "config-plugin": {
+            "params": "config/params.php",
             "common": "config/common.php",
             "web": "config/web.php"
         }
@@ -53,8 +55,7 @@
     },
     "prefer-stable": true,
     "scripts": {
-        "test": [
-            "phpunit --colors --no-interaction"
-        ]
+        "test": "phpunit --testdox --no-interaction",
+        "test-watch": "phpunit-watcher watch"
     }
 }
