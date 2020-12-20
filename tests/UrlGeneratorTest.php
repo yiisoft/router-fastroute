@@ -345,7 +345,7 @@ final class UrlGeneratorTest extends TestCase
         $matcher->match($request);
         $url = $this->createUrlGenerator($routes, $matcher)->generateAbsolute('index');
 
-        $this->assertEquals('//test.com/home/index', $url);
+        $this->assertEquals('http://test.com/home/index', $url);
     }
 
     /**
@@ -363,7 +363,7 @@ final class UrlGeneratorTest extends TestCase
         $matcher->match($request);
         $url = $this->createUrlGenerator($routes, $matcher)->generateAbsolute('index', [], null, '//test.com');
 
-        $this->assertEquals('//test.com/home/index', $url);
+        $this->assertEquals('http://test.com/home/index', $url);
     }
 
     public function testHostInRouteProtocolRelativeSchemeAbsoluteUrl(): void
@@ -400,7 +400,7 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('//test.com/home/index', $url1);
         $this->assertEquals('//test.com/home/index', $url2);
         $this->assertEquals('http://test.com/home/index', $url3);
-        $this->assertEquals('//test.com/home/index', $url4);
+        $this->assertEquals('http://test.com/home/index', $url4);
     }
 
     public function testLastMatchedHostProtocolRelativeSchemeAbsoluteUrl(): void

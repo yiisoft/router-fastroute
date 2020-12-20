@@ -89,10 +89,6 @@ final class UrlGenerator implements UrlGeneratorInterface
                 $host = '//' . $host;
             }
 
-            if ($scheme === null && !$this->isRelative($host)) {
-                return rtrim($host, '/') . $url;
-            }
-
             return $this->ensureScheme(rtrim($host, '/') . $url, $scheme ?? $lastRequestScheme);
         }
 
