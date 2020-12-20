@@ -377,7 +377,7 @@ final class UrlGeneratorTest extends TestCase
         $matcher = $this->createMatcher($this->createRouteCollection($routes));
         $matcher->match($request);
         $url1 = $this->createUrlGenerator($routes, $matcher)->generateAbsolute('index', [], '');
-        $url2 = $this->createUrlGenerator($routes, $matcher)->generateAbsolute('view', [], '');
+        $url2 = $this->createUrlGenerator($routes, $matcher)->generateAbsolute('view');
 
         $this->assertEquals('//test.com/home/index', $url1);
         $this->assertEquals('//test.com/home/view', $url2);
@@ -387,7 +387,7 @@ final class UrlGeneratorTest extends TestCase
     {
         $request = new ServerRequest('GET', 'http://test.com/home/index');
         $routes = [
-            Route::get('/home/index')->name('index')->host('//mysite.com'),
+            Route::get('/home/index')->name('index')->host('mysite.com'),
         ];
 
         $matcher = $this->createMatcher($this->createRouteCollection($routes));
@@ -411,6 +411,22 @@ final class UrlGeneratorTest extends TestCase
         $url = $this->createUrlGenerator($routes, $matcher)->generateAbsolute('index', [], '');
 
         $this->assertEquals('//test.com/home/index', $url);
+    }
+
+    public function testAbsoluteUrlWithHost(): void
+    {
+        $request = new ServerRequest('GET', 'http://example.com/home/index');
+        $routes = [
+            Route::get('/home/index')->name('index')->host('example.com'),
+        ];
+
+        $matcher = $this->createMatcher($this->createRouteCollection($routes));
+        $url = $this->createUrlGenerator($routes, $matcher)->generateAbsolute('index');
+
+        $this->assertEquals('//example.com/home/index', $url);
+        
+        $matcher->match($request);
+        $this->assertEquals('//example.com/home/index', $url);
     }
 
     public function testFallbackAbsoluteUrl(): void
