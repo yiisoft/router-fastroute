@@ -394,9 +394,13 @@ final class UrlGeneratorTest extends TestCase
         $matcher->match($request);
         $url1 = $this->createUrlGenerator($routes, $matcher)->generateAbsolute('index', [], '', 'http://test.com');
         $url2 = $this->createUrlGenerator($routes, $matcher)->generateAbsolute('index', [], '', 'test.com');
+        $url3 = $this->createUrlGenerator($routes, $matcher)->generateAbsolute('index', [], null, 'http://test.com');
+        $url4 = $this->createUrlGenerator($routes, $matcher)->generateAbsolute('index', [], null, 'test.com');
 
         $this->assertEquals('//test.com/home/index', $url1);
         $this->assertEquals('//test.com/home/index', $url2);
+        $this->assertEquals('http://test.com/home/index', $url3);
+        $this->assertEquals('//test.com/home/index', $url4);
     }
 
     public function testLastMatchedHostProtocolRelativeSchemeAbsoluteUrl(): void
