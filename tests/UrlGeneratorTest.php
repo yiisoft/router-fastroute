@@ -394,9 +394,13 @@ final class UrlGeneratorTest extends TestCase
         $matcher->match($request);
         $url1 = $this->createUrlGenerator($routes, $matcher)->generateAbsolute('index', [], '', 'http://test.com');
         $url2 = $this->createUrlGenerator($routes, $matcher)->generateAbsolute('index', [], '', 'test.com');
+        $url3 = $this->createUrlGenerator($routes, $matcher)->generateAbsolute('index', [], null, 'http://test.com');
+        $url4 = $this->createUrlGenerator($routes, $matcher)->generateAbsolute('index', [], null, 'test.com');
 
         $this->assertEquals('//test.com/home/index', $url1);
         $this->assertEquals('//test.com/home/index', $url2);
+        $this->assertEquals('http://test.com/home/index', $url3);
+        $this->assertEquals('http://test.com/home/index', $url4);
     }
 
     public function testLastMatchedHostProtocolRelativeSchemeAbsoluteUrl(): void
@@ -413,7 +417,7 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('//test.com/home/index', $url);
     }
 
-    public function testAbsoluteUrlWithHost(): void
+    public function testHostInRouteWithoutSchemeAbsoluteUrl(): void
     {
         $request = new ServerRequest('GET', 'http://example.com/home/index');
         $routes = [
@@ -426,7 +430,9 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('//example.com/home/index', $url);
 
         $matcher->match($request);
-        $this->assertEquals('//example.com/home/index', $url);
+        $url = $this->createUrlGenerator($routes, $matcher)->generateAbsolute('index');
+
+        $this->assertEquals('http://example.com/home/index', $url);
     }
 
     public function testFallbackAbsoluteUrl(): void
