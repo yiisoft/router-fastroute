@@ -424,7 +424,7 @@ final class UrlGeneratorTest extends TestCase
         $url = $this->createUrlGenerator($routes, $matcher)->generateAbsolute('index');
 
         $this->assertEquals('//example.com/home/index', $url);
-        
+
         $matcher->match($request);
         $this->assertEquals('//example.com/home/index', $url);
     }
