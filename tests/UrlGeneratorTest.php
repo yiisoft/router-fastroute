@@ -400,7 +400,7 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('//test.com/home/index', $url1);
         $this->assertEquals('//test.com/home/index', $url2);
         $this->assertEquals('http://test.com/home/index', $url3);
-        $this->assertEquals('//test.com/home/index', $url4);
+        $this->assertEquals('http://test.com/home/index', $url4);
     }
 
     public function testLastMatchedHostProtocolRelativeSchemeAbsoluteUrl(): void
