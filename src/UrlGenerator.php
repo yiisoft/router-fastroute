@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Yiisoft\Router\FastRoute;
 
-use function array_key_exists;
-use function array_keys;
 use FastRoute\RouteParser;
-use function implode;
-use function is_string;
-use function preg_match;
-
 use Psr\Http\Message\UriInterface;
 use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\RouteNotFoundException;
 use Yiisoft\Router\UrlGeneratorInterface;
 use Yiisoft\Router\UrlMatcherInterface;
+
+use function array_key_exists;
+use function array_keys;
+use function implode;
+use function is_string;
+use function preg_match;
 
 final class UrlGenerator implements UrlGeneratorInterface
 {
@@ -89,7 +89,7 @@ final class UrlGenerator implements UrlGeneratorInterface
                 return rtrim($host, '/') . $url;
             }
 
-            if ($scheme === '' && $host !== '' && $this->isRelative($host)) {
+            if ((empty($scheme) || $lastRequestScheme === null) && $host !== '' && $this->isRelative($host)) {
                 $host = '//' . $host;
             }
 
