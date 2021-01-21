@@ -20,6 +20,7 @@ use function preg_match;
 final class UrlGenerator implements UrlGeneratorInterface
 {
     private string $uriPrefix = '';
+    private bool $yii2Compat = false;
     private RouteCollectionInterface $routeCollection;
     private ?UrlMatcherInterface $matcher;
     private RouteParser $routeParser;
@@ -161,6 +162,11 @@ final class UrlGenerator implements UrlGeneratorInterface
         $this->uriPrefix = $prefix;
     }
 
+    public function setYii2Compat(bool $compat): void
+    {
+        $this->yii2Compat = $compat;
+    }
+
     /**
      * Checks for any missing route parameters
      *
@@ -220,7 +226,9 @@ final class UrlGenerator implements UrlGeneratorInterface
             }
 
             // Append the substituted value
-            $path .= rawurlencode((string) $parameters[$part[0]]);
+            $path .= $this->yii2Compat
+                ? urlencode((string) $parameters[$part[0]])
+                : rawurlencode((string) $parameters[$part[0]]);
             unset($notSubstitutedParams[$part[0]]);
         }
 

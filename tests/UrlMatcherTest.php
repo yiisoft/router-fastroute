@@ -93,19 +93,21 @@ final class UrlMatcherTest extends TestCase
     public function testSimpleRouteWithUrlencodedParam(): void
     {
         $routes = [
-            Route::get('/site/post/{name:.*?}'),
+            Route::get('/site/post/{name1:.*?}/{name2:.*?}'),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
 
-        $request = new ServerRequest('GET', '/site/post/with%20space');
+        $request = new ServerRequest('GET', '/site/post/with+space/with%20space');
 
         $result = $urlMatcher->match($request);
         $parameters = $result->parameters();
 
         $this->assertTrue($result->isSuccess());
-        $this->assertArrayHasKey('name', $parameters);
-        $this->assertSame('with space', $parameters['name']);
+        $this->assertArrayHasKey('name1', $parameters);
+        $this->assertArrayHasKey('name2', $parameters);
+        $this->assertSame('with space', $parameters['name1']);
+        $this->assertSame('with space', $parameters['name2']);
     }
 
     public function testSimpleRouteWithHostSuccess(): void
