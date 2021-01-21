@@ -98,7 +98,7 @@ final class UrlMatcherTest extends TestCase
 
         $urlMatcher = $this->createUrlMatcher($routes);
 
-        $request = new ServerRequest('GET', '/site/post/with+space/with%20space');
+        $request = new ServerRequest('GET', '/site/post/with+space/also%20space');
 
         $result = $urlMatcher->match($request);
         $parameters = $result->parameters();
@@ -107,7 +107,7 @@ final class UrlMatcherTest extends TestCase
         $this->assertArrayHasKey('name1', $parameters);
         $this->assertArrayHasKey('name2', $parameters);
         $this->assertSame('with space', $parameters['name1']);
-        $this->assertSame('with space', $parameters['name2']);
+        $this->assertSame('also space', $parameters['name2']);
     }
 
     public function testSimpleRouteWithHostSuccess(): void
