@@ -220,7 +220,7 @@ final class UrlGenerator implements UrlGeneratorInterface
             }
 
             // Append the substituted value
-            $path .= $parameters[$part[0]];
+            $path .= rawurlencode((string) $parameters[$part[0]]);
             unset($notSubstitutedParams[$part[0]]);
         }
 
