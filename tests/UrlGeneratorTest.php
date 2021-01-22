@@ -68,6 +68,21 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('/view/100/~test#yii', $url);
     }
 
+    public function testParametersUrlencode(): void
+    {
+        $routes = [
+            Route::get('/view/{name:.*?}/{text:~[\w]+}')->name('view'),
+        ];
+        $urlGenerator = $this->createUrlGenerator($routes);
+
+        $url = $urlGenerator->generate('view', ['name' => 'with space', 'text' => '~test', 'param' => 'also space']);
+        $this->assertEquals('/view/with%20space/~test?param=also+space', $url);
+
+        $urlGenerator->setEncodeRaw(false);
+        $url = $urlGenerator->generate('view', ['name' => 'with space', 'text' => '~test', 'param' => 'also space']);
+        $this->assertEquals('/view/with+space/%7Etest?param=also+space', $url);
+    }
+
     public function testExceptionThrownIfParameterPatternDoesntMatch(): void
     {
         $routes = [

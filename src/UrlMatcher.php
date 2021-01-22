@@ -113,7 +113,7 @@ final class UrlMatcher implements UrlMatcherInterface
         }
 
         $dispatchData = $this->getDispatchData();
-        $path = rawurldecode($request->getUri()->getPath());
+        $path = urldecode($request->getUri()->getPath());
         $method = $request->getMethod();
         $result = $this->getDispatcher($dispatchData)->dispatch($method, $request->getUri()->getHost() . $path);
 
