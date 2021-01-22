@@ -78,7 +78,7 @@ final class UrlGeneratorTest extends TestCase
         $url = $urlGenerator->generate('view', ['name' => 'with space', 'text' => '~test', 'param' => 'also space']);
         $this->assertEquals('/view/with%20space/~test?param=also+space', $url);
 
-        $urlGenerator->setYii2Compat(true);
+        $urlGenerator->setEncodeRaw(false);
         $url = $urlGenerator->generate('view', ['name' => 'with space', 'text' => '~test', 'param' => 'also space']);
         $this->assertEquals('/view/with+space/%7Etest?param=also+space', $url);
     }

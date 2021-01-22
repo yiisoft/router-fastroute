@@ -20,7 +20,7 @@ use function preg_match;
 final class UrlGenerator implements UrlGeneratorInterface
 {
     private string $uriPrefix = '';
-    private bool $yii2Compat = false;
+    private bool $encodeRaw = true;
     private RouteCollectionInterface $routeCollection;
     private ?UrlMatcherInterface $matcher;
     private RouteParser $routeParser;
@@ -157,14 +157,14 @@ final class UrlGenerator implements UrlGeneratorInterface
         return $this->uriPrefix;
     }
 
+    public function setEncodeRaw(bool $encodeRaw): void
+    {
+        $this->encodeRaw = $encodeRaw;
+    }
+
     public function setUriPrefix(string $prefix): void
     {
         $this->uriPrefix = $prefix;
-    }
-
-    public function setYii2Compat(bool $compat): void
-    {
-        $this->yii2Compat = $compat;
     }
 
     /**
@@ -226,9 +226,9 @@ final class UrlGenerator implements UrlGeneratorInterface
             }
 
             // Append the substituted value
-            $path .= $this->yii2Compat
-                ? urlencode((string) $parameters[$part[0]])
-                : rawurlencode((string) $parameters[$part[0]]);
+            $path .= $this->encodeRaw
+                ? rawurlencode((string) $parameters[$part[0]])
+                : urlencode((string) $parameters[$part[0]]);
             unset($notSubstitutedParams[$part[0]]);
         }
 
