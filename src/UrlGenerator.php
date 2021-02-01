@@ -39,7 +39,7 @@ final class UrlGenerator implements UrlGeneratorInterface
      * {@inheritDoc}
      *
      * Replacements in FastRoute are written as `{name}` or `{name:<pattern>}`;
-     * this method uses `FastRoute\RouteParser\Std` to search for the best route
+     * this method uses {@see RouteParser\Std} to search for the best route
      * match based on the available substitutions and generates a uri.
      *
      * @throws \RuntimeException if parameter value does not match its regex.

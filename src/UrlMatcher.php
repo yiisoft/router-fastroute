@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Router\FastRoute;
 
-use function array_merge;
-use function array_reduce;
-use function array_unique;
 use FastRoute\DataGenerator\GroupCountBased as RouteGenerator;
 use FastRoute\Dispatcher;
 use FastRoute\Dispatcher\GroupCountBased;
@@ -17,10 +14,13 @@ use Psr\Http\Message\UriInterface;
 use Psr\SimpleCache\CacheInterface;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\MatchingResult;
-
 use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\UrlMatcherInterface;
+
+use function array_merge;
+use function array_reduce;
+use function array_unique;
 
 final class UrlMatcher implements UrlMatcherInterface
 {
@@ -165,7 +165,7 @@ final class UrlMatcher implements UrlMatcherInterface
      * (which should be derived from the router's getData() method); this
      * approach is done to allow testing against the dispatcher.
      *
-     * @param array|object $data Data from RouteCollector::getData()
+     * @param array|object $data Data from {@see RouteCollector::getData()}
      *
      * @return Dispatcher
      */
@@ -272,7 +272,11 @@ final class UrlMatcher implements UrlMatcherInterface
         foreach ($this->routeCollection->getRoutes() as $index => $route) {
             /** @var Route $route */
             $hostPattern = $route->getHost() ?? '{_host:[a-zA-Z0-9\.\-]*}';
-            $this->fastRouteCollector->addRoute($route->getMethods(), $hostPattern . $route->getPattern(), $route->getName());
+            $this->fastRouteCollector->addRoute(
+                $route->getMethods(),
+                $hostPattern . $route->getPattern(),
+                $route->getName()
+            );
         }
         $this->hasInjectedRoutes = true;
     }
