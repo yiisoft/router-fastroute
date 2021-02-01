@@ -17,7 +17,7 @@ use function set_error_handler;
 use function sprintf;
 use function var_export;
 
-class FastRouteCache implements CacheInterface
+final class FastRouteCache implements CacheInterface
 {
     /**
      * Template used when generating the cache file.
@@ -38,6 +38,14 @@ EOT;
         $this->cacheFile = $cacheFilePath;
     }
 
+    /**
+     * @param string $key
+     * @param null $default
+     *
+     * @psalm-suppress InvalidArgument
+     *
+     * @return array
+     */
     public function get($key, $default = null): array
     {
         set_error_handler(
