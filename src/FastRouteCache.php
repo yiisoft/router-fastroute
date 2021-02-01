@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace Yiisoft\Router\FastRoute;
 
-use function dirname;
+use Psr\SimpleCache\CacheInterface;
 
+use function dirname;
 use function file_exists;
 use function file_put_contents;
 use function is_array;
 use function is_dir;
 use function is_writable;
-use Psr\SimpleCache\CacheInterface;
 use function restore_error_handler;
 use function set_error_handler;
 use function sprintf;
@@ -45,6 +45,7 @@ EOT;
             },
             E_WARNING
         ); // suppress php warnings
+        /** @noinspection PhpIncludeInspection */
         $data = include $this->cacheFile;
         restore_error_handler();
 
@@ -108,17 +109,17 @@ EOT;
         return file_exists($this->cacheFile);
     }
 
-    public function setMultiple($values, $ttl = null)
+    public function setMultiple($values, $ttl = null): bool
     {
         throw new \RuntimeException('Method is not implemented');
     }
 
-    public function getMultiple($keys, $default = null)
+    public function getMultiple($keys, $default = null): iterable
     {
         throw new \RuntimeException('Method is not implemented');
     }
 
-    public function deleteMultiple($keys)
+    public function deleteMultiple($keys): bool
     {
         throw new \RuntimeException('Method is not implemented');
     }
