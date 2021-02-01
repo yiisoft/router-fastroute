@@ -39,12 +39,7 @@ EOT;
     }
 
     /**
-     * @param string $key
-     * @param null $default
-     *
      * @psalm-suppress InvalidArgument
-     *
-     * @return array
      */
     public function get($key, $default = null): array
     {
