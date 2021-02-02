@@ -1,7 +1,7 @@
 {
     "name": "yiisoft/router-fastroute",
     "type": "library",
-    "description": "Yii router FastRoute adpapter",
+    "description": "Yii router FastRoute adapter",
     "keywords": [
         "router",
         "fastroute"
