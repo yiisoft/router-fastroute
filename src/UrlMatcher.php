@@ -13,6 +13,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\UriInterface;
 use Psr\SimpleCache\CacheInterface;
 use Yiisoft\Http\Method;
+use Yiisoft\Profiler\ProfilerInterface;
 use Yiisoft\Router\MatchingResult;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteCollectionInterface;
@@ -66,6 +67,7 @@ final class UrlMatcher implements UrlMatcherInterface
      * @var UriInterface|null
      */
     private ?UriInterface $currentUri = null;
+    private ProfilerInterface $profiler;
 
     /**
      * Constructor
@@ -87,6 +89,7 @@ final class UrlMatcher implements UrlMatcherInterface
      */
     public function __construct(
         RouteCollectionInterface $routeCollection,
+        ProfilerInterface $profiler,
         CacheInterface $cache = null,
         array $config = null,
         RouteCollector $fastRouteCollector = null,
@@ -96,6 +99,7 @@ final class UrlMatcher implements UrlMatcherInterface
             $fastRouteCollector = $this->createRouteCollector();
         }
         $this->routeCollection = $routeCollection;
+        $this->profiler = $profiler;
         $this->fastRouteCollector = $fastRouteCollector;
         $this->dispatcherCallback = $dispatcherFactory;
         $this->loadConfig($config);
@@ -106,6 +110,7 @@ final class UrlMatcher implements UrlMatcherInterface
 
     public function match(ServerRequestInterface $request): MatchingResult
     {
+        $this->profiler->begin('Matching route');
         $this->currentUri = $request->getUri();
 
         if (!$this->hasCache && !$this->hasInjectedRoutes) {
@@ -116,6 +121,7 @@ final class UrlMatcher implements UrlMatcherInterface
         $path = urldecode($request->getUri()->getPath());
         $method = $request->getMethod();
         $result = $this->getDispatcher($dispatchData)->dispatch($method, $request->getUri()->getHost() . $path);
+        $this->profiler->end('Matching route');
 
         return $result[0] !== Dispatcher::FOUND
             ? $this->marshalFailedRoute($result)

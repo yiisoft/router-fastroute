@@ -6,7 +6,9 @@ namespace Yiisoft\Router\FastRoute\Tests;
 
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\CacheInterface;
+use Yiisoft\Profiler\Profiler;
 use Yiisoft\Router\FastRoute\UrlMatcher;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
@@ -20,7 +22,7 @@ final class UrlMatcherTest extends TestCase
         $collector = Group::create();
         $rootGroup = Group::create(null, $routes);
         $collector->addGroup($rootGroup);
-        return new UrlMatcher(new RouteCollection($collector), $cache, ['cache_key' => 'route-cache']);
+        return new UrlMatcher(new RouteCollection($collector), new Profiler($this->getMockBuilder(LoggerInterface::class)->getMock()), $cache, ['cache_key' => 'route-cache']);
     }
 
     public function testDefaultsAreInResult(): void

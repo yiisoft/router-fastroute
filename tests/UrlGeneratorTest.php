@@ -6,6 +6,8 @@ namespace Yiisoft\Router\FastRoute\Tests;
 
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Yiisoft\Profiler\Profiler;
 use Yiisoft\Router\FastRoute\UrlGenerator;
 use Yiisoft\Router\FastRoute\UrlMatcher;
 use Yiisoft\Router\Group;
@@ -26,7 +28,7 @@ final class UrlGeneratorTest extends TestCase
 
     private function createMatcher(RouteCollectionInterface $routeCollection): UrlMatcherInterface
     {
-        return new UrlMatcher($routeCollection);
+        return new UrlMatcher($routeCollection, new Profiler($this->getMockBuilder(LoggerInterface::class)->getMock()));
     }
 
     private function createRouteCollection(array $routes): RouteCollectionInterface
