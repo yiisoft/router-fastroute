@@ -23,9 +23,9 @@ final class FastRouteCache implements CacheInterface
      * Template used when generating the cache file.
      */
     public const CACHE_TEMPLATE = <<< 'EOT'
-<?php
-return %s;
-EOT;
+        <?php
+        return %s;
+        EOT;
     /**
      * Cache file path relative to the project directory.
      *
