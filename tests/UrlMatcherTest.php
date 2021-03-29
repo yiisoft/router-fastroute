@@ -18,7 +18,7 @@ final class UrlMatcherTest extends TestCase
     private function createUrlMatcher(array $routes, CacheInterface $cache = null): UrlMatcherInterface
     {
         $collector = Group::create();
-        $rootGroup = Group::create(null, $routes);
+        $rootGroup = Group::create(null)->routes(...$routes);
         $collector->addGroup($rootGroup);
         return new UrlMatcher(new RouteCollection($collector), $cache, ['cache_key' => 'route-cache']);
     }
@@ -380,6 +380,19 @@ final class UrlMatcherTest extends TestCase
         $matcher = $this->createUrlMatcher($routes, $cache);
         $result = $matcher->match($request);
         $this->assertTrue($result->isSuccess());
+    }
+
+    public function testStaticRouteExcludeFromMatching(): void
+    {
+        $routes = [
+            Route::get('/test')->name('test')->static(),
+        ];
+
+        $urlMatcher = $this->createUrlMatcher($routes);
+        $request = new ServerRequest('GET', '/');
+        $result = $urlMatcher->match($request);
+
+        $this->assertFalse($result->isSuccess());
     }
 
     public function testCacheError(): void
