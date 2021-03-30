@@ -385,7 +385,7 @@ final class UrlMatcherTest extends TestCase
     public function testStaticRouteExcludeFromMatching(): void
     {
         $routes = [
-            Route::get('/test')->name('test')->static(),
+            Route::static('/test')->name('test'),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
