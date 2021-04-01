@@ -140,7 +140,7 @@ final class UrlGeneratorTest extends TestCase
                     Route::get('/note')->name('api-v1-note/index'),
                     Route::get('/note/{id}')->name('api-v1-note/view')
                 )
-            )
+            ),
         ];
 
         $urlGenerator = $this->createUrlGenerator($routes);
