@@ -31,7 +31,7 @@ final class UrlGeneratorTest extends TestCase
 
     private function createRouteCollection(array $routes): RouteCollectionInterface
     {
-        $rootGroup = Group::create(null, $routes);
+        $rootGroup = Group::create(null)->routes(...$routes);
         return new RouteCollection($rootGroup);
     }
 
@@ -108,10 +108,10 @@ final class UrlGeneratorTest extends TestCase
     public function testGroupPrefixAppended(): void
     {
         $routes = [
-            Group::create('/api', [
+            Group::create('/api')->routes(
                 Route::get('/post')->name('post/index'),
-                Route::get('/post/{id}')->name('post/view'),
-            ]),
+                Route::get('/post/{id}')->name('post/view')
+            ),
         ];
         $urlGenerator = $this->createUrlGenerator($routes);
 
@@ -125,23 +125,24 @@ final class UrlGeneratorTest extends TestCase
     public function testNestedGroupsPrefixAppended(): void
     {
         $routes = [
-            Group::create('/api', [
-                Group::create('/v1', [
+            Group::create('/api')->routes(
+                Group::create('/v1')->routes(
                     Route::get('/user')->name('api-v1-user/index'),
                     Route::get('/user/{id}')->name('api-v1-user/view'),
-                    Group::create('/news', [
+                    Group::create('/news')->routes(
                         Route::get('/post')->name('api-v1-news-post/index'),
                         Route::get('/post/{id}')->name('api-v1-news-post/view'),
-                    ]),
-                    Group::create('/blog', [
+                    ),
+                    Group::create('/blog')->routes(
                         Route::get('/post')->name('api-v1-blog-post/index'),
                         Route::get('/post/{id}')->name('api-v1-blog-post/view'),
-                    ]),
+                    ),
                     Route::get('/note')->name('api-v1-note/index'),
-                    Route::get('/note/{id}')->name('api-v1-note/view'),
-                ]),
-            ]),
+                    Route::get('/note/{id}')->name('api-v1-note/view')
+                )
+            )
         ];
+
         $urlGenerator = $this->createUrlGenerator($routes);
 
         $url = $urlGenerator->generate('api-v1-user/index');

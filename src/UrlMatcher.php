@@ -271,6 +271,9 @@ final class UrlMatcher implements UrlMatcherInterface
     {
         foreach ($this->routeCollection->getRoutes() as $index => $route) {
             /** @var Route $route */
+            if (!$route->hasMiddlewares()) {
+                continue;
+            }
             $hostPattern = $route->getHost() ?? '{_host:[a-zA-Z0-9\.\-]*}';
             $this->fastRouteCollector->addRoute(
                 $route->getMethods(),
