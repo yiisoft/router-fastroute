@@ -48,8 +48,12 @@ class RouteFactory
     public function __invoke(ContainerInterface $container): RouterInterface
     {
         $routes = [
-            Route::get('/', [SiteController::class, 'index'], $container)->name('site/index'),
-            Route::get('/about', [SiteController::class, 'about'], $container)->name('site/about'),
+            Route::get('/')
+                ->action([SiteController::class, 'index'])
+                ->name('site/index'),
+            Route::get('/about')
+                ->action([SiteController::class, 'about'])
+                ->name('site/about'),
         ];
 
         return (new RouterFactory(new FastRouteFactory(), $routes))($container);
