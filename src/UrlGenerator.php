@@ -162,9 +162,9 @@ final class UrlGenerator implements UrlGeneratorInterface
         $this->encodeRaw = $encodeRaw;
     }
 
-    public function setUriPrefix(string $prefix): void
+    public function setUriPrefix(string $name): void
     {
-        $this->uriPrefix = $prefix;
+        $this->uriPrefix = $name;
     }
 
     /**
