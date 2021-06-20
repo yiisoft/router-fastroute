@@ -311,7 +311,7 @@ final class UrlMatcherTest extends TestCase
         $request = new ServerRequest('GET', '/site/index');
 
         $urlMatcher->match($request);
-        $this->assertSame($routes[0]->getName(), $urlMatcher->getCurrentRoute()->getName());
+        $this->assertSame($routes[0]->getParameter(Route::NAME, $routes[0]->getDefaultName()), $urlMatcher->getCurrentRoute()->getParameter(Route::NAME, $urlMatcher->getCurrentRoute()->getDefaultName()));
     }
 
     public function testGetCurrentUri(): void
