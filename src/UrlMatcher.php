@@ -232,12 +232,12 @@ final class UrlMatcher implements UrlMatcherInterface
 
         $route = $this->routeCollection->getRoute($name);
 
-        if (!in_array($method, $route->getMethods(), true)) {
-            $result[1] = $route->getPattern();
+        if (!in_array($method, $route->getParameter(Route::METHODS), true)) {
+            $result[1] = $route->getParameter(Route::PATTERN);
             return $this->marshalMethodNotAllowedResult($result);
         }
 
-        $parameters = array_merge($route->getDefaults(), $parameters);
+        $parameters = array_merge($route->getParameter(Route::DEFAULTS, []), $parameters);
         $this->currentRoute = $route;
 
         return MatchingResult::fromSuccess($route, $parameters);
@@ -251,11 +251,11 @@ final class UrlMatcher implements UrlMatcherInterface
             array_reduce(
                 $this->routeCollection->getRoutes(),
                 static function ($allowedMethods, Route $route) use ($path) {
-                    if ($path !== $route->getPattern()) {
+                    if ($path !== $route->getParameter(Route::PATTERN)) {
                         return $allowedMethods;
                     }
 
-                    return array_merge($allowedMethods, $route->getMethods());
+                    return array_merge($allowedMethods, $route->getParameter(Route::METHODS));
                 },
                 []
             )
@@ -274,11 +274,11 @@ final class UrlMatcher implements UrlMatcherInterface
             if (!$route->hasMiddlewares()) {
                 continue;
             }
-            $hostPattern = $route->getHost() ?? '{_host:[a-zA-Z0-9\.\-]*}';
+            $hostPattern = $route->getParameter(Route::HOST) ?? '{_host:[a-zA-Z0-9\.\-]*}';
             $this->fastRouteCollector->addRoute(
-                $route->getMethods(),
-                $hostPattern . $route->getPattern(),
-                $route->getName()
+                $route->getParameter(Route::METHODS),
+                $hostPattern . $route->getParameter(Route::PATTERN),
+                $route->getParameter(Route::NAME, $route->getDefaultName())
             );
         }
         $this->hasInjectedRoutes = true;
