@@ -126,7 +126,7 @@ final class UrlMatcher implements UrlMatcherInterface
     /**
      * Returns the current Route object
      *
-     * @return RouteParametersInterface |null current route
+     * @return RouteParametersInterface|null current route
      */
     public function getCurrentRoute(): ?RouteParametersInterface
     {
