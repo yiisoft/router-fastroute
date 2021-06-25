@@ -49,7 +49,7 @@ final class UrlGenerator implements UrlGeneratorInterface
     {
         $route = $this->routeCollection->getRoute($name);
 
-        $parsedRoutes = array_reverse($this->routeParser->parse($route->getParameter(Route::PATTERN)));
+        $parsedRoutes = array_reverse($this->routeParser->parse($route->getPattern()));
         if ($parsedRoutes === []) {
             throw new RouteNotFoundException($name);
         }
@@ -86,7 +86,7 @@ final class UrlGenerator implements UrlGeneratorInterface
         $uri = $this->matcher && $this->matcher->getCurrentUri() !== null ? $this->matcher->getCurrentUri() : null;
         $lastRequestScheme = $uri !== null ? $uri->getScheme() : null;
 
-        if ($host !== null || ($host = $route->getParameter(Route::HOST)) !== null) {
+        if ($host !== null || ($host = $route->getHost()) !== null) {
             if ($scheme === null && !$this->isRelative($host)) {
                 return rtrim($host, '/') . $url;
             }
