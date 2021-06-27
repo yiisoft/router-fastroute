@@ -58,7 +58,7 @@ final class UrlMatcher implements UrlMatcherInterface
 
     private RouteCollector $fastRouteCollector;
     private RouteCollectionInterface $routeCollection;
-    private ?Route $currentRoute = null;
+    private ?RouteParametersInterface $currentRoute = null;
     private bool $hasInjectedRoutes = false;
 
     /**
@@ -251,7 +251,7 @@ final class UrlMatcher implements UrlMatcherInterface
         $allowedMethods = array_unique(
             array_reduce(
                 $this->routeCollection->getRoutes(),
-                static function ($allowedMethods, Route $route) use ($path) {
+                static function ($allowedMethods, RouteParametersInterface $route) use ($path) {
                     if ($path !== $route->getPattern()) {
                         return $allowedMethods;
                     }
