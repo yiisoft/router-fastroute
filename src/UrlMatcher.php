@@ -16,6 +16,7 @@ use Yiisoft\Http\Method;
 use Yiisoft\Router\MatchingResult;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteCollectionInterface;
+use Yiisoft\Router\RouteParametersInterface;
 use Yiisoft\Router\UrlMatcherInterface;
 
 use function array_merge;
@@ -125,9 +126,9 @@ final class UrlMatcher implements UrlMatcherInterface
     /**
      * Returns the current Route object
      *
-     * @return Route|null current route
+     * @return RouteParametersInterface|null current route
      */
-    public function getCurrentRoute(): ?Route
+    public function getCurrentRoute(): ?RouteParametersInterface
     {
         return $this->currentRoute;
     }
@@ -232,12 +233,12 @@ final class UrlMatcher implements UrlMatcherInterface
 
         $route = $this->routeCollection->getRoute($name);
 
-        if (!in_array($method, $route->getParameter(Route::METHODS), true)) {
-            $result[1] = $route->getParameter(Route::PATTERN);
+        if (!in_array($method, $route->getMethods(), true)) {
+            $result[1] = $route->getPattern();
             return $this->marshalMethodNotAllowedResult($result);
         }
 
-        $parameters = array_merge($route->getParameter(Route::DEFAULTS, []), $parameters);
+        $parameters = array_merge($route->getDefaults(), $parameters);
         $this->currentRoute = $route;
 
         return MatchingResult::fromSuccess($route, $parameters);
@@ -251,11 +252,11 @@ final class UrlMatcher implements UrlMatcherInterface
             array_reduce(
                 $this->routeCollection->getRoutes(),
                 static function ($allowedMethods, Route $route) use ($path) {
-                    if ($path !== $route->getParameter(Route::PATTERN)) {
+                    if ($path !== $route->getPattern()) {
                         return $allowedMethods;
                     }
 
-                    return array_merge($allowedMethods, $route->getParameter(Route::METHODS));
+                    return array_merge($allowedMethods, $route->getMethods());
                 },
                 []
             )
@@ -274,11 +275,11 @@ final class UrlMatcher implements UrlMatcherInterface
             if (!$route->hasMiddlewares()) {
                 continue;
             }
-            $hostPattern = $route->getParameter(Route::HOST) ?? '{_host:[a-zA-Z0-9\.\-]*}';
+            $hostPattern = $route->getHost() ?? '{_host:[a-zA-Z0-9\.\-]*}';
             $this->fastRouteCollector->addRoute(
-                $route->getParameter(Route::METHODS),
-                $hostPattern . $route->getParameter(Route::PATTERN),
-                $route->getParameter(Route::NAME, $route->getDefaultName())
+                $route->getMethods(),
+                $hostPattern . $route->getPattern(),
+                $route->getName()
             );
         }
         $this->hasInjectedRoutes = true;
