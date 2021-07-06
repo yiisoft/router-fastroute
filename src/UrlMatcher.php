@@ -216,7 +216,7 @@ final class UrlMatcher implements UrlMatcherInterface
             return MatchingResult::fromFailure($result[1]);
         }
 
-        return MatchingResult::fromFailure(Method::ANY);
+        return MatchingResult::fromFailure(Method::ALL);
     }
 
     /**
