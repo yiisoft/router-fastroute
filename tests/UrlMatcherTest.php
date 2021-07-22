@@ -11,14 +11,15 @@ use Yiisoft\Router\FastRoute\UrlMatcher;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteCollection;
+use Yiisoft\Router\RouteCollector;
 use Yiisoft\Router\UrlMatcherInterface;
 
 final class UrlMatcherTest extends TestCase
 {
     private function createUrlMatcher(array $routes, CacheInterface $cache = null): UrlMatcherInterface
     {
-        $collector = Group::create();
         $rootGroup = Group::create(null)->routes(...$routes);
+        $collector = new RouteCollector();
         $collector->addGroup($rootGroup);
         return new UrlMatcher(new RouteCollection($collector), $cache, ['cache_key' => 'route-cache']);
     }

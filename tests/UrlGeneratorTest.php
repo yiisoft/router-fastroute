@@ -12,6 +12,7 @@ use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteCollection;
 use Yiisoft\Router\RouteCollectionInterface;
+use Yiisoft\Router\RouteCollector;
 use Yiisoft\Router\RouteNotFoundException;
 use Yiisoft\Router\UrlGeneratorInterface;
 use Yiisoft\Router\UrlMatcherInterface;
@@ -32,7 +33,9 @@ final class UrlGeneratorTest extends TestCase
     private function createRouteCollection(array $routes): RouteCollectionInterface
     {
         $rootGroup = Group::create(null)->routes(...$routes);
-        return new RouteCollection($rootGroup);
+        $collector = new RouteCollector();
+        $collector->addGroup($rootGroup);
+        return new RouteCollection($collector);
     }
 
     public function testSimpleRouteGenerated(): void
