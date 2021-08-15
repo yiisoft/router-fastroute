@@ -10,13 +10,14 @@ use FastRoute\Dispatcher\GroupCountBased;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std as RouteParser;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UriInterface;
 use Psr\SimpleCache\CacheInterface;
+use RuntimeException;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\MatchingResult;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\RouteParametersInterface;
+use Yiisoft\Router\RouterInterface;
 use Yiisoft\Router\UrlMatcherInterface;
 
 use function array_merge;
@@ -58,15 +59,8 @@ final class UrlMatcher implements UrlMatcherInterface
 
     private RouteCollector $fastRouteCollector;
     private RouteCollectionInterface $routeCollection;
-    private ?RouteParametersInterface $currentRoute = null;
+    private RouterInterface $router;
     private bool $hasInjectedRoutes = false;
-
-    /**
-     * Current URI
-     *
-     * @var UriInterface|null
-     */
-    private ?UriInterface $currentUri = null;
 
     /**
      * Constructor
@@ -88,6 +82,7 @@ final class UrlMatcher implements UrlMatcherInterface
      */
     public function __construct(
         RouteCollectionInterface $routeCollection,
+        RouterInterface $router,
         CacheInterface $cache = null,
         array $config = null,
         RouteCollector $fastRouteCollector = null,
@@ -97,6 +92,7 @@ final class UrlMatcher implements UrlMatcherInterface
             $fastRouteCollector = $this->createRouteCollector();
         }
         $this->routeCollection = $routeCollection;
+        $this->router = $router;
         $this->fastRouteCollector = $fastRouteCollector;
         $this->dispatcherCallback = $dispatcherFactory;
         $this->loadConfig($config);
@@ -107,7 +103,7 @@ final class UrlMatcher implements UrlMatcherInterface
 
     public function match(ServerRequestInterface $request): MatchingResult
     {
-        $this->currentUri = $request->getUri();
+        $this->router->setCurrentUri($request->getUri());
 
         if (!$this->hasCache && !$this->hasInjectedRoutes) {
             $this->injectRoutes();
@@ -121,26 +117,6 @@ final class UrlMatcher implements UrlMatcherInterface
         return $result[0] !== Dispatcher::FOUND
             ? $this->marshalFailedRoute($result)
             : $this->marshalMatchedRoute($result, $method);
-    }
-
-    /**
-     * Returns the current Route object
-     *
-     * @return RouteParametersInterface|null current route
-     */
-    public function getCurrentRoute(): ?RouteParametersInterface
-    {
-        return $this->currentRoute;
-    }
-
-    /**
-     * Returns current URI
-     *
-     * @return UriInterface|null current URI
-     */
-    public function getCurrentUri(): ?UriInterface
-    {
-        return $this->currentUri;
     }
 
     /**
@@ -239,7 +215,7 @@ final class UrlMatcher implements UrlMatcherInterface
         }
 
         $parameters = array_merge($route->getDefaults(), $parameters);
-        $this->currentRoute = $route;
+        $this->router->setCurrentRoute($route);
 
         return MatchingResult::fromSuccess($route, $parameters);
     }
@@ -309,7 +285,7 @@ final class UrlMatcher implements UrlMatcherInterface
     /**
      * Load dispatch data from cache
      *
-     * @throws \RuntimeException If the cache file contains invalid data
+     * @throws RuntimeException If the cache file contains invalid data
      */
     private function loadDispatchData(): void
     {
@@ -329,9 +305,9 @@ final class UrlMatcher implements UrlMatcherInterface
      *
      * @param array $dispatchData
      *
-     * @throws \RuntimeException If the cache directory does not exist.
-     * @throws \RuntimeException If the cache directory is not writable.
-     * @throws \RuntimeException If the cache file exists but is not writable
+     * @throws RuntimeException If the cache directory does not exist.
+     * @throws RuntimeException If the cache directory is not writable.
+     * @throws RuntimeException If the cache file exists but is not writable
      */
     private function cacheDispatchData(array $dispatchData): void
     {
