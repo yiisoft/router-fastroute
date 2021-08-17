@@ -9,7 +9,7 @@ use Psr\Http\Message\UriInterface;
 use RuntimeException;
 use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\RouteNotFoundException;
-use Yiisoft\Router\RouterInterface;
+use Yiisoft\Router\CurrentRoute;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 use function array_key_exists;
@@ -23,15 +23,15 @@ final class UrlGenerator implements UrlGeneratorInterface
     private string $uriPrefix = '';
     private bool $encodeRaw = true;
     private RouteCollectionInterface $routeCollection;
-    private ?RouterInterface $router;
+    private ?CurrentRoute $currentRoute;
     private RouteParser $routeParser;
 
     public function __construct(
         RouteCollectionInterface $routeCollection,
-        RouterInterface $router = null,
+        CurrentRoute $currentRoute = null,
         RouteParser $parser = null
     ) {
-        $this->router = $router;
+        $this->currentRoute = $currentRoute;
         $this->routeCollection = $routeCollection;
         $this->routeParser = $parser ?? new RouteParser\Std();
     }
@@ -85,7 +85,7 @@ final class UrlGenerator implements UrlGeneratorInterface
         $url = $this->generate($name, $parameters);
         $route = $this->routeCollection->getRoute($name);
         /** @var UriInterface $uri */
-        $uri = $this->router && $this->router->getCurrentUri() !== null ? $this->router->getCurrentUri() : null;
+        $uri = $this->currentRoute && $this->currentRoute->getUri() !== null ? $this->currentRoute->getUri() : null;
         $lastRequestScheme = $uri !== null ? $uri->getScheme() : null;
 
         if ($host !== null || ($host = $route->getHost()) !== null) {
