@@ -6,11 +6,11 @@ namespace Yiisoft\Router\FastRoute;
 
 use FastRoute\RouteParser;
 use Psr\Http\Message\UriInterface;
-use Yiisoft\Router\Route;
+use RuntimeException;
 use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\RouteNotFoundException;
+use Yiisoft\Router\CurrentRoute;
 use Yiisoft\Router\UrlGeneratorInterface;
-use Yiisoft\Router\UrlMatcherInterface;
 
 use function array_key_exists;
 use function array_keys;
@@ -23,15 +23,15 @@ final class UrlGenerator implements UrlGeneratorInterface
     private string $uriPrefix = '';
     private bool $encodeRaw = true;
     private RouteCollectionInterface $routeCollection;
-    private ?UrlMatcherInterface $matcher;
+    private ?CurrentRoute $currentRoute;
     private RouteParser $routeParser;
 
     public function __construct(
         RouteCollectionInterface $routeCollection,
-        UrlMatcherInterface $matcher = null,
+        CurrentRoute $currentRoute = null,
         RouteParser $parser = null
     ) {
-        $this->matcher = $matcher;
+        $this->currentRoute = $currentRoute;
         $this->routeCollection = $routeCollection;
         $this->routeParser = $parser ?? new RouteParser\Std();
     }
@@ -43,7 +43,7 @@ final class UrlGenerator implements UrlGeneratorInterface
      * this method uses {@see RouteParser\Std} to search for the best route
      * match based on the available substitutions and generates a uri.
      *
-     * @throws \RuntimeException if parameter value does not match its regex.
+     * @throws RuntimeException if parameter value does not match its regex.
      */
     public function generate(string $name, array $parameters = []): string
     {
@@ -70,12 +70,14 @@ final class UrlGenerator implements UrlGeneratorInterface
         }
 
         // No valid route was found: list minimal required parameters
-        throw new \RuntimeException(sprintf(
-            'Route `%s` expects at least parameter values for [%s], but received [%s]',
-            $name,
-            implode(',', $missingParameters),
-            implode(',', array_keys($parameters))
-        ));
+        throw new RuntimeException(
+            sprintf(
+                'Route `%s` expects at least parameter values for [%s], but received [%s]',
+                $name,
+                implode(',', $missingParameters),
+                implode(',', array_keys($parameters))
+            )
+        );
     }
 
     public function generateAbsolute(string $name, array $parameters = [], string $scheme = null, string $host = null): string
@@ -83,7 +85,7 @@ final class UrlGenerator implements UrlGeneratorInterface
         $url = $this->generate($name, $parameters);
         $route = $this->routeCollection->getRoute($name);
         /** @var UriInterface $uri */
-        $uri = $this->matcher && $this->matcher->getCurrentUri() !== null ? $this->matcher->getCurrentUri() : null;
+        $uri = $this->currentRoute && $this->currentRoute->getUri() !== null ? $this->currentRoute->getUri() : null;
         $lastRequestScheme = $uri !== null ? $uri->getScheme() : null;
 
         if ($host !== null || ($host = $route->getHost()) !== null) {
@@ -217,7 +219,7 @@ final class UrlGenerator implements UrlGeneratorInterface
             // Check substitute value with regex
             $pattern = str_replace('~', '\~', $part[1]);
             if (preg_match('~^' . $pattern . '$~', (string)$parameters[$part[0]]) === 0) {
-                throw new \RuntimeException(
+                throw new RuntimeException(
                     sprintf(
                         'Parameter value for [%s] did not match the regex `%s`',
                         $part[0],
