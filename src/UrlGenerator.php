@@ -9,7 +9,7 @@ use Psr\Http\Message\UriInterface;
 use RuntimeException;
 use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\RouteNotFoundException;
-use Yiisoft\Router\CurrentRoute;
+use Yiisoft\Router\CurrentRouteInterface;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 use function array_key_exists;
@@ -23,12 +23,12 @@ final class UrlGenerator implements UrlGeneratorInterface
     private string $uriPrefix = '';
     private bool $encodeRaw = true;
     private RouteCollectionInterface $routeCollection;
-    private ?CurrentRoute $currentRoute;
+    private ?CurrentRouteInterface $currentRoute;
     private RouteParser $routeParser;
 
     public function __construct(
         RouteCollectionInterface $routeCollection,
-        CurrentRoute $currentRoute = null,
+        CurrentRouteInterface $currentRoute = null,
         RouteParser $parser = null
     ) {
         $this->currentRoute = $currentRoute;
