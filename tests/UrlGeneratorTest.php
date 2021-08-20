@@ -6,17 +6,15 @@ namespace Yiisoft\Router\FastRoute\Tests;
 
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
+use Yiisoft\Router\CurrentRoute;
 use Yiisoft\Router\FastRoute\UrlGenerator;
-use Yiisoft\Router\FastRoute\UrlMatcher;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteCollection;
 use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\RouteCollector;
 use Yiisoft\Router\RouteNotFoundException;
-use Yiisoft\Router\CurrentRoute;
 use Yiisoft\Router\UrlGeneratorInterface;
-use Yiisoft\Router\UrlMatcherInterface;
 
 final class UrlGeneratorTest extends TestCase
 {
@@ -24,13 +22,6 @@ final class UrlGeneratorTest extends TestCase
     {
         $routeCollection = $this->createRouteCollection($routes);
         return new UrlGenerator($routeCollection, $currentRoute);
-    }
-
-    private function createMatcher(
-        RouteCollectionInterface $routeCollection,
-        CurrentRoute $currentRoute
-    ): UrlMatcherInterface {
-        return new UrlMatcher($routeCollection, $currentRoute);
     }
 
     private function createRouteCollection(array $routes): RouteCollectionInterface
@@ -107,7 +98,9 @@ final class UrlGeneratorTest extends TestCase
         ];
         $urlGenerator = $this->createUrlGenerator($routes);
 
-        $this->expectExceptionMessage('Route `view` expects at least parameter values for [id,value], but received [id]');
+        $this->expectExceptionMessage(
+            'Route `view` expects at least parameter values for [id,value], but received [id]'
+        );
         $urlGenerator->generate('view', ['id' => 123]);
     }
 
@@ -285,8 +278,7 @@ final class UrlGeneratorTest extends TestCase
             Route::get('/home/index')->name('index'),
         ];
         $currentRoute = new CurrentRoute();
-        $matcher = $this->createMatcher($this->createRouteCollection($routes), $currentRoute);
-        $matcher->match($request);
+        $currentRoute->setUri($request->getUri());
         $url = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], 'https');
 
         $this->assertEquals('https://test.com/home/index', $url);
@@ -330,8 +322,7 @@ final class UrlGeneratorTest extends TestCase
         ];
 
         $currentRoute = new CurrentRoute();
-        $matcher = $this->createMatcher($this->createRouteCollection($routes), $currentRoute);
-        $matcher->match($request);
+        $currentRoute->setUri($request->getUri());
         $url = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index');
 
         $this->assertEquals('http://test.com/home/index', $url);
@@ -349,8 +340,7 @@ final class UrlGeneratorTest extends TestCase
         ];
 
         $currentRoute = new CurrentRoute();
-        $matcher = $this->createMatcher($this->createRouteCollection($routes), $currentRoute);
-        $matcher->match($request);
+        $currentRoute->setUri($request->getUri());
         $url = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index');
 
         $this->assertEquals('http://test.com:8080/home/index', $url);
@@ -367,8 +357,7 @@ final class UrlGeneratorTest extends TestCase
         ];
 
         $currentRoute = new CurrentRoute();
-        $matcher = $this->createMatcher($this->createRouteCollection($routes), $currentRoute);
-        $matcher->match($request);
+        $currentRoute->setUri($request->getUri());
         $url = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index');
 
         $this->assertEquals('//test.com/home/index', $url);
@@ -386,8 +375,7 @@ final class UrlGeneratorTest extends TestCase
         ];
 
         $currentRoute = new CurrentRoute();
-        $matcher = $this->createMatcher($this->createRouteCollection($routes), $currentRoute);
-        $matcher->match($request);
+        $currentRoute->setUri($request->getUri());
         $url = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], null, '//test.com');
 
         $this->assertEquals('//test.com/home/index', $url);
@@ -402,8 +390,7 @@ final class UrlGeneratorTest extends TestCase
         ];
 
         $currentRoute = new CurrentRoute();
-        $matcher = $this->createMatcher($this->createRouteCollection($routes), $currentRoute);
-        $matcher->match($request);
+        $currentRoute->setUri($request->getUri());
         $url1 = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], '');
         $url2 = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('view', [], '');
 
@@ -419,11 +406,15 @@ final class UrlGeneratorTest extends TestCase
         ];
 
         $currentRoute = new CurrentRoute();
-        $matcher = $this->createMatcher($this->createRouteCollection($routes), $currentRoute);
-        $matcher->match($request);
+        $currentRoute->setUri($request->getUri());
         $url1 = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], '', 'http://test.com');
         $url2 = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], '', 'test.com');
-        $url3 = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], null, 'http://test.com');
+        $url3 = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute(
+            'index',
+            [],
+            null,
+            'http://test.com'
+        );
         $url4 = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], null, 'test.com');
 
         $this->assertEquals('//test.com/home/index', $url1);
@@ -440,8 +431,7 @@ final class UrlGeneratorTest extends TestCase
         ];
 
         $currentRoute = new CurrentRoute();
-        $matcher = $this->createMatcher($this->createRouteCollection($routes), $currentRoute);
-        $matcher->match($request);
+        $currentRoute->setUri($request->getUri());
         $url = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], '');
 
         $this->assertEquals('//test.com/home/index', $url);
@@ -455,12 +445,11 @@ final class UrlGeneratorTest extends TestCase
         ];
 
         $currentRoute = new CurrentRoute();
-        $matcher = $this->createMatcher($this->createRouteCollection($routes), $currentRoute);
         $url = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index');
 
         $this->assertEquals('//example.com/home/index', $url);
 
-        $matcher->match($request);
+        $currentRoute->setUri($request->getUri());
         $url = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index');
 
         $this->assertEquals('http://example.com/home/index', $url);
@@ -473,7 +462,6 @@ final class UrlGeneratorTest extends TestCase
         ];
 
         $currentRoute = new CurrentRoute();
-        $matcher = $this->createMatcher($this->createRouteCollection($routes), $currentRoute);
         $url = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index');
 
         $this->assertEquals('/home/index', $url);
