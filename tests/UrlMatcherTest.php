@@ -8,7 +8,6 @@ use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
 use Psr\SimpleCache\CacheInterface;
 use RuntimeException;
-use Yiisoft\Router\CurrentRoute;
 use Yiisoft\Router\FastRoute\UrlMatcher;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
@@ -18,12 +17,12 @@ use Yiisoft\Router\UrlMatcherInterface;
 
 final class UrlMatcherTest extends TestCase
 {
-    private function createUrlMatcher(array $routes, CurrentRoute $currentRoute, CacheInterface $cache = null): UrlMatcherInterface
+    private function createUrlMatcher(array $routes, CacheInterface $cache = null): UrlMatcherInterface
     {
         $rootGroup = Group::create(null)->routes(...$routes);
         $collector = new RouteCollector();
         $collector->addGroup($rootGroup);
-        return new UrlMatcher(new RouteCollection($collector), $currentRoute, $cache, ['cache_key' => 'route-cache']);
+        return new UrlMatcher(new RouteCollection($collector), $cache, ['cache_key' => 'route-cache']);
     }
 
     public function testDefaultsAreInResult(): void
@@ -32,7 +31,7 @@ final class UrlMatcherTest extends TestCase
             Route::get('/[{name}]')->action(fn () => 1)->defaults(['name' => 'test']),
         ];
 
-        $urlMatcher = $this->createUrlMatcher($routes, new CurrentRoute());
+        $urlMatcher = $this->createUrlMatcher($routes);
 
         $request = new ServerRequest('GET', '/');
 
@@ -50,7 +49,7 @@ final class UrlMatcherTest extends TestCase
             Route::get('/site/index')->action(fn () => 1),
         ];
 
-        $urlMatcher = $this->createUrlMatcher($routes, new CurrentRoute());
+        $urlMatcher = $this->createUrlMatcher($routes);
 
         $request = new ServerRequest('GET', '/site/index');
 
@@ -64,7 +63,7 @@ final class UrlMatcherTest extends TestCase
             Route::methods(['GET', 'POST'], '/site/index')->action(fn () => 1),
         ];
 
-        $urlMatcher = $this->createUrlMatcher($routes, new CurrentRoute());
+        $urlMatcher = $this->createUrlMatcher($routes);
 
         $request1 = new ServerRequest('GET', '/site/index');
         $request2 = new ServerRequest('POST', '/site/index');
@@ -81,7 +80,7 @@ final class UrlMatcherTest extends TestCase
             Route::get('/site/post/{id}')->action(fn () => 1),
         ];
 
-        $urlMatcher = $this->createUrlMatcher($routes, new CurrentRoute());
+        $urlMatcher = $this->createUrlMatcher($routes);
 
         $request = new ServerRequest('GET', '/site/post/23');
 
@@ -99,7 +98,7 @@ final class UrlMatcherTest extends TestCase
             Route::get('/site/post/{name1:.*?}/{name2:.*?}')->action(fn () => 1),
         ];
 
-        $urlMatcher = $this->createUrlMatcher($routes, new CurrentRoute());
+        $urlMatcher = $this->createUrlMatcher($routes);
 
         $request = new ServerRequest('GET', '/site/post/with+space/also%20space');
 
@@ -120,7 +119,7 @@ final class UrlMatcherTest extends TestCase
             Route::get('/site/index')->action(fn () => 1)->host('{user}.yiiframework.com'),
         ];
 
-        $urlMatcher = $this->createUrlMatcher($routes, new CurrentRoute());
+        $urlMatcher = $this->createUrlMatcher($routes);
 
         $request = new ServerRequest('GET', '/site/index');
         $request1 = $request->withUri($request->getUri()->withHost('yii.test'));
@@ -143,7 +142,7 @@ final class UrlMatcherTest extends TestCase
             Route::get('/site/index')->action(fn () => 1)->host('yiiframework.{zone:ru|com}'),
         ];
 
-        $urlMatcher = $this->createUrlMatcher($routes, new CurrentRoute());
+        $urlMatcher = $this->createUrlMatcher($routes);
 
         $request = new ServerRequest('GET', '/site/index');
         $request1 = $request->withUri($request->getUri()->withHost('yee.test'));
@@ -165,7 +164,7 @@ final class UrlMatcherTest extends TestCase
             Route::get('/site/post[/view]')->action(fn () => 1),
         ];
 
-        $urlMatcher = $this->createUrlMatcher($routes, new CurrentRoute());
+        $urlMatcher = $this->createUrlMatcher($routes);
 
         $request1 = new ServerRequest('GET', '/site/post/view');
         $request2 = new ServerRequest('GET', '/site/post');
@@ -183,7 +182,7 @@ final class UrlMatcherTest extends TestCase
             Route::get('/site/post[/view]')->action(fn () => 1),
         ];
 
-        $urlMatcher = $this->createUrlMatcher($routes, new CurrentRoute());
+        $urlMatcher = $this->createUrlMatcher($routes);
 
         $request = new ServerRequest('GET', '/site/post/index');
 
@@ -198,7 +197,7 @@ final class UrlMatcherTest extends TestCase
             Route::get('/site/post[/{id}]')->action(fn () => 1),
         ];
 
-        $urlMatcher = $this->createUrlMatcher($routes, new CurrentRoute());
+        $urlMatcher = $this->createUrlMatcher($routes);
 
         $request1 = new ServerRequest('GET', '/site/post/23');
         $request2 = new ServerRequest('GET', '/site/post');
@@ -221,7 +220,7 @@ final class UrlMatcherTest extends TestCase
             Route::get('/site[/post[/view]]')->action(fn () => 1),
         ];
 
-        $urlMatcher = $this->createUrlMatcher($routes, new CurrentRoute());
+        $urlMatcher = $this->createUrlMatcher($routes);
 
         $request1 = new ServerRequest('GET', '/site/post/view');
         $request2 = new ServerRequest('GET', '/site/post');
@@ -242,7 +241,7 @@ final class UrlMatcherTest extends TestCase
             Route::get('/site[/{name}[/{id}]]')->action(fn () => 1),
         ];
 
-        $urlMatcher = $this->createUrlMatcher($routes, new CurrentRoute());
+        $urlMatcher = $this->createUrlMatcher($routes);
 
         $request1 = new ServerRequest('GET', '/site/post/23');
         $request2 = new ServerRequest('GET', '/site/post');
@@ -274,7 +273,7 @@ final class UrlMatcherTest extends TestCase
             Route::get('/site/index')->action(fn () => 1),
         ];
 
-        $urlMatcher = $this->createUrlMatcher($routes, new CurrentRoute());
+        $urlMatcher = $this->createUrlMatcher($routes);
 
         $request = new ServerRequest('POST', '/site/index');
 
@@ -292,7 +291,7 @@ final class UrlMatcherTest extends TestCase
             Route::post('/site/index')->action(fn () => 1),
         ];
 
-        $urlMatcher = $this->createUrlMatcher($routes, new CurrentRoute());
+        $urlMatcher = $this->createUrlMatcher($routes);
 
         $request = new ServerRequest('HEAD', '/site/index');
 
@@ -300,38 +299,6 @@ final class UrlMatcherTest extends TestCase
         $this->assertFalse($result->isSuccess());
         $this->assertTrue($result->isMethodFailure());
         $this->assertSame(['GET', 'POST'], $result->methods());
-    }
-
-    public function testGetCurrentRoute(): void
-    {
-        $routes = [
-            Route::get('/site/index')->action(fn () => 1)->name('request1'),
-            Route::post('/site/index')->action(fn () => 1)->name('request2'),
-        ];
-        $currentRoute = new CurrentRoute();
-
-        $urlMatcher = $this->createUrlMatcher($routes, $currentRoute);
-
-        $request = new ServerRequest('GET', '/site/index');
-
-        $urlMatcher->match($request);
-        $this->assertSame($routes[0]->getName(), $currentRoute->getRoute()->getName());
-    }
-
-    public function testGetCurrentUri(): void
-    {
-        $routes = [
-            Route::get('/site/index')->action(fn () => 1)->name('request1'),
-            Route::post('/site/index')->action(fn () => 1)->name('request2'),
-        ];
-        $currentRoute = new CurrentRoute();
-
-        $urlMatcher = $this->createUrlMatcher($routes, $currentRoute);
-
-        $request = new ServerRequest('GET', '/site/index');
-
-        $urlMatcher->match($request);
-        $this->assertSame($request->getUri(), $currentRoute->getUri());
     }
 
     public function testNoCache(): void
@@ -346,7 +313,7 @@ final class UrlMatcherTest extends TestCase
         $cache = $this->createMock(CacheInterface::class);
         $cache->method('has')
             ->willReturn(false);
-        $matcher = $this->createUrlMatcher($routes, new CurrentRoute(), $cache);
+        $matcher = $this->createUrlMatcher($routes, $cache);
         $result = $matcher->match($request);
         $this->assertTrue($result->isSuccess());
     }
@@ -380,7 +347,7 @@ final class UrlMatcherTest extends TestCase
             ->willReturn(true);
         $cache->method('get')
             ->willReturn($cacheArray);
-        $matcher = $this->createUrlMatcher($routes, new CurrentRoute(), $cache);
+        $matcher = $this->createUrlMatcher($routes, $cache);
         $result = $matcher->match($request);
         $this->assertTrue($result->isSuccess());
     }
@@ -391,7 +358,7 @@ final class UrlMatcherTest extends TestCase
             Route::get('/test')->action(fn () => 1)->name('test'),
         ];
 
-        $urlMatcher = $this->createUrlMatcher($routes, new CurrentRoute());
+        $urlMatcher = $this->createUrlMatcher($routes);
         $request = new ServerRequest('GET', '/');
         $result = $urlMatcher->match($request);
 
@@ -410,7 +377,7 @@ final class UrlMatcherTest extends TestCase
         $cache = $this->createMock(CacheInterface::class);
         $cache->method('get')
             ->will($this->throwException(new RuntimeException()));
-        $matcher = $this->createUrlMatcher($routes, new CurrentRoute(), $cache);
+        $matcher = $this->createUrlMatcher($routes, $cache);
         $result = $matcher->match($request);
         $this->assertTrue($result->isSuccess());
     }
