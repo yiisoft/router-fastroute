@@ -7,9 +7,9 @@ namespace Yiisoft\Router\FastRoute;
 use FastRoute\RouteParser;
 use Psr\Http\Message\UriInterface;
 use RuntimeException;
+use Yiisoft\Router\CurrentRoute;
 use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\RouteNotFoundException;
-use Yiisoft\Router\CurrentRoute;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 use function array_key_exists;
@@ -47,8 +47,13 @@ final class UrlGenerator implements UrlGeneratorInterface
      */
     public function generate(string $name, array $parameters = []): string
     {
+        if (
+            ($this->currentRoute !== null && $this->currentRoute->getUri() !== null)
+            && isset($parameters['_language'])
+        ) {
+            return '/' . $parameters['_language'] . $this->currentRoute->getUri()->getPath();
+        }
         $route = $this->routeCollection->getRoute($name);
-
         $parsedRoutes = array_reverse($this->routeParser->parse($route->getPattern()));
         if ($parsedRoutes === []) {
             throw new RouteNotFoundException($name);
@@ -80,8 +85,12 @@ final class UrlGenerator implements UrlGeneratorInterface
         );
     }
 
-    public function generateAbsolute(string $name, array $parameters = [], string $scheme = null, string $host = null): string
-    {
+    public function generateAbsolute(
+        string $name,
+        array $parameters = [],
+        string $scheme = null,
+        string $host = null
+    ): string {
         $url = $this->generate($name, $parameters);
         $route = $this->routeCollection->getRoute($name);
         /** @var UriInterface $uri */
@@ -106,7 +115,7 @@ final class UrlGenerator implements UrlGeneratorInterface
     private function generateAbsoluteFromLastMatchedRequest(string $url, UriInterface $uri, ?string $scheme): string
     {
         $port = $uri->getPort() === 80 || $uri->getPort() === null ? '' : ':' . $uri->getPort();
-        return  $this->ensureScheme('://' . $uri->getHost() . $port . $url, $scheme ?? $uri->getScheme());
+        return $this->ensureScheme('://' . $uri->getHost() . $port . $url, $scheme ?? $uri->getScheme());
     }
 
     /**
@@ -230,8 +239,8 @@ final class UrlGenerator implements UrlGeneratorInterface
 
             // Append the substituted value
             $path .= $this->encodeRaw
-                ? rawurlencode((string) $parameters[$part[0]])
-                : urlencode((string) $parameters[$part[0]]);
+                ? rawurlencode((string)$parameters[$part[0]])
+                : urlencode((string)$parameters[$part[0]]);
             unset($notSubstitutedParams[$part[0]]);
         }
 
