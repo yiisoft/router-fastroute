@@ -22,6 +22,8 @@ final class UrlGenerator implements UrlGeneratorInterface
 {
     private string $uriPrefix = '';
     private bool $encodeRaw = true;
+    private array $locales = [];
+    private string $localeParameterName = '_locale';
     private RouteCollectionInterface $routeCollection;
     private ?CurrentRoute $currentRoute;
     private RouteParser $routeParser;
@@ -48,10 +50,13 @@ final class UrlGenerator implements UrlGeneratorInterface
     public function generate(string $name, array $parameters = []): string
     {
         if (
-            ($this->currentRoute !== null && $this->currentRoute->getUri() !== null)
-            && isset($parameters['_language'])
+            isset($parameters[$this->localeParameterName])
+            && $this->locales !== []
         ) {
-            return '/' . $parameters['_language'] . $this->currentRoute->getUri()->getPath();
+            $locale = $parameters[$this->localeParameterName];
+            if (isset($this->locales[$locale])) {
+                return '/' . $locale . $this->currentRoute->getUri()->getPath();
+            }
         }
         $route = $this->routeCollection->getRoute($name);
         $parsedRoutes = array_reverse($this->routeParser->parse($route->getPattern()));
@@ -177,6 +182,16 @@ final class UrlGenerator implements UrlGeneratorInterface
     public function setUriPrefix(string $name): void
     {
         $this->uriPrefix = $name;
+    }
+
+    public function setLocales(array $locales)
+    {
+        $this->locales = $locales;
+    }
+
+    public function localeParameterName(string $localParameterName)
+    {
+        $this->localeParameterName = $localParameterName;
     }
 
     /**
