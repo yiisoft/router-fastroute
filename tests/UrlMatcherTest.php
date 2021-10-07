@@ -272,7 +272,7 @@ final class UrlMatcherTest extends TestCase
         return [
             [['GET', 'HEAD'], 'POST'],
             [['POST'], 'HEAD'],
-            [['PATCH', 'PUT'], 'GET']
+            [['PATCH', 'PUT'], 'GET'],
         ];
     }
 
