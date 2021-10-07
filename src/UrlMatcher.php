@@ -203,7 +203,7 @@ final class UrlMatcher implements UrlMatcherInterface
 
         $route = $this->routeCollection->getRoute($name);
 
-        if (!in_array($method, $route->getMethods(), true)) {
+        if ($method !== 'HEAD' && !in_array($method, $route->getMethods(), true)) {
             $result[1] = $route->getPattern();
             return $this->marshalMethodNotAllowedResult($result);
         }
@@ -246,7 +246,7 @@ final class UrlMatcher implements UrlMatcherInterface
             }
             $hostPattern = $route->getHost() ?? '{_host:[a-zA-Z0-9\.\-]*}';
             $methods = $route->getMethods();
-            if (in_array('GET', $methods) && !in_array('HEAD', $methods)) {
+            if (in_array('GET', $methods, true) && !in_array('HEAD', $methods, true)) {
                 $methods = array_merge($methods, ['HEAD']);
             }
             $this->fastRouteCollector->addRoute(
