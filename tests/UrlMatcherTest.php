@@ -280,10 +280,10 @@ final class UrlMatcherTest extends TestCase
         $result = $urlMatcher->match($request);
         $this->assertFalse($result->isSuccess());
         $this->assertTrue($result->isMethodFailure());
-        $this->assertSame(['GET'], $result->methods());
+        $this->assertSame(['GET', 'HEAD'], $result->methods());
     }
 
-    public function testDisallowedHEADMethod(): void
+    public function testAutoAllowedHEADMethod(): void
     {
         $routes = [
             Route::post('/site/post/view')->action(fn () => 1),
@@ -296,9 +296,8 @@ final class UrlMatcherTest extends TestCase
         $request = new ServerRequest('HEAD', '/site/index');
 
         $result = $urlMatcher->match($request);
-        $this->assertFalse($result->isSuccess());
-        $this->assertTrue($result->isMethodFailure());
-        $this->assertSame(['GET', 'POST'], $result->methods());
+        $this->assertTrue($result->isSuccess());
+        $this->assertFalse($result->isMethodFailure());
     }
 
     public function testNoCache(): void
