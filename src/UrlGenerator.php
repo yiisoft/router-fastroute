@@ -187,14 +187,19 @@ final class UrlGenerator implements UrlGeneratorInterface
         $this->uriPrefix = $name;
     }
 
-    public function setLocales(array $locales)
+    public function getLocales(): array
+    {
+        return $this->locales;
+    }
+
+    public function setLocales(array $locales): void
     {
         $this->locales = $locales;
     }
 
-    public function localeParameterName(string $localParameterName)
+    public function setLocaleParameterName(string $localeParameterName): void
     {
-        $this->localeParameterName = $localParameterName;
+        $this->localeParameterName = $localeParameterName;
     }
 
     /**
