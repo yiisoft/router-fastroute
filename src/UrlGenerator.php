@@ -23,7 +23,7 @@ final class UrlGenerator implements UrlGeneratorInterface
     private string $uriPrefix = '';
     private bool $encodeRaw = true;
     private array $locales = [];
-    private string $localeParameterName = '_locale';
+    private ?string $localeParameterName = null;
     private RouteCollectionInterface $routeCollection;
     private ?CurrentRoute $currentRoute;
     private RouteParser $routeParser;
@@ -50,7 +50,8 @@ final class UrlGenerator implements UrlGeneratorInterface
     public function generate(string $name, array $parameters = []): string
     {
         if (
-            isset($parameters[$this->localeParameterName])
+            $this->localeParameterName !== null
+            && isset($parameters[$this->localeParameterName])
             && $this->locales !== []
         ) {
             $locale = $parameters[$this->localeParameterName];
