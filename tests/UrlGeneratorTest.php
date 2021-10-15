@@ -466,7 +466,7 @@ final class UrlGeneratorTest extends TestCase
 
         $this->assertEquals('/home/index', $url);
     }
-    
+
     public function testWithLocales(): void
     {
         $request = new ServerRequest('GET', 'http://example.com/home/index');
