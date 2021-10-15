@@ -59,7 +59,7 @@ final class UrlGenerator implements UrlGeneratorInterface
                 ? $this->currentRoute->getUri()->getPath()
                 : '';
             if (isset($this->locales[$locale])) {
-                return '/' . $locale . $path;
+                return sprintf('/%s/%s', $locale, ltrim($path, '/'));
             }
         }
         $route = $this->routeCollection->getRoute($name);
