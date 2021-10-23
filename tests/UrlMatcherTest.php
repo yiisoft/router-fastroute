@@ -267,23 +267,35 @@ final class UrlMatcherTest extends TestCase
         $this->assertArrayNotHasKey('name', $parameters3);
     }
 
-    public function testDisallowedMethod(): void
+    public function disallowedMethodsProvider(): array
+    {
+        return [
+            [['GET', 'HEAD'], 'POST'],
+            [['POST'], 'HEAD'],
+            [['PATCH', 'PUT'], 'GET'],
+        ];
+    }
+
+    /**
+     * @dataProvider disallowedMethodsProvider
+     */
+    public function testDisallowedMethod(array $methods, string $disallowedMethod): void
     {
         $routes = [
-            Route::get('/site/index')->action(fn () => 1),
+            Route::methods($methods, '/site/index')->action(fn () => 1),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
 
-        $request = new ServerRequest('POST', '/site/index');
+        $request = new ServerRequest($disallowedMethod, '/site/index');
 
         $result = $urlMatcher->match($request);
         $this->assertFalse($result->isSuccess());
         $this->assertTrue($result->isMethodFailure());
-        $this->assertSame(['GET'], $result->methods());
+        $this->assertSame($methods, $result->methods());
     }
 
-    public function testDisallowedHEADMethod(): void
+    public function testAutoAllowedHEADMethod(): void
     {
         $routes = [
             Route::post('/site/post/view')->action(fn () => 1),
@@ -296,9 +308,8 @@ final class UrlMatcherTest extends TestCase
         $request = new ServerRequest('HEAD', '/site/index');
 
         $result = $urlMatcher->match($request);
-        $this->assertFalse($result->isSuccess());
-        $this->assertTrue($result->isMethodFailure());
-        $this->assertSame(['GET', 'POST'], $result->methods());
+        $this->assertTrue($result->isSuccess());
+        $this->assertFalse($result->isMethodFailure());
     }
 
     public function testNoCache(): void
