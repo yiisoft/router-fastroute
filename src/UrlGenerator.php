@@ -7,9 +7,9 @@ namespace Yiisoft\Router\FastRoute;
 use FastRoute\RouteParser;
 use Psr\Http\Message\UriInterface;
 use RuntimeException;
+use Yiisoft\Router\CurrentRoute;
 use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\RouteNotFoundException;
-use Yiisoft\Router\CurrentRoute;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 use function array_key_exists;
@@ -22,6 +22,8 @@ final class UrlGenerator implements UrlGeneratorInterface
 {
     private string $uriPrefix = '';
     private bool $encodeRaw = true;
+    private array $locales = [];
+    private ?string $localeParameterName = null;
     private RouteCollectionInterface $routeCollection;
     private ?CurrentRoute $currentRoute;
     private RouteParser $routeParser;
@@ -47,8 +49,20 @@ final class UrlGenerator implements UrlGeneratorInterface
      */
     public function generate(string $name, array $parameters = []): string
     {
+        if (
+            $this->localeParameterName !== null
+            && isset($parameters[$this->localeParameterName])
+            && $this->locales !== []
+        ) {
+            $locale = $parameters[$this->localeParameterName];
+            $path = ($this->currentRoute !== null && $this->currentRoute->getUri() !== null)
+                ? $this->currentRoute->getUri()->getPath()
+                : '';
+            if (isset($this->locales[$locale])) {
+                return sprintf('/%s/%s', $locale, ltrim($path, '/'));
+            }
+        }
         $route = $this->routeCollection->getRoute($name);
-
         $parsedRoutes = array_reverse($this->routeParser->parse($route->getPattern()));
         if ($parsedRoutes === []) {
             throw new RouteNotFoundException($name);
@@ -80,8 +94,12 @@ final class UrlGenerator implements UrlGeneratorInterface
         );
     }
 
-    public function generateAbsolute(string $name, array $parameters = [], string $scheme = null, string $host = null): string
-    {
+    public function generateAbsolute(
+        string $name,
+        array $parameters = [],
+        string $scheme = null,
+        string $host = null
+    ): string {
         $url = $this->generate($name, $parameters);
         $route = $this->routeCollection->getRoute($name);
         /** @var UriInterface $uri */
@@ -106,7 +124,7 @@ final class UrlGenerator implements UrlGeneratorInterface
     private function generateAbsoluteFromLastMatchedRequest(string $url, UriInterface $uri, ?string $scheme): string
     {
         $port = $uri->getPort() === 80 || $uri->getPort() === null ? '' : ':' . $uri->getPort();
-        return  $this->ensureScheme('://' . $uri->getHost() . $port . $url, $scheme ?? $uri->getScheme());
+        return $this->ensureScheme('://' . $uri->getHost() . $port . $url, $scheme ?? $uri->getScheme());
     }
 
     /**
@@ -170,6 +188,21 @@ final class UrlGenerator implements UrlGeneratorInterface
         $this->uriPrefix = $name;
     }
 
+    public function getLocales(): array
+    {
+        return $this->locales;
+    }
+
+    public function setLocales(array $locales): void
+    {
+        $this->locales = $locales;
+    }
+
+    public function setLocaleParameterName(string $localeParameterName): void
+    {
+        $this->localeParameterName = $localeParameterName;
+    }
+
     /**
      * Checks for any missing route parameters
      *
@@ -230,8 +263,8 @@ final class UrlGenerator implements UrlGeneratorInterface
 
             // Append the substituted value
             $path .= $this->encodeRaw
-                ? rawurlencode((string) $parameters[$part[0]])
-                : urlencode((string) $parameters[$part[0]]);
+                ? rawurlencode((string)$parameters[$part[0]])
+                : urlencode((string)$parameters[$part[0]]);
             unset($notSubstitutedParams[$part[0]]);
         }
 
