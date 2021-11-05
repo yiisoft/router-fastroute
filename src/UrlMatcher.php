@@ -17,7 +17,6 @@ use Yiisoft\Router\MatchingResult;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\RouteParametersInterface;
-use Yiisoft\Router\CurrentRoute;
 use Yiisoft\Router\UrlMatcherInterface;
 
 use function array_merge;
@@ -59,7 +58,6 @@ final class UrlMatcher implements UrlMatcherInterface
 
     private RouteCollector $fastRouteCollector;
     private RouteCollectionInterface $routeCollection;
-    private CurrentRoute $currentRoute;
     private bool $hasInjectedRoutes = false;
 
     /**
@@ -82,7 +80,6 @@ final class UrlMatcher implements UrlMatcherInterface
      */
     public function __construct(
         RouteCollectionInterface $routeCollection,
-        CurrentRoute $currentRoute,
         CacheInterface $cache = null,
         array $config = null,
         RouteCollector $fastRouteCollector = null,
@@ -92,7 +89,6 @@ final class UrlMatcher implements UrlMatcherInterface
             $fastRouteCollector = $this->createRouteCollector();
         }
         $this->routeCollection = $routeCollection;
-        $this->currentRoute = $currentRoute;
         $this->fastRouteCollector = $fastRouteCollector;
         $this->dispatcherCallback = $dispatcherFactory;
         $this->loadConfig($config);
@@ -103,8 +99,6 @@ final class UrlMatcher implements UrlMatcherInterface
 
     public function match(ServerRequestInterface $request): MatchingResult
     {
-        $this->currentRoute->setUri($request->getUri());
-
         if (!$this->hasCache && !$this->hasInjectedRoutes) {
             $this->injectRoutes();
         }
@@ -209,13 +203,12 @@ final class UrlMatcher implements UrlMatcherInterface
 
         $route = $this->routeCollection->getRoute($name);
 
-        if (!in_array($method, $route->getMethods(), true)) {
+        if ($method !== 'HEAD' && !in_array($method, $route->getMethods(), true)) {
             $result[1] = $route->getPattern();
             return $this->marshalMethodNotAllowedResult($result);
         }
 
         $parameters = array_merge($route->getDefaults(), $parameters);
-        $this->currentRoute->setRoute($route);
 
         return MatchingResult::fromSuccess($route, $parameters);
     }
@@ -252,8 +245,12 @@ final class UrlMatcher implements UrlMatcherInterface
                 continue;
             }
             $hostPattern = $route->getHost() ?? '{_host:[a-zA-Z0-9\.\-]*}';
+            $methods = $route->getMethods();
+            if (in_array(Method::GET, $methods, true) && !in_array(Method::HEAD, $methods, true)) {
+                $methods = array_merge($methods, [Method::HEAD]);
+            }
             $this->fastRouteCollector->addRoute(
-                $route->getMethods(),
+                $methods,
                 $hostPattern . $route->getPattern(),
                 $route->getName()
             );
