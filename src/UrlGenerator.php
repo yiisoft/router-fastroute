@@ -7,9 +7,9 @@ namespace Yiisoft\Router\FastRoute;
 use FastRoute\RouteParser;
 use Psr\Http\Message\UriInterface;
 use RuntimeException;
-use Yiisoft\Router\CurrentRoute;
 use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\RouteNotFoundException;
+use Yiisoft\Router\CurrentRouteInterface;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 use function array_key_exists;
@@ -25,12 +25,12 @@ final class UrlGenerator implements UrlGeneratorInterface
     private array $locales = [];
     private ?string $localeParameterName = null;
     private RouteCollectionInterface $routeCollection;
-    private ?CurrentRoute $currentRoute;
+    private ?CurrentRouteInterface $currentRoute;
     private RouteParser $routeParser;
 
     public function __construct(
         RouteCollectionInterface $routeCollection,
-        CurrentRoute $currentRoute = null,
+        CurrentRouteInterface $currentRoute = null,
         RouteParser $parser = null
     ) {
         $this->currentRoute = $currentRoute;
