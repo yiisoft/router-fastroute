@@ -40,7 +40,6 @@ use Yiisoft\Router\FastRoute\FastRouteFactory;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\RouterFactory;
 use Yiisoft\Router\RouterInterface;
-use Yiisoft\Yii\Web\Middleware\ActionCaller;
 use App\Controller\SiteController;
 
 class RouteFactory
