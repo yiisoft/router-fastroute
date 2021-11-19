@@ -199,7 +199,7 @@ final class UrlMatcher implements UrlMatcherInterface
      */
     private function marshalMatchedRoute(array $result, string $method): MatchingResult
     {
-        [, $name, $parameters] = $result;
+        [, $name, $arguments] = $result;
 
         $route = $this->routeCollection->getRoute($name);
 
@@ -208,9 +208,9 @@ final class UrlMatcher implements UrlMatcherInterface
             return $this->marshalMethodNotAllowedResult($result);
         }
 
-        $parameters = array_merge($route->getDefaults(), $parameters);
+        $arguments = array_merge($route->getDefaults(), $arguments);
 
-        return MatchingResult::fromSuccess($route, $parameters);
+        return MatchingResult::fromSuccess($route, $arguments);
     }
 
     private function marshalMethodNotAllowedResult(array $result): MatchingResult
