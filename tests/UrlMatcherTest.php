@@ -36,11 +36,11 @@ final class UrlMatcherTest extends TestCase
         $request = new ServerRequest('GET', '/');
 
         $result = $urlMatcher->match($request);
-        $parameters = $result->parameters();
+        $arguments = $result->arguments();
 
         $this->assertTrue($result->isSuccess());
-        $this->assertArrayHasKey('name', $parameters);
-        $this->assertSame('test', $parameters['name']);
+        $this->assertArrayHasKey('name', $arguments);
+        $this->assertSame('test', $arguments['name']);
     }
 
     public function testSimpleRoute(): void
@@ -85,11 +85,11 @@ final class UrlMatcherTest extends TestCase
         $request = new ServerRequest('GET', '/site/post/23');
 
         $result = $urlMatcher->match($request);
-        $parameters = $result->parameters();
+        $arguments = $result->arguments();
 
         $this->assertTrue($result->isSuccess());
-        $this->assertArrayHasKey('id', $parameters);
-        $this->assertSame('23', $parameters['id']);
+        $this->assertArrayHasKey('id', $arguments);
+        $this->assertSame('23', $arguments['id']);
     }
 
     public function testSimpleRouteWithUrlencodedParam(): void
@@ -103,13 +103,13 @@ final class UrlMatcherTest extends TestCase
         $request = new ServerRequest('GET', '/site/post/with+space/also%20space');
 
         $result = $urlMatcher->match($request);
-        $parameters = $result->parameters();
+        $arguments = $result->arguments();
 
         $this->assertTrue($result->isSuccess());
-        $this->assertArrayHasKey('name1', $parameters);
-        $this->assertArrayHasKey('name2', $parameters);
-        $this->assertSame('with space', $parameters['name1']);
-        $this->assertSame('also space', $parameters['name2']);
+        $this->assertArrayHasKey('name1', $arguments);
+        $this->assertArrayHasKey('name2', $arguments);
+        $this->assertSame('with space', $arguments['name1']);
+        $this->assertSame('also space', $arguments['name2']);
     }
 
     public function testSimpleRouteWithHostSuccess(): void
@@ -130,8 +130,8 @@ final class UrlMatcherTest extends TestCase
 
         $this->assertTrue($result1->isSuccess());
 
-        $this->assertArrayHasKey('user', $result2->parameters());
-        $this->assertSame('rustamwin', $result2->parameters()['user']);
+        $this->assertArrayHasKey('user', $result2->arguments());
+        $this->assertSame('rustamwin', $result2->arguments()['user']);
         $this->assertTrue($result2->isSuccess());
     }
 
@@ -203,15 +203,15 @@ final class UrlMatcherTest extends TestCase
         $request2 = new ServerRequest('GET', '/site/post');
 
         $result1 = $urlMatcher->match($request1);
-        $parameters1 = $result1->parameters();
+        $arguments1 = $result1->arguments();
         $result2 = $urlMatcher->match($request2);
-        $parameters2 = $result2->parameters();
+        $arguments2 = $result2->arguments();
 
         $this->assertTrue($result1->isSuccess());
-        $this->assertArrayHasKey('id', $parameters1);
-        $this->assertSame('23', $parameters1['id']);
+        $this->assertArrayHasKey('id', $arguments1);
+        $this->assertSame('23', $arguments1['id']);
         $this->assertTrue($result2->isSuccess());
-        $this->assertArrayNotHasKey('id', $parameters2);
+        $this->assertArrayNotHasKey('id', $arguments2);
     }
 
     public function testSimpleRouteWithNestedOptionalParts(): void
@@ -248,23 +248,23 @@ final class UrlMatcherTest extends TestCase
         $request3 = new ServerRequest('GET', '/site');
 
         $result1 = $urlMatcher->match($request1);
-        $parameters1 = $result1->parameters();
+        $arguments1 = $result1->arguments();
         $result2 = $urlMatcher->match($request2);
-        $parameters2 = $result2->parameters();
+        $arguments2 = $result2->arguments();
         $result3 = $urlMatcher->match($request3);
-        $parameters3 = $result3->parameters();
+        $arguments3 = $result3->arguments();
 
         $this->assertTrue($result1->isSuccess());
-        $this->assertArrayHasKey('id', $parameters1);
-        $this->assertArrayHasKey('name', $parameters1);
-        $this->assertSame('23', $parameters1['id']);
-        $this->assertSame('post', $parameters1['name']);
+        $this->assertArrayHasKey('id', $arguments1);
+        $this->assertArrayHasKey('name', $arguments1);
+        $this->assertSame('23', $arguments1['id']);
+        $this->assertSame('post', $arguments1['name']);
         $this->assertTrue($result2->isSuccess());
-        $this->assertArrayHasKey('name', $parameters2);
-        $this->assertSame('post', $parameters2['name']);
+        $this->assertArrayHasKey('name', $arguments2);
+        $this->assertSame('post', $arguments2['name']);
         $this->assertTrue($result3->isSuccess());
-        $this->assertArrayNotHasKey('id', $parameters3);
-        $this->assertArrayNotHasKey('name', $parameters3);
+        $this->assertArrayNotHasKey('id', $arguments3);
+        $this->assertArrayNotHasKey('name', $arguments3);
     }
 
     public function disallowedMethodsProvider(): array
