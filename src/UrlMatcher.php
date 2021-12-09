@@ -110,7 +110,7 @@ final class UrlMatcher implements UrlMatcherInterface
 
         return $result[0] !== Dispatcher::FOUND
             ? $this->marshalFailedRoute($result)
-            : $this->marshalMatchedRoute($result, $method);
+            : $this->marshalMatchedRoute($result);
     }
 
     /**
@@ -190,48 +190,21 @@ final class UrlMatcher implements UrlMatcherInterface
     }
 
     /**
-     * Marshals a route result based on the results of matching, the current host and the current HTTP method.
+     * Marshals a route result based on the results of matching.
      *
      * @param array $result
-     * @param string $method
      *
      * @return MatchingResult
      */
-    private function marshalMatchedRoute(array $result, string $method): MatchingResult
+    private function marshalMatchedRoute(array $result): MatchingResult
     {
         [, $name, $arguments] = $result;
 
         $route = $this->routeCollection->getRoute($name);
 
-        if ($method !== 'HEAD' && !in_array($method, $route->getMethods(), true)) {
-            $result[1] = $route->getPattern();
-            return $this->marshalMethodNotAllowedResult($result);
-        }
-
         $arguments = array_merge($route->getDefaults(), $arguments);
 
         return MatchingResult::fromSuccess($route, $arguments);
-    }
-
-    private function marshalMethodNotAllowedResult(array $result): MatchingResult
-    {
-        $path = $result[1];
-
-        $allowedMethods = array_unique(
-            array_reduce(
-                $this->routeCollection->getRoutes(),
-                static function ($allowedMethods, RouteParametersInterface $route) use ($path) {
-                    if ($path !== $route->getPattern()) {
-                        return $allowedMethods;
-                    }
-
-                    return array_merge($allowedMethods, $route->getMethods());
-                },
-                []
-            )
-        );
-
-        return MatchingResult::fromFailure($allowedMethods);
     }
 
     /**
