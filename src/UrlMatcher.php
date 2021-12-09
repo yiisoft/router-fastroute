@@ -209,7 +209,7 @@ final class UrlMatcher implements UrlMatcherInterface
      */
     private function injectRoutes(): void
     {
-        foreach ($this->routeCollection->getRoutes() as $index => $route) {
+        foreach ($this->routeCollection->getRoutes() as $route) {
             /** @var Route $route */
             if (!$route->hasMiddlewares()) {
                 continue;
