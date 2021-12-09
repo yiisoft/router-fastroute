@@ -16,12 +16,9 @@ use Yiisoft\Http\Method;
 use Yiisoft\Router\MatchingResult;
 use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteCollectionInterface;
-use Yiisoft\Router\RouteParametersInterface;
 use Yiisoft\Router\UrlMatcherInterface;
 
 use function array_merge;
-use function array_reduce;
-use function array_unique;
 
 final class UrlMatcher implements UrlMatcherInterface
 {
