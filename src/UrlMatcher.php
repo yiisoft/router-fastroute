@@ -199,7 +199,7 @@ final class UrlMatcher implements UrlMatcherInterface
 
         $route = $this->routeCollection->getRoute($name);
 
-        $arguments = array_merge($route->getDefaults(), $arguments);
+        $arguments = array_merge($route->getData('defaults'), $arguments);
 
         return MatchingResult::fromSuccess($route, $arguments);
     }
@@ -211,15 +211,15 @@ final class UrlMatcher implements UrlMatcherInterface
     {
         foreach ($this->routeCollection->getRoutes() as $route) {
             /** @var Route $route */
-            if (!$route->hasMiddlewares()) {
+            if (!$route->getData('hasMiddlewares')) {
                 continue;
             }
-            $hostPattern = $route->getHost() ?? '{_host:[a-zA-Z0-9\.\-]*}';
-            $methods = $route->getMethods();
+            $hostPattern = $route->getData('host') ?? '{_host:[a-zA-Z0-9\.\-]*}';
+            $methods = $route->getData('methods');
             $this->fastRouteCollector->addRoute(
                 $methods,
-                $hostPattern . $route->getPattern(),
-                $route->getName()
+                $hostPattern . $route->getData('pattern'),
+                $route->getData('name')
             );
         }
         $this->hasInjectedRoutes = true;

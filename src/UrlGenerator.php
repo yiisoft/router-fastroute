@@ -9,7 +9,7 @@ use Psr\Http\Message\UriInterface;
 use RuntimeException;
 use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\RouteNotFoundException;
-use Yiisoft\Router\CurrentRouteInterface;
+use Yiisoft\Router\CurrentRoute;
 use Yiisoft\Router\UrlGeneratorInterface;
 
 use function array_key_exists;
@@ -25,12 +25,12 @@ final class UrlGenerator implements UrlGeneratorInterface
     private array $locales = [];
     private ?string $localeParameterName = null;
     private RouteCollectionInterface $routeCollection;
-    private ?CurrentRouteInterface $currentRoute;
+    private ?CurrentRoute $currentRoute;
     private RouteParser $routeParser;
 
     public function __construct(
         RouteCollectionInterface $routeCollection,
-        CurrentRouteInterface $currentRoute = null,
+        CurrentRoute $currentRoute = null,
         RouteParser $parser = null
     ) {
         $this->currentRoute = $currentRoute;
@@ -63,7 +63,7 @@ final class UrlGenerator implements UrlGeneratorInterface
             }
         }
         $route = $this->routeCollection->getRoute($name);
-        $parsedRoutes = array_reverse($this->routeParser->parse($route->getPattern()));
+        $parsedRoutes = array_reverse($this->routeParser->parse($route->getData('pattern')));
         if ($parsedRoutes === []) {
             throw new RouteNotFoundException($name);
         }
@@ -106,7 +106,7 @@ final class UrlGenerator implements UrlGeneratorInterface
         $uri = $this->currentRoute && $this->currentRoute->getUri() !== null ? $this->currentRoute->getUri() : null;
         $lastRequestScheme = $uri !== null ? $uri->getScheme() : null;
 
-        if ($host !== null || ($host = $route->getHost()) !== null) {
+        if ($host !== null || ($host = $route->getData('host')) !== null) {
             if ($scheme === null && !$this->isRelative($host)) {
                 return rtrim($host, '/') . $url;
             }
