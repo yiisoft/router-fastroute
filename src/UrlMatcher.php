@@ -14,7 +14,6 @@ use Psr\SimpleCache\CacheInterface;
 use RuntimeException;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\MatchingResult;
-use Yiisoft\Router\Route;
 use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\UrlMatcherInterface;
 
@@ -23,12 +22,12 @@ use function array_merge;
 final class UrlMatcher implements UrlMatcherInterface
 {
     /**
-     * @const string Configuration key used to set the cache file path
+     * Configuration key used to set the cache file path.
      */
     public const CONFIG_CACHE_KEY = 'cache_key';
 
     /**
-     * @const string Configuration key used to set the cache file path
+     * Configuration key used to set the cache file path.
      */
     private string $cacheKey = 'routes-cache';
 
@@ -38,28 +37,22 @@ final class UrlMatcher implements UrlMatcherInterface
     private $dispatcherCallback;
 
     /**
-     * Cached data used by the dispatcher.
-     *
-     * @var array
+     * @var array Cached data used by the dispatcher.
      */
     private array $dispatchData = [];
 
     /**
-     * True if cache is enabled and valid dispatch data has been loaded from
-     * cache.
-     *
-     * @var bool
+     * @var bool Whether cache is enabled and valid dispatch data has been loaded from cache.
      */
     private bool $hasCache = false;
-    private ?CacheInterface $cache = null;
+
+    private ?CacheInterface $cache;
 
     private RouteCollector $fastRouteCollector;
     private RouteCollectionInterface $routeCollection;
     private bool $hasInjectedRoutes = false;
 
     /**
-     * Constructor
-     *
      * Accepts optionally a FastRoute RouteCollector and a callable factory
      * that can return a FastRoute dispatcher.
      *
@@ -73,20 +66,17 @@ final class UrlMatcher implements UrlMatcherInterface
      *     implementation will be used.
      * @param callable|null $dispatcherFactory Callable that will return a
      *     FastRoute dispatcher.
-     * @param array $config Array of custom configuration options.
+     * @param array|null $config Array of custom configuration options.
      */
     public function __construct(
         RouteCollectionInterface $routeCollection,
         CacheInterface $cache = null,
-        array $config = null,
+        ?array $config = null,
         RouteCollector $fastRouteCollector = null,
         callable $dispatcherFactory = null
     ) {
-        if (null === $fastRouteCollector) {
-            $fastRouteCollector = $this->createRouteCollector();
-        }
+        $this->fastRouteCollector = $fastRouteCollector ?? $this->createRouteCollector();
         $this->routeCollection = $routeCollection;
-        $this->fastRouteCollector = $fastRouteCollector;
         $this->dispatcherCallback = $dispatcherFactory;
         $this->loadConfig($config);
         $this->cache = $cache;
@@ -115,14 +105,14 @@ final class UrlMatcher implements UrlMatcherInterface
      *
      * @param array|null $config Array of custom configuration options.
      */
-    private function loadConfig(array $config = null): void
+    private function loadConfig(?array $config): void
     {
-        if (null === $config) {
+        if ($config === null) {
             return;
         }
 
         if (isset($config[self::CONFIG_CACHE_KEY])) {
-            $this->cacheKey = (string)$config[self::CONFIG_CACHE_KEY];
+            $this->cacheKey = (string) $config[self::CONFIG_CACHE_KEY];
         }
     }
 
@@ -210,7 +200,6 @@ final class UrlMatcher implements UrlMatcherInterface
     private function injectRoutes(): void
     {
         foreach ($this->routeCollection->getRoutes() as $route) {
-            /** @var Route $route */
             if (!$route->getData('hasMiddlewares')) {
                 continue;
             }

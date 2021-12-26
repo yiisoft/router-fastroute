@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Yiisoft\Router\FastRoute\Tests;
 
+use FastRoute\RouteParser;
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Router\CurrentRoute;
+use Yiisoft\Router\FastRoute\Tests\Support\NotFoundRouteParser;
 use Yiisoft\Router\FastRoute\UrlGenerator;
 use Yiisoft\Router\Group;
 use Yiisoft\Router\Route;
@@ -18,20 +20,6 @@ use Yiisoft\Router\UrlGeneratorInterface;
 
 final class UrlGeneratorTest extends TestCase
 {
-    private function createUrlGenerator(array $routes, CurrentRoute $currentRoute = null): UrlGeneratorInterface
-    {
-        $routeCollection = $this->createRouteCollection($routes);
-        return new UrlGenerator($routeCollection, $currentRoute);
-    }
-
-    private function createRouteCollection(array $routes): RouteCollectionInterface
-    {
-        $rootGroup = Group::create(null)->routes(...$routes);
-        $collector = new RouteCollector();
-        $collector->addGroup($rootGroup);
-        return new RouteCollection($collector);
-    }
-
     public function testSimpleRouteGenerated(): void
     {
         $routes = [
@@ -40,6 +28,28 @@ final class UrlGeneratorTest extends TestCase
         $url = $this->createUrlGenerator($routes)->generate('index');
 
         $this->assertEquals('/home/index', $url);
+    }
+
+    public function dataGenerateWithUriPrefix(): array
+    {
+        return [
+            ['/home/index', ''],
+            ['/test/home/index', '/test'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataGenerateWithUriPrefix
+     */
+    public function testGenerateWithUriPrefix(string $expected, string $prefix): void
+    {
+        $generator = $this->createUrlGenerator([
+            Route::get('/home/index')->name('index'),
+        ]);
+
+        $generator->setUriPrefix($prefix);
+
+        $this->assertSame($expected, $generator->generate('index'));
     }
 
     public function testRouteWithoutNameNotFound(): void
@@ -522,5 +532,55 @@ final class UrlGeneratorTest extends TestCase
         $url = $urlGenerator->generateAbsolute('index', ['_locale' => 'uz']);
 
         $this->assertEquals('http://example.com/uz/home/index', $url);
+    }
+
+    public function testGetLocales(): void
+    {
+        $locales = ['uz' => 'uz-UZ', 'en' => 'en-US', 'ru' => 'ru-RU'];
+
+        $urlGenerator = $this->createUrlGenerator([]);
+        $urlGenerator->setLocales($locales);
+
+        $this->assertSame($locales, $urlGenerator->getLocales());
+    }
+
+    public function testGetUriPrefix(): void
+    {
+        $prefix = '/test';
+
+        $urlGenerator = $this->createUrlGenerator([]);
+        $urlGenerator->setUriPrefix($prefix);
+
+        $this->assertSame($prefix, $urlGenerator->getUriPrefix());
+    }
+
+    public function testNotFoundRoutes(): void
+    {
+        $routes = [
+            Route::get('/home/index')->name('index'),
+        ];
+
+        $urlGenerator = $this->createUrlGenerator($routes, null, new NotFoundRouteParser());
+
+        $this->expectException(RouteNotFoundException::class);
+        $this->expectExceptionMessage('Cannot generate URI for route "index"; route not found');
+        $urlGenerator->generate('index');
+    }
+
+    private function createUrlGenerator(
+        array $routes,
+        CurrentRoute $currentRoute = null,
+        RouteParser $parser = null
+    ): UrlGeneratorInterface {
+        $routeCollection = $this->createRouteCollection($routes);
+        return new UrlGenerator($routeCollection, $currentRoute, $parser);
+    }
+
+    private function createRouteCollection(array $routes): RouteCollectionInterface
+    {
+        $rootGroup = Group::create(null)->routes(...$routes);
+        $collector = new RouteCollector();
+        $collector->addGroup($rootGroup);
+        return new RouteCollection($collector);
     }
 }

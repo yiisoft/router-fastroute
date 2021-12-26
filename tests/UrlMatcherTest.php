@@ -17,14 +17,6 @@ use Yiisoft\Router\UrlMatcherInterface;
 
 final class UrlMatcherTest extends TestCase
 {
-    private function createUrlMatcher(array $routes, CacheInterface $cache = null): UrlMatcherInterface
-    {
-        $rootGroup = Group::create(null)->routes(...$routes);
-        $collector = new RouteCollector();
-        $collector->addGroup($rootGroup);
-        return new UrlMatcher(new RouteCollection($collector), $cache, ['cache_key' => 'route-cache']);
-    }
-
     public function testDefaultsAreInResult(): void
     {
         $routes = [
@@ -391,5 +383,37 @@ final class UrlMatcherTest extends TestCase
         $matcher = $this->createUrlMatcher($routes, $cache);
         $result = $matcher->match($request);
         $this->assertTrue($result->isSuccess());
+    }
+
+    public function testPure(): void
+    {
+        $matcher = new UrlMatcher(
+            new RouteCollection(
+                new RouteCollector()
+            )
+        );
+
+        $result = $matcher->match(new ServerRequest('GET', '/contact'));
+
+        $this->assertFalse($result->isSuccess());
+    }
+
+    public function testStaticRoutes(): void
+    {
+        $matcher = $this->createUrlMatcher([
+            Route::get('/i/{image}')->name('image'),
+        ]);
+
+        $result = $matcher->match(new ServerRequest('GET', '/i/face.jpg'));
+
+        $this->assertFalse($result->isSuccess());
+    }
+
+    private function createUrlMatcher(array $routes, CacheInterface $cache = null): UrlMatcherInterface
+    {
+        $rootGroup = Group::create(null)->routes(...$routes);
+        $collector = new RouteCollector();
+        $collector->addGroup($rootGroup);
+        return new UrlMatcher(new RouteCollection($collector), $cache, ['cache_key' => 'route-cache']);
     }
 }
