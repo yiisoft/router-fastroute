@@ -22,12 +22,12 @@ use function array_merge;
 final class UrlMatcher implements UrlMatcherInterface
 {
     /**
-     * Configuration key used to set the cache file path
+     * Configuration key used to set the cache file path.
      */
     public const CONFIG_CACHE_KEY = 'cache_key';
 
     /**
-     * Configuration key used to set the cache file path
+     * Configuration key used to set the cache file path.
      */
     private string $cacheKey = 'routes-cache';
 
