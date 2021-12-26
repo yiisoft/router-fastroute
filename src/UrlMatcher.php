@@ -75,9 +75,8 @@ final class UrlMatcher implements UrlMatcherInterface
         RouteCollector $fastRouteCollector = null,
         callable $dispatcherFactory = null
     ) {
-        $fastRouteCollector = $fastRouteCollector ?? $this->createRouteCollector();
+        $this->fastRouteCollector = $fastRouteCollector ?? $this->createRouteCollector();
         $this->routeCollection = $routeCollection;
-        $this->fastRouteCollector = $fastRouteCollector;
         $this->dispatcherCallback = $dispatcherFactory;
         $this->loadConfig($config);
         $this->cache = $cache;
