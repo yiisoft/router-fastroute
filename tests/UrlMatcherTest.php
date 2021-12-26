@@ -401,7 +401,7 @@ final class UrlMatcherTest extends TestCase
     public function testStaticRoutes(): void
     {
         $matcher = $this->createUrlMatcher([
-            Route::get('/i/{image}')->name('image')
+            Route::get('/i/{image}')->name('image'),
         ]);
 
         $result = $matcher->match(new ServerRequest('GET', '/i/face.jpg'));
