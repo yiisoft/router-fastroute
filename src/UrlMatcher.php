@@ -32,7 +32,7 @@ final class UrlMatcher implements UrlMatcherInterface
     private string $cacheKey = 'routes-cache';
 
     /**
-     * @var callable A factory callback that can return a dispatcher.
+     * @var ?callable A factory callback that can return a dispatcher.
      */
     private $dispatcherCallback;
 
@@ -151,7 +151,7 @@ final class UrlMatcher implements UrlMatcherInterface
      */
     private function createDispatcherCallback(): callable
     {
-        return static function ($data) {
+        return static function (array $data) {
             return new GroupCountBased($data);
         };
     }
@@ -252,9 +252,10 @@ final class UrlMatcher implements UrlMatcherInterface
     }
 
     /**
-     * Save dispatch data to cache
+     * Save dispatch data to cache.
      *
      * @param array $dispatchData
+     * @psalm-suppress PossiblyNullReference
      */
     private function cacheDispatchData(array $dispatchData): void
     {

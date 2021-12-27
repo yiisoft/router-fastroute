@@ -55,6 +55,7 @@ final class UrlGenerator implements UrlGeneratorInterface
             && isset($parameters[$this->localeParameterName])
             && $this->locales !== []
         ) {
+            /** @var string $locale */
             $locale = $parameters[$this->localeParameterName];
             if (isset($this->locales[$locale])) {
                 $this->locale = $locale;
@@ -101,7 +102,6 @@ final class UrlGenerator implements UrlGeneratorInterface
     ): string {
         $url = $this->generate($name, $parameters);
         $route = $this->routeCollection->getRoute($name);
-        /** @var UriInterface $uri */
         $uri = $this->currentRoute && $this->currentRoute->getUri() !== null ? $this->currentRoute->getUri() : null;
         $lastRequestScheme = $uri !== null ? $uri->getScheme() : null;
 
@@ -122,7 +122,12 @@ final class UrlGenerator implements UrlGeneratorInterface
 
     private function generateAbsoluteFromLastMatchedRequest(string $url, UriInterface $uri, ?string $scheme): string
     {
-        $port = $uri->getPort() === 80 || $uri->getPort() === null ? '' : ':' . $uri->getPort();
+        $port = '';
+        $uriPort = $uri->getPort();
+        if ($uriPort !== 80 && $uriPort !== null) {
+            $port = ':' . $uriPort;
+        }
+
         return $this->ensureScheme('://' . $uri->getHost() . $port . $url, $scheme ?? $uri->getScheme());
     }
 
