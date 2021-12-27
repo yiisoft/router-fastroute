@@ -6,8 +6,6 @@
     <br>
 </p>
 
-The package provides FastRoute adapter for [Yii Router](https://github.com/yiisoft/router).
-
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/router-fastroute/v/stable.png)](https://packagist.org/packages/yiisoft/router-fastroute)
 [![Total Downloads](https://poser.pugx.org/yiisoft/router-fastroute/downloads.png)](https://packagist.org/packages/yiisoft/router-fastroute)
 [![Build status](https://github.com/yiisoft/router-fastroute/workflows/build/badge.svg)](https://github.com/yiisoft/router-fastroute/actions?query=workflow%3Abuild)
@@ -17,65 +15,26 @@ The package provides FastRoute adapter for [Yii Router](https://github.com/yiiso
 [![static analysis](https://github.com/yiisoft/router-fastroute/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/router-fastroute/actions?query=workflow%3A%22static+analysis%22)
 [![type-coverage](https://shepherd.dev/github/yiisoft/router-fastroute/coverage.svg)](https://shepherd.dev/github/yiisoft/router-fastroute)
 
+The package provides FastRoute adapter for [Yii Router](https://github.com/yiisoft/router).
+
+## Requirements
+
+- PHP 7.4 or higher.
+
+## Installation
+
+The package could be installed with composer:
+
+```
+composer require yiisoft/router-fastroute --prefer-dist
+```
+
 ## General usage
 
-Router instance could be obtained like the following:
+The package is not meant to be used separately so check [Yii Router](https://github.com/yiisoft/router) readme for
+general usage.
 
-```php
-use Yiisoft\Router\FastRoute\FastRouteFactory;
-
-$factory = new FastRouteFactory();
-$router = $factory();
-```
-
-## Custom route factory
-
-If you need to make custom route factory you can do something like the following:
-
-```php
-namespace App\Factory;
-
-use Psr\Container\ContainerInterface;
-use Yiisoft\Router\FastRoute\FastRouteFactory;
-use Yiisoft\Router\Route;
-use Yiisoft\Router\RouterFactory;
-use Yiisoft\Router\RouterInterface;
-use App\Controller\SiteController;
-
-class RouteFactory
-{
-    public function __invoke(ContainerInterface $container): RouterInterface
-    {
-        $routes = [
-            Route::get('/')
-                ->action([SiteController::class, 'index'])
-                ->name('site/index'),
-            Route::get('/about')
-                ->action([SiteController::class, 'about'])
-                ->name('site/about'),
-        ];
-
-        return (new RouterFactory(new FastRouteFactory(), $routes))($container);
-    }
-}
-```
-
-setting up your container
-
-```php
-use App\Factory\RouteFactory;
-use Yiisoft\Router\RouterInterface;
-
-return [
-    /** 
-     * ...
-     * There other container configuration. 
-     * ...
-     */
-
-    RouterInterface::class => new RouteFactory(),
-];
-```
+## Testing
 
 ### Unit testing
 
@@ -101,21 +60,21 @@ The code is statically analyzed with [Psalm](https://psalm.dev/). To run static 
 ./vendor/bin/psalm
 ```
 
-### Support the project
-
-[![Open Collective](https://img.shields.io/badge/Open%20Collective-sponsor-7eadf1?logo=open%20collective&logoColor=7eadf1&labelColor=555555)](https://opencollective.com/yiisoft)
-
-### Follow updates
-
-[![Official website](https://img.shields.io/badge/Powered_by-Yii_Framework-green.svg?style=flat)](https://www.yiiframework.com/)
-[![Twitter](https://img.shields.io/badge/twitter-follow-1DA1F2?logo=twitter&logoColor=1DA1F2&labelColor=555555?style=flat)](https://twitter.com/yiiframework)
-[![Telegram](https://img.shields.io/badge/telegram-join-1DA1F2?style=flat&logo=telegram)](https://t.me/yii3en)
-[![Facebook](https://img.shields.io/badge/facebook-join-1DA1F2?style=flat&logo=facebook&logoColor=ffffff)](https://www.facebook.com/groups/yiitalk)
-[![Slack](https://img.shields.io/badge/slack-join-1DA1F2?style=flat&logo=slack)](https://yiiframework.com/go/slack)
-
 ## License
 
 The Yii Router FastRoute adapter is free software. It is released under the terms of the BSD License.
 Please see [`LICENSE`](./LICENSE.md) for more information.
 
 Maintained by [Yii Software](https://www.yiiframework.com/).
+
+## Support the project
+
+[![Open Collective](https://img.shields.io/badge/Open%20Collective-sponsor-7eadf1?logo=open%20collective&logoColor=7eadf1&labelColor=555555)](https://opencollective.com/yiisoft)
+
+## Follow updates
+
+[![Official website](https://img.shields.io/badge/Powered_by-Yii_Framework-green.svg?style=flat)](https://www.yiiframework.com/)
+[![Twitter](https://img.shields.io/badge/twitter-follow-1DA1F2?logo=twitter&logoColor=1DA1F2&labelColor=555555?style=flat)](https://twitter.com/yiiframework)
+[![Telegram](https://img.shields.io/badge/telegram-join-1DA1F2?style=flat&logo=telegram)](https://t.me/yii3en)
+[![Facebook](https://img.shields.io/badge/facebook-join-1DA1F2?style=flat&logo=facebook&logoColor=ffffff)](https://www.facebook.com/groups/yiitalk)
+[![Slack](https://img.shields.io/badge/slack-join-1DA1F2?style=flat&logo=slack)](https://yiiframework.com/go/slack)
