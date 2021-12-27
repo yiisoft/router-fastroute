@@ -32,7 +32,7 @@ composer require yiisoft/router-fastroute --prefer-dist
 ## General usage
 
 The package is not meant to be used separately so check [Yii Router](https://github.com/yiisoft/router) readme for
-general usage.
+general usage and [FastRoute](https://github.com/nikic/FastRoute) for pattern syntax.
 
 ## Testing
 
