@@ -8,7 +8,7 @@ use FastRoute\RouteParser;
 
 final class NotFoundRouteParser implements RouteParser
 {
-    public function parse($route)
+    public function parse($route): array
     {
         return [];
     }

@@ -411,7 +411,7 @@ final class UrlMatcherTest extends TestCase
 
     private function createUrlMatcher(array $routes, CacheInterface $cache = null): UrlMatcherInterface
     {
-        $rootGroup = Group::create(null)->routes(...$routes);
+        $rootGroup = Group::create()->routes(...$routes);
         $collector = new RouteCollector();
         $collector->addGroup($rootGroup);
         return new UrlMatcher(new RouteCollection($collector), $cache, ['cache_key' => 'route-cache']);

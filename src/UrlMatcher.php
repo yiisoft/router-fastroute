@@ -32,7 +32,7 @@ final class UrlMatcher implements UrlMatcherInterface
     private string $cacheKey = 'routes-cache';
 
     /**
-     * @var callable A factory callback that can return a dispatcher.
+     * @var ?callable A factory callback that can return a dispatcher.
      */
     private $dispatcherCallback;
 
@@ -101,7 +101,7 @@ final class UrlMatcher implements UrlMatcherInterface
     }
 
     /**
-     * Load configuration parameters
+     * Load configuration parameters.
      *
      * @param array|null $config Array of custom configuration options.
      */
@@ -123,7 +123,7 @@ final class UrlMatcher implements UrlMatcherInterface
      * (which should be derived from the router's getData() method); this
      * approach is done to allow testing against the dispatcher.
      *
-     * @param array|object $data Data from {@see RouteCollector::getData()}
+     * @param array|object $data Data from {@see RouteCollector::getData()}.
      *
      * @return Dispatcher
      */
@@ -139,7 +139,7 @@ final class UrlMatcher implements UrlMatcherInterface
     }
 
     /**
-     * Create a default FastRoute Collector instance
+     * Create a default FastRoute Collector instance.
      */
     private function createRouteCollector(): RouteCollector
     {
@@ -151,7 +151,7 @@ final class UrlMatcher implements UrlMatcherInterface
      */
     private function createDispatcherCallback(): callable
     {
-        return static function ($data) {
+        return static function (array $data) {
             return new GroupCountBased($data);
         };
     }
@@ -195,7 +195,7 @@ final class UrlMatcher implements UrlMatcherInterface
     }
 
     /**
-     * Inject routes into the underlying router
+     * Inject routes into the underlying router.
      */
     private function injectRoutes(): void
     {
@@ -226,7 +226,7 @@ final class UrlMatcher implements UrlMatcherInterface
             return $this->dispatchData;
         }
 
-        $dispatchData = (array)$this->fastRouteCollector->getData();
+        $dispatchData = $this->fastRouteCollector->getData();
 
         if ($this->cache !== null) {
             $this->cacheDispatchData($dispatchData);
@@ -236,9 +236,7 @@ final class UrlMatcher implements UrlMatcherInterface
     }
 
     /**
-     * Load dispatch data from cache
-     *
-     * @throws RuntimeException If the cache file contains invalid data
+     * Load dispatch data from cache.
      */
     private function loadDispatchData(): void
     {
@@ -254,13 +252,10 @@ final class UrlMatcher implements UrlMatcherInterface
     }
 
     /**
-     * Save dispatch data to cache
+     * Save dispatch data to cache.
      *
      * @param array $dispatchData
-     *
-     * @throws RuntimeException If the cache directory does not exist.
-     * @throws RuntimeException If the cache directory is not writable.
-     * @throws RuntimeException If the cache file exists but is not writable
+     * @psalm-suppress PossiblyNullReference
      */
     private function cacheDispatchData(array $dispatchData): void
     {
