@@ -20,20 +20,6 @@ use Yiisoft\Router\UrlGeneratorInterface;
 
 final class UrlGeneratorTest extends TestCase
 {
-    private function createUrlGenerator(array $routes, CurrentRoute $currentRoute = null): UrlGeneratorInterface
-    {
-        $routeCollection = $this->createRouteCollection($routes);
-        return new UrlGenerator($routeCollection, $currentRoute);
-    }
-
-    private function createRouteCollection(array $routes): RouteCollectionInterface
-    {
-        $rootGroup = Group::create(null)->routes(...$routes);
-        $collector = new RouteCollector();
-        $collector->addGroup($rootGroup);
-        return new RouteCollection($collector);
-    }
-
     public function testSetLocales(): void
     {
         $urlGenerator = $this->createUrlGenerator([]);
