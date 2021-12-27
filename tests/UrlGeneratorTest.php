@@ -570,7 +570,7 @@ final class UrlGeneratorTest extends TestCase
 
     private function createRouteCollection(array $routes): RouteCollectionInterface
     {
-        $rootGroup = Group::create(null)->routes(...$routes);
+        $rootGroup = Group::create()->routes(...$routes);
         $collector = new RouteCollector();
         $collector->addGroup($rootGroup);
         return new RouteCollection($collector);

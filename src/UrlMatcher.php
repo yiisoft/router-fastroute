@@ -226,7 +226,7 @@ final class UrlMatcher implements UrlMatcherInterface
             return $this->dispatchData;
         }
 
-        $dispatchData = (array)$this->fastRouteCollector->getData();
+        $dispatchData = $this->fastRouteCollector->getData();
 
         if ($this->cache !== null) {
             $this->cacheDispatchData($dispatchData);

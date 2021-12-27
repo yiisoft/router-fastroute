@@ -226,7 +226,7 @@ final class UrlGenerator implements UrlGeneratorInterface
         // Check if all parameters exist
         foreach ($missingParameters as $parameter) {
             if (!array_key_exists($parameter, $substitutions)) {
-                // Return the parameters so they can be used in an
+                // Return the parameters, so they can be used in an
                 // exception if needed
                 return $missingParameters;
             }
