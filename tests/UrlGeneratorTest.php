@@ -20,6 +20,29 @@ use Yiisoft\Router\UrlGeneratorInterface;
 
 final class UrlGeneratorTest extends TestCase
 {
+    private function createUrlGenerator(array $routes, CurrentRoute $currentRoute = null): UrlGeneratorInterface
+    {
+        $routeCollection = $this->createRouteCollection($routes);
+        return new UrlGenerator($routeCollection, $currentRoute);
+    }
+
+    private function createRouteCollection(array $routes): RouteCollectionInterface
+    {
+        $rootGroup = Group::create(null)->routes(...$routes);
+        $collector = new RouteCollector();
+        $collector->addGroup($rootGroup);
+        return new RouteCollection($collector);
+    }
+
+    public function testSetLocales(): void
+    {
+        $urlGenerator = $this->createUrlGenerator([]);
+        $locales = ['en' => 'en-US', 'uz-UZ', 'ru' => 'ru-RU'];
+        $urlGenerator->setLocales($locales);
+
+        $this->assertSame($locales, $urlGenerator->getLocales());
+    }
+
     public function testSimpleRouteGenerated(): void
     {
         $routes = [
@@ -492,19 +515,35 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('/uz/home/index', $url);
     }
 
-    public function testRootlessUrlWithLocales(): void
+    public function testSetLocale(): void
     {
         $routes = [
-            Route::get('home')->name('home'),
+            Route::get('/home/index')->name('index'),
         ];
 
         $urlGenerator = $this->createUrlGenerator($routes);
+        $urlGenerator->setLocale('uz');
+        $urlGenerator->setLocales(['uz' => 'uz-UZ', 'en' => 'en-US', 'ru' => 'ru-RU']);
+
+        $url = $urlGenerator->generate('index');
+
+        $this->assertEquals('/uz/home/index', $url);
+    }
+
+    public function testUrlWithLocalesAndPrefix(): void
+    {
+        $routes = [
+            Route::get('/home')->name('home'),
+        ];
+
+        $urlGenerator = $this->createUrlGenerator($routes);
+        $urlGenerator->setUriPrefix('/static');
         $urlGenerator->setLocaleParameterName('_locale');
         $urlGenerator->setLocales(['uz' => 'uz-UZ', 'en' => 'en-US', 'ru' => 'ru-RU']);
 
         $url = $urlGenerator->generate('home', ['_locale' => 'uz']);
 
-        $this->assertEquals('uz/home', $url);
+        $this->assertEquals('/uz/static/home', $url);
     }
 
     public function testAbsoluteUrlWithLocales(): void
@@ -524,6 +563,21 @@ final class UrlGeneratorTest extends TestCase
         $url = $urlGenerator->generateAbsolute('index', ['_locale' => 'uz']);
 
         $this->assertEquals('http://example.com/uz/home/index', $url);
+    }
+
+
+    public function testUrlWithPrefix(): void
+    {
+        $routes = [
+            Route::get('/home')->name('home'),
+        ];
+
+        $urlGenerator = $this->createUrlGenerator($routes);
+        $urlGenerator->setUriPrefix('/static');
+
+        $url = $urlGenerator->generate('home');
+
+        $this->assertEquals('/static/home', $url);
     }
 
     public function testGetLocales(): void

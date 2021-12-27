@@ -192,6 +192,11 @@ final class UrlGenerator implements UrlGeneratorInterface
         return $this->locales;
     }
 
+    public function setLocale(string $locale): void
+    {
+        $this->locale = $locale;
+    }
+
     public function setLocales(array $locales): void
     {
         $this->locales = $locales;
@@ -239,7 +244,8 @@ final class UrlGenerator implements UrlGeneratorInterface
     private function generatePath(array $parameters, array $parts): string
     {
         $notSubstitutedParams = $parameters;
-        $path = $this->getUriPrefix();
+        $uriPrefix = $this->getUriPrefix();
+        $path = '';
 
         foreach ($parts as $part) {
             if (is_string($part)) {
@@ -267,16 +273,11 @@ final class UrlGenerator implements UrlGeneratorInterface
             unset($notSubstitutedParams[$part[0]]);
         }
 
+        $pathStartsWithSlash = strpos($path, '/') === 0;
         if ($this->locale !== '') {
-            $path = $this->addLocaleToPath($path);
+            $uriPrefix = ($pathStartsWithSlash ? '/' : '') . $this->locale . $uriPrefix;
         }
 
-        return $path . ($notSubstitutedParams !== [] ? '?' . http_build_query($notSubstitutedParams) : '');
-    }
-
-    private function addLocaleToPath(string $path): string
-    {
-        $shouldPrependSlash = strpos($path, '/') === 0;
-        return ($shouldPrependSlash ? '/' : '') . $this->locale . '/' . ltrim($path, '/');
+        return $uriPrefix . $path . ($notSubstitutedParams !== [] ? '?' . http_build_query($notSubstitutedParams) : '');
     }
 }
