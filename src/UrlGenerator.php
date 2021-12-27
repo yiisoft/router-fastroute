@@ -21,6 +21,7 @@ use function preg_match;
 final class UrlGenerator implements UrlGeneratorInterface
 {
     private string $uriPrefix = '';
+    private string $locale = '';
     private bool $encodeRaw = true;
     private array $locales = [];
     private ?string $localeParameterName = null;
@@ -43,7 +44,7 @@ final class UrlGenerator implements UrlGeneratorInterface
      *
      * Replacements in FastRoute are written as `{name}` or `{name:<pattern>}`;
      * this method uses {@see RouteParser\Std} to search for the best route
-     * match based on the available substitutions and generates a uri.
+     * match based on the available substitutions and generates an uri.
      *
      * @throws RuntimeException if parameter value does not match its regex.
      */
@@ -55,11 +56,9 @@ final class UrlGenerator implements UrlGeneratorInterface
             && $this->locales !== []
         ) {
             $locale = $parameters[$this->localeParameterName];
-            $path = ($this->currentRoute !== null && $this->currentRoute->getUri() !== null)
-                ? $this->currentRoute->getUri()->getPath()
-                : '';
             if (isset($this->locales[$locale])) {
-                return sprintf('/%s/%s', $locale, ltrim($path, '/'));
+                $this->locale = $locale;
+                unset($parameters[$this->localeParameterName]);
             }
         }
         $route = $this->routeCollection->getRoute($name);
@@ -268,6 +267,16 @@ final class UrlGenerator implements UrlGeneratorInterface
             unset($notSubstitutedParams[$part[0]]);
         }
 
+        if ($this->locale !== '') {
+            $path = $this->addLocaleToPath($path);
+        }
+
         return $path . ($notSubstitutedParams !== [] ? '?' . http_build_query($notSubstitutedParams) : '');
+    }
+
+    private function addLocaleToPath(string $path): string
+    {
+        $shouldPrependSlash = strpos($path, '/') === 0;
+        return ($shouldPrependSlash ? '/' : '') . $this->locale . '/' . ltrim($path, '/');
     }
 }
