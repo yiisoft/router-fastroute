@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Yiisoft\Router\FastRoute;
 
 use FastRoute\RouteParser;
+use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
 use RuntimeException;
+use Stringable;
 use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\RouteNotFoundException;
 use Yiisoft\Router\CurrentRoute;
@@ -21,6 +23,7 @@ use function preg_match;
 final class UrlGenerator implements UrlGeneratorInterface
 {
     private string $uriPrefix = '';
+    /** @psalm-var string[] */
     private array $defaults = [];
     private bool $encodeRaw = true;
     private RouteCollectionInterface $routeCollection;
@@ -48,7 +51,8 @@ final class UrlGenerator implements UrlGeneratorInterface
      */
     public function generate(string $name, array $parameters = []): string
     {
-        $parameters = array_map('\strval', array_merge($this->defaults, $parameters));
+        /** @psalm-var array<string, string> $parameters */
+        $parameters = array_merge($this->defaults, array_map('\strval', $parameters));
 
         $route = $this->routeCollection->getRoute($name);
         /** @psalm-var list<list<string|list<string>>> $parsedRoutes */
@@ -111,11 +115,16 @@ final class UrlGenerator implements UrlGeneratorInterface
         return $uri === null ? $url : $this->generateAbsoluteFromLastMatchedRequest($url, $uri, $scheme);
     }
 
-    public function generateFromCurrent(array $replacedParams, ?string $fallbackRouteName = null): string
+    /**
+     * {@inheritdoc}
+     *
+     * @psalm-param array<string, Stringable|null|scalar> $replacedParameters
+     */
+    public function generateFromCurrent(array $replacedParameters, ?string $fallbackRouteName = null): string
     {
         if ($this->currentRoute === null || $this->currentRoute->getName() === null) {
             if ($fallbackRouteName !== null) {
-                return $this->generate($fallbackRouteName, $replacedParams);
+                return $this->generate($fallbackRouteName, $replacedParameters);
             }
 
             if ($this->currentRoute !== null && $this->currentRoute->getUri() !== null) {
@@ -125,15 +134,19 @@ final class UrlGenerator implements UrlGeneratorInterface
             throw new RuntimeException('Current route is not detected.');
         }
 
+        /** @psalm-suppress PossiblyNullArgument */
         return $this->generate(
             $this->currentRoute->getName(),
-            array_merge($this->currentRoute->getArguments(), $replacedParams)
+            array_merge($this->currentRoute->getArguments(), $replacedParameters)
         );
     }
 
     public function setDefault(string $name, $value): void
     {
-        $this->defaults[$name] = $value;
+        if (!is_scalar($value) && !$value instanceof Stringable) {
+            throw new InvalidArgumentException('Default should be either scalar value or an instance of \Stringable.');
+        }
+        $this->defaults[$name] = (string) $value;
     }
 
     private function generateAbsoluteFromLastMatchedRequest(string $url, UriInterface $uri, ?string $scheme): string
