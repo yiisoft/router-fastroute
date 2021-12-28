@@ -539,6 +539,107 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('http://example.com/ru/home/index', $url);
     }
 
+    public function testGenerateFromCurrent(): void
+    {
+        $request = new ServerRequest('GET', 'http://example.com/en/home/index');
+        $route =  Route::get('/{_locale}/home/index')->name('index');
+
+        $currentRoute = new CurrentRoute();
+        $currentRoute->setUri($request->getUri());
+        $currentRoute->setRouteWithArguments($route, ['_locale' => 'en']);
+        $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
+        $urlGenerator->setDefault('_locale', 'uz');
+
+        $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru']);
+
+        $this->assertEquals('/ru/home/index', $url);
+    }
+
+    public function testGenerateFromCurrentWithFallbackRoute(): void
+    {
+        $request = new ServerRequest('GET', 'http://example.com/en/home/index');
+        $route =  Route::get('/{_locale}/home/index')->name('index');
+
+        $currentRoute = new CurrentRoute();
+        $currentRoute->setUri($request->getUri());
+        $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
+        $urlGenerator->setDefault('_locale', 'uz');
+
+        $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru'], 'index');
+
+        $this->assertEquals('/ru/home/index', $url);
+    }
+
+    public function testGenerateFromCurrentWithFallbackRouteWithoutCurrentRoute(): void
+    {
+        $route =  Route::get('/{_locale}/home/index')->name('index');
+
+        $urlGenerator = $this->createUrlGenerator([$route], null);
+        $urlGenerator->setDefault('_locale', 'uz');
+
+        $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru'], 'index');
+
+        $this->assertEquals('/ru/home/index', $url);
+    }
+
+    public function testGenerateFromCurrentWithFallbackRouteWithEmptyCurrentRoute(): void
+    {
+        $route =  Route::get('/{_locale}/home/index')->name('index');
+
+        $currentRoute = new CurrentRoute();
+        $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
+        $urlGenerator->setDefault('_locale', 'uz');
+
+        $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru'], 'index');
+
+        $this->assertEquals('/ru/home/index', $url);
+    }
+
+    public function testGenerateFromCurrentWithoutFallbackRoute(): void
+    {
+        $request = new ServerRequest('GET', 'http://example.com/en/home/index');
+        $route =  Route::get('/{_locale}/home/index')->name('index');
+
+        $currentRoute = new CurrentRoute();
+        $currentRoute->setUri($request->getUri());
+        $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
+        $urlGenerator->setDefault('_locale', 'uz');
+
+        $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru']);
+
+        $this->assertEquals('/en/home/index', $url);
+    }
+
+    public function testGenerateFromCurrentWithoutFallbackRouteWithEmptyCurrentRoute(): void
+    {
+        $route =  Route::get('/{_locale}/home/index')->name('index');
+
+        $currentRoute = new CurrentRoute();
+        $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
+        $urlGenerator->setDefault('_locale', 'uz');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Current route is not detected.');
+        $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru']);
+
+        $this->assertEquals('/ru/home/index', $url);
+    }
+
+    public function testGenerateFromCurrentWithoutFallbackRouteWithoutCurrentRoute(): void
+    {
+        $route =  Route::get('/{_locale}/home/index')->name('index');
+
+        $currentRoute = new CurrentRoute();
+        $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
+        $urlGenerator->setDefault('_locale', 'uz');
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Current route is not detected.');
+        $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru']);
+
+        $this->assertEquals('/ru/home/index', $url);
+    }
+
     public function testGetUriPrefix(): void
     {
         $prefix = '/test';
