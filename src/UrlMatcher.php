@@ -11,7 +11,6 @@ use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std as RouteParser;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\SimpleCache\CacheInterface;
-use RuntimeException;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\MatchingResult;
 use Yiisoft\Router\RouteCollectionInterface;
@@ -19,6 +18,13 @@ use Yiisoft\Router\UrlMatcherInterface;
 
 use function array_merge;
 
+/**
+ * @psalm-type ResultNotFound = array{0:0}
+ * @psalm-type ResultMethodNotAllowed = array{0:2,1:string[]}
+ * @psalm-type ResultFound = array{0:1,1:string,2:array<string,string>}
+ *
+ * @psalm-type DispatcherCallback=Closure(array):Dispatcher
+ */
 final class UrlMatcher implements UrlMatcherInterface
 {
     /**
@@ -33,6 +39,7 @@ final class UrlMatcher implements UrlMatcherInterface
 
     /**
      * @var ?callable A factory callback that can return a dispatcher.
+     * @psalm-var DispatcherCallback|null
      */
     private $dispatcherCallback;
 
@@ -62,18 +69,18 @@ final class UrlMatcher implements UrlMatcherInterface
      *   RouteGenerator.
      * - A callable that returns a GroupCountBased dispatcher will be created.
      *
-     * @param RouteCollector|null $fastRouteCollector If not provided, a default
-     *     implementation will be used.
-     * @param callable|null $dispatcherFactory Callable that will return a
-     *     FastRoute dispatcher.
+     * @param RouteCollector|null $fastRouteCollector If not provided, a default implementation will be used.
+     * @param callable|null $dispatcherFactory Callable that will return a FastRoute dispatcher.
      * @param array|null $config Array of custom configuration options.
+     *
+     * @psalm-param DispatcherCallback|null $dispatcherFactory
      */
     public function __construct(
         RouteCollectionInterface $routeCollection,
         CacheInterface $cache = null,
         ?array $config = null,
-        RouteCollector $fastRouteCollector = null,
-        callable $dispatcherFactory = null
+        ?RouteCollector $fastRouteCollector = null,
+        ?callable $dispatcherFactory = null
     ) {
         $this->fastRouteCollector = $fastRouteCollector ?? $this->createRouteCollector();
         $this->routeCollection = $routeCollection;
@@ -93,8 +100,13 @@ final class UrlMatcher implements UrlMatcherInterface
         $dispatchData = $this->getDispatchData();
         $path = urldecode($request->getUri()->getPath());
         $method = $request->getMethod();
+
+        /**
+         * @psalm-var ResultNotFound|ResultMethodNotAllowed|ResultFound $result
+         */
         $result = $this->getDispatcher($dispatchData)->dispatch($method, $request->getUri()->getHost() . $path);
 
+        /** @psalm-suppress ArgumentTypeCoercion Psalm can't determine correct type here */
         return $result[0] !== Dispatcher::FOUND
             ? $this->marshalFailedRoute($result)
             : $this->marshalMatchedRoute($result);
@@ -123,11 +135,11 @@ final class UrlMatcher implements UrlMatcherInterface
      * (which should be derived from the router's getData() method); this
      * approach is done to allow testing against the dispatcher.
      *
-     * @param array|object $data Data from {@see RouteCollector::getData()}.
+     * @param array $data Data from {@see RouteCollector::getData()}.
      *
      * @return Dispatcher
      */
-    private function getDispatcher($data): Dispatcher
+    private function getDispatcher(array $data): Dispatcher
     {
         if (!$this->dispatcherCallback) {
             $this->dispatcherCallback = $this->createDispatcherCallback();
@@ -147,7 +159,9 @@ final class UrlMatcher implements UrlMatcherInterface
     }
 
     /**
-     * Return a default implementation of a callback that can return a Dispatcher.
+     * Returns a default implementation of a callback that can return a Dispatcher.
+     *
+     * @psalm-return DispatcherCallback
      */
     private function createDispatcherCallback(): callable
     {
@@ -164,12 +178,15 @@ final class UrlMatcher implements UrlMatcherInterface
      *
      * @param array $result
      *
+     * @psalm-param ResultNotFound|ResultMethodNotAllowed $result
+     *
      * @return MatchingResult
      */
     private function marshalFailedRoute(array $result): MatchingResult
     {
         $resultCode = $result[0];
         if ($resultCode === Dispatcher::METHOD_NOT_ALLOWED) {
+            /** @psalm-var ResultMethodNotAllowed $result */
             return MatchingResult::fromFailure($result[1]);
         }
 
@@ -180,6 +197,8 @@ final class UrlMatcher implements UrlMatcherInterface
      * Marshals a route result based on the results of matching.
      *
      * @param array $result
+     *
+     * @psalm-param ResultFound $result
      *
      * @return MatchingResult
      */
@@ -241,6 +260,7 @@ final class UrlMatcher implements UrlMatcherInterface
     private function loadDispatchData(): void
     {
         if ($this->cache !== null && $this->cache->has($this->cacheKey)) {
+            /** @var array $dispatchData */
             $dispatchData = $this->cache->get($this->cacheKey);
 
             $this->hasCache = true;
