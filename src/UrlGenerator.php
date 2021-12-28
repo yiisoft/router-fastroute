@@ -113,7 +113,10 @@ final class UrlGenerator implements UrlGeneratorInterface
 
     public function generateCurrent(array $replacedParams): string
     {
-        if ($this->currentRoute === null) {
+        if ($this->currentRoute === null || $this->currentRoute->getName() === null) {
+            if ($this->currentRoute->getUri() !== null) {
+                return $this->currentRoute->getUri()->getPath();
+            }
             throw new RuntimeException('Current route is not detected.');
         }
 
