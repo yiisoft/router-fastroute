@@ -50,12 +50,13 @@ final class UrlGenerator implements UrlGeneratorInterface
      */
     public function generate(string $name, array $parameters = []): string
     {
+        $parameters = array_map('\strval', $parameters);
+
         if (
             $this->localeParameterName !== null
             && isset($parameters[$this->localeParameterName])
             && $this->locales !== []
         ) {
-            /** @var string $locale */
             $locale = $parameters[$this->localeParameterName];
             if (isset($this->locales[$locale])) {
                 $this->locale = $locale;
@@ -63,6 +64,7 @@ final class UrlGenerator implements UrlGeneratorInterface
             }
         }
         $route = $this->routeCollection->getRoute($name);
+        /** @psalm-var list<list<string|list<string>>> $parsedRoutes */
         $parsedRoutes = array_reverse($this->routeParser->parse($route->getData('pattern')));
         if ($parsedRoutes === []) {
             throw new RouteNotFoundException($name);
@@ -100,6 +102,8 @@ final class UrlGenerator implements UrlGeneratorInterface
         string $scheme = null,
         string $host = null
     ): string {
+        $parameters = array_map('\strval', $parameters);
+
         $url = $this->generate($name, $parameters);
         $route = $this->routeCollection->getRoute($name);
         $uri = $this->currentRoute && $this->currentRoute->getUri() !== null ? $this->currentRoute->getUri() : null;
@@ -213,8 +217,9 @@ final class UrlGenerator implements UrlGeneratorInterface
      * @param array $parts
      * @param array $substitutions
      *
-     * @return array Either an array containing missing required parameters or an empty array if none
-     * are missing.
+     * @return string[] Either an array containing missing required parameters or an empty array if none are missing.
+     *
+     * @psalm-param list<string|list<string>> $parts
      */
     private function missingParameters(array $parts, array $substitutions): array
     {
@@ -242,6 +247,10 @@ final class UrlGenerator implements UrlGeneratorInterface
         return [];
     }
 
+    /**
+     * @psalm-param array<string,string> $parameters
+     * @psalm-param list<string|list<string>> $parts
+     */
     private function generatePath(array $parameters, array $parts): string
     {
         $notSubstitutedParams = $parameters;
@@ -256,7 +265,7 @@ final class UrlGenerator implements UrlGeneratorInterface
 
             // Check substitute value with regex.
             $pattern = str_replace('~', '\~', $part[1]);
-            if (preg_match('~^' . $pattern . '$~', (string)$parameters[$part[0]]) === 0) {
+            if (preg_match('~^' . $pattern . '$~', $parameters[$part[0]]) === 0) {
                 throw new RuntimeException(
                     sprintf(
                         'Parameter value for [%s] did not match the regex `%s`',
@@ -268,8 +277,8 @@ final class UrlGenerator implements UrlGeneratorInterface
 
             // Append the substituted value.
             $path .= $this->encodeRaw
-                ? rawurlencode((string)$parameters[$part[0]])
-                : urlencode((string)$parameters[$part[0]]);
+                ? rawurlencode($parameters[$part[0]])
+                : urlencode($parameters[$part[0]]);
             unset($notSubstitutedParams[$part[0]]);
         }
 

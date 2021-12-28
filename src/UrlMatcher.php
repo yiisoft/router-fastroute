@@ -106,6 +106,7 @@ final class UrlMatcher implements UrlMatcherInterface
          */
         $result = $this->getDispatcher($dispatchData)->dispatch($method, $request->getUri()->getHost() . $path);
 
+        /** @psalm-suppress ArgumentTypeCoercion Psalm can't determine correct type here */
         return $result[0] !== Dispatcher::FOUND
             ? $this->marshalFailedRoute($result)
             : $this->marshalMatchedRoute($result);
