@@ -111,6 +111,18 @@ final class UrlGenerator implements UrlGeneratorInterface
         return $uri === null ? $url : $this->generateAbsoluteFromLastMatchedRequest($url, $uri, $scheme);
     }
 
+    public function generateCurrent(array $replacedParams): string
+    {
+        if ($this->currentRoute === null) {
+            throw new RuntimeException('Current route is not detected.');
+        }
+
+        return $this->generate(
+            $this->currentRoute->getName(),
+            array_merge($this->currentRoute->getArguments(), $replacedParams)
+        );
+    }
+
     public function setDefault(string $name, $value): void
     {
         $this->defaults[$name] = $value;
