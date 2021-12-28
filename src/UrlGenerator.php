@@ -117,7 +117,7 @@ final class UrlGenerator implements UrlGeneratorInterface
             if ($fallbackRouteName !== null) {
                 $fallbackRoute = $this->routeCollection->getRoute($fallbackRouteName);
                 return $this->generate(
-                    $fallbackRoute->getData('name'),
+                    $fallbackRouteName,
                     array_merge($fallbackRoute->getData('defaults'), $replacedParams)
                 );
             }
