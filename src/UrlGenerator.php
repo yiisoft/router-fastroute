@@ -111,7 +111,7 @@ final class UrlGenerator implements UrlGeneratorInterface
         return $uri === null ? $url : $this->generateAbsoluteFromLastMatchedRequest($url, $uri, $scheme);
     }
 
-    public function generateCurrent(array $replacedParams, string $fallbackRouteName = null): string
+    public function generateFromCurrent(array $replacedParams, string $fallbackRouteName = null): string
     {
         if ($this->currentRoute === null || $this->currentRoute->getName() === null) {
             if ($fallbackRouteName !== null) {
