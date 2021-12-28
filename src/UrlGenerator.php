@@ -21,10 +21,8 @@ use function preg_match;
 final class UrlGenerator implements UrlGeneratorInterface
 {
     private string $uriPrefix = '';
-    private string $locale = '';
+    private array $defaults = [];
     private bool $encodeRaw = true;
-    private array $locales = [];
-    private ?string $localeParameterName = null;
     private RouteCollectionInterface $routeCollection;
     private ?CurrentRoute $currentRoute;
     private RouteParser $routeParser;
@@ -50,19 +48,8 @@ final class UrlGenerator implements UrlGeneratorInterface
      */
     public function generate(string $name, array $parameters = []): string
     {
-        $parameters = array_map('\strval', $parameters);
+        $parameters = array_map('\strval', array_merge($this->defaults, $parameters));
 
-        if (
-            $this->localeParameterName !== null
-            && isset($parameters[$this->localeParameterName])
-            && $this->locales !== []
-        ) {
-            $locale = $parameters[$this->localeParameterName];
-            if (isset($this->locales[$locale])) {
-                $this->locale = $locale;
-                unset($parameters[$this->localeParameterName]);
-            }
-        }
         $route = $this->routeCollection->getRoute($name);
         /** @psalm-var list<list<string|list<string>>> $parsedRoutes */
         $parsedRoutes = array_reverse($this->routeParser->parse($route->getData('pattern')));
@@ -122,6 +109,11 @@ final class UrlGenerator implements UrlGeneratorInterface
         }
 
         return $uri === null ? $url : $this->generateAbsoluteFromLastMatchedRequest($url, $uri, $scheme);
+    }
+
+    public function setDefault(string $name, $value): void
+    {
+        $this->defaults[$name] = $value;
     }
 
     private function generateAbsoluteFromLastMatchedRequest(string $url, UriInterface $uri, ?string $scheme): string
@@ -196,21 +188,6 @@ final class UrlGenerator implements UrlGeneratorInterface
         $this->uriPrefix = $name;
     }
 
-    public function getLocales(): array
-    {
-        return $this->locales;
-    }
-
-    public function setLocales(array $locales): void
-    {
-        $this->locales = $locales;
-    }
-
-    public function setLocaleParameterName(string $localeParameterName): void
-    {
-        $this->localeParameterName = $localeParameterName;
-    }
-
     /**
      * Checks for any missing route parameters.
      *
@@ -282,16 +259,6 @@ final class UrlGenerator implements UrlGeneratorInterface
             unset($notSubstitutedParams[$part[0]]);
         }
 
-        if ($this->locale !== '') {
-            $path = $this->addLocaleToPath($path);
-        }
-
         return $path . ($notSubstitutedParams !== [] ? '?' . http_build_query($notSubstitutedParams) : '');
-    }
-
-    private function addLocaleToPath(string $path): string
-    {
-        $shouldPrependSlash = strpos($path, '/') === 0;
-        return ($shouldPrependSlash ? '/' : '') . $this->locale . '/' . ltrim($path, '/');
     }
 }
