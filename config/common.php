@@ -13,6 +13,6 @@ return [
         'setEncodeRaw()' => [$params['yiisoft/router-fastroute']['encodeRaw']],
         'reset' => function () {
             $this->defaultArguments = [];
-        }
+        },
     ],
 ];

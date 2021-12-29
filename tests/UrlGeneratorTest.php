@@ -576,7 +576,7 @@ final class UrlGeneratorTest extends TestCase
     public function testGenerateFromCurrent(): void
     {
         $request = new ServerRequest('GET', 'http://example.com/en/home/index');
-        $route =  Route::get('/{_locale}/home/index')->name('index');
+        $route = Route::get('/{_locale}/home/index')->name('index');
 
         $currentRoute = new CurrentRoute();
         $currentRoute->setUri($request->getUri());
@@ -592,7 +592,7 @@ final class UrlGeneratorTest extends TestCase
     public function testGenerateFromCurrentWithFallbackRoute(): void
     {
         $request = new ServerRequest('GET', 'http://example.com/en/home/index');
-        $route =  Route::get('/{_locale}/home/index')->name('index');
+        $route = Route::get('/{_locale}/home/index')->name('index');
 
         $currentRoute = new CurrentRoute();
         $currentRoute->setUri($request->getUri());
@@ -606,7 +606,7 @@ final class UrlGeneratorTest extends TestCase
 
     public function testGenerateFromCurrentWithFallbackRouteWithoutCurrentRoute(): void
     {
-        $route =  Route::get('/{_locale}/home/index')->name('index');
+        $route = Route::get('/{_locale}/home/index')->name('index');
 
         $urlGenerator = $this->createUrlGenerator([$route], null);
         $urlGenerator->setDefaultArgument('_locale', 'uz');
@@ -618,7 +618,7 @@ final class UrlGeneratorTest extends TestCase
 
     public function testGenerateFromCurrentWithFallbackRouteWithEmptyCurrentRoute(): void
     {
-        $route =  Route::get('/{_locale}/home/index')->name('index');
+        $route = Route::get('/{_locale}/home/index')->name('index');
 
         $currentRoute = new CurrentRoute();
         $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
@@ -632,7 +632,7 @@ final class UrlGeneratorTest extends TestCase
     public function testGenerateFromCurrentWithoutFallbackRoute(): void
     {
         $request = new ServerRequest('GET', 'http://example.com/en/home/index');
-        $route =  Route::get('/{_locale}/home/index')->name('index');
+        $route = Route::get('/{_locale}/home/index')->name('index');
 
         $currentRoute = new CurrentRoute();
         $currentRoute->setUri($request->getUri());
@@ -646,7 +646,7 @@ final class UrlGeneratorTest extends TestCase
 
     public function testGenerateFromCurrentWithoutFallbackRouteWithEmptyCurrentRoute(): void
     {
-        $route =  Route::get('/{_locale}/home/index')->name('index');
+        $route = Route::get('/{_locale}/home/index')->name('index');
 
         $currentRoute = new CurrentRoute();
         $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
@@ -661,7 +661,7 @@ final class UrlGeneratorTest extends TestCase
 
     public function testGenerateFromCurrentWithoutFallbackRouteWithoutCurrentRoute(): void
     {
-        $route =  Route::get('/{_locale}/home/index')->name('index');
+        $route = Route::get('/{_locale}/home/index')->name('index');
 
         $currentRoute = new CurrentRoute();
         $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
