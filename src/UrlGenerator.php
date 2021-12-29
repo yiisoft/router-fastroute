@@ -23,8 +23,12 @@ use function preg_match;
 final class UrlGenerator implements UrlGeneratorInterface
 {
     private string $uriPrefix = '';
-    /** @psalm-var string[] */
+
+    /**
+     * @psalm-var array<string,string>
+     */
     private array $defaults = [];
+
     private bool $encodeRaw = true;
     private RouteCollectionInterface $routeCollection;
     private ?CurrentRoute $currentRoute;
@@ -51,7 +55,6 @@ final class UrlGenerator implements UrlGeneratorInterface
      */
     public function generate(string $name, array $parameters = []): string
     {
-        /** @psalm-var array<string, string> $parameters */
         $parameters = array_merge($this->defaults, array_map('\strval', $parameters));
 
         $route = $this->routeCollection->getRoute($name);
@@ -117,8 +120,6 @@ final class UrlGenerator implements UrlGeneratorInterface
 
     /**
      * {@inheritdoc}
-     *
-     * @psalm-param array<string, Stringable|null|scalar> $replacedParameters
      */
     public function generateFromCurrent(array $replacedParameters, ?string $fallbackRouteName = null): string
     {
@@ -134,7 +135,6 @@ final class UrlGenerator implements UrlGeneratorInterface
             throw new RuntimeException('Current route is not detected.');
         }
 
-        /** @psalm-suppress PossiblyNullArgument */
         return $this->generate(
             $this->currentRoute->getName(),
             array_merge($this->currentRoute->getArguments(), $replacedParameters)
