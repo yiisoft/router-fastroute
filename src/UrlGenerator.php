@@ -27,8 +27,7 @@ final class UrlGenerator implements UrlGeneratorInterface
     /**
      * @psalm-var array<string,string>
      */
-    private array $defaults = [];
-
+    private array $defaultArguments = [];
     private bool $encodeRaw = true;
     private RouteCollectionInterface $routeCollection;
     private ?CurrentRoute $currentRoute;
@@ -53,10 +52,9 @@ final class UrlGenerator implements UrlGeneratorInterface
      *
      * @throws RuntimeException If parameter value does not match its regex.
      */
-    public function generate(string $name, array $parameters = []): string
+    public function generate(string $name, array $arguments = [], array $queryParameters = []): string
     {
-        $parameters = array_merge($this->defaults, array_map('\strval', $parameters));
-
+        $arguments = array_map('\strval', array_merge($this->defaultArguments, $arguments));
         $route = $this->routeCollection->getRoute($name);
         /** @psalm-var list<list<string|list<string>>> $parsedRoutes */
         $parsedRoutes = array_reverse($this->routeParser->parse($route->getData('pattern')));
@@ -64,41 +62,42 @@ final class UrlGenerator implements UrlGeneratorInterface
             throw new RouteNotFoundException($name);
         }
 
-        $missingParameters = [];
+        $missingArguments = [];
 
         // One route pattern can correspond to multiple routes if it has optional parts.
         foreach ($parsedRoutes as $parsedRouteParts) {
-            // Check if all parameters can be substituted
-            $missingParameters = $this->missingParameters($parsedRouteParts, $parameters);
+            // Check if all arguments can be substituted
+            $missingArguments = $this->missingArguments($parsedRouteParts, $arguments);
 
-            // If not all parameters can be substituted, try the next route.
-            if (!empty($missingParameters)) {
+            // If not all arguments can be substituted, try the next route.
+            if (!empty($missingArguments)) {
                 continue;
             }
 
-            return $this->generatePath($parameters, $parsedRouteParts);
+            return $this->generatePath($arguments, $queryParameters, $parsedRouteParts);
         }
 
         // No valid route was found: list minimal required parameters.
         throw new RuntimeException(
             sprintf(
-                'Route `%s` expects at least parameter values for [%s], but received [%s]',
+                'Route `%s` expects at least argument values for [%s], but received [%s]',
                 $name,
-                implode(',', $missingParameters),
-                implode(',', array_keys($parameters))
+                implode(',', $missingArguments),
+                implode(',', array_keys($arguments))
             )
         );
     }
 
     public function generateAbsolute(
         string $name,
-        array $parameters = [],
+        array $arguments = [],
+        array $queryParameters = [],
         string $scheme = null,
         string $host = null
     ): string {
-        $parameters = array_map('\strval', $parameters);
+        $arguments = array_map('\strval', $arguments);
 
-        $url = $this->generate($name, $parameters);
+        $url = $this->generate($name, $arguments, $queryParameters);
         $route = $this->routeCollection->getRoute($name);
         $uri = $this->currentRoute && $this->currentRoute->getUri() !== null ? $this->currentRoute->getUri() : null;
         $lastRequestScheme = $uri !== null ? $uri->getScheme() : null;
@@ -121,11 +120,11 @@ final class UrlGenerator implements UrlGeneratorInterface
     /**
      * {@inheritdoc}
      */
-    public function generateFromCurrent(array $replacedParameters, ?string $fallbackRouteName = null): string
+    public function generateFromCurrent(array $replacedArguments, string $fallbackRouteName = null): string
     {
         if ($this->currentRoute === null || $this->currentRoute->getName() === null) {
             if ($fallbackRouteName !== null) {
-                return $this->generate($fallbackRouteName, $replacedParameters);
+                return $this->generate($fallbackRouteName, $replacedArguments);
             }
 
             if ($this->currentRoute !== null && $this->currentRoute->getUri() !== null) {
@@ -138,16 +137,19 @@ final class UrlGenerator implements UrlGeneratorInterface
         /** @psalm-suppress PossiblyNullArgument Checked route name on null above. */
         return $this->generate(
             $this->currentRoute->getName(),
-            array_merge($this->currentRoute->getArguments(), $replacedParameters)
+            array_merge($this->currentRoute->getArguments(), $replacedArguments)
         );
     }
 
-    public function setDefault(string $name, $value): void
+    /**
+     * @psalm-param null|object|scalar $value
+     */
+    public function setDefaultArgument(string $name, $value): void
     {
         if (!is_scalar($value) && !$value instanceof Stringable) {
             throw new InvalidArgumentException('Default should be either scalar value or an instance of \Stringable.');
         }
-        $this->defaults[$name] = (string) $value;
+        $this->defaultArguments[$name] = (string) $value;
     }
 
     private function generateAbsoluteFromLastMatchedRequest(string $url, UriInterface $uri, ?string $scheme): string
@@ -232,39 +234,39 @@ final class UrlGenerator implements UrlGeneratorInterface
      *
      * @psalm-param list<string|list<string>> $parts
      */
-    private function missingParameters(array $parts, array $substitutions): array
+    private function missingArguments(array $parts, array $substitutions): array
     {
-        $missingParameters = [];
+        $missingArguments = [];
 
-        // Gather required parameters.
+        // Gather required arguments.
         foreach ($parts as $part) {
             if (is_string($part)) {
                 continue;
             }
 
-            $missingParameters[] = $part[0];
+            $missingArguments[] = $part[0];
         }
 
-        // Check if all parameters exist.
-        foreach ($missingParameters as $parameter) {
-            if (!array_key_exists($parameter, $substitutions)) {
-                // Return the parameters, so they can be used in an
+        // Check if all arguments exist.
+        foreach ($missingArguments as $argument) {
+            if (!array_key_exists($argument, $substitutions)) {
+                // Return the arguments, so they can be used in an
                 // exception if needed.
-                return $missingParameters;
+                return $missingArguments;
             }
         }
 
-        // All required parameters are available.
+        // All required arguments are availgit logable.
         return [];
     }
 
     /**
-     * @psalm-param array<string,string> $parameters
+     * @psalm-param array<string,string> $arguments
      * @psalm-param list<string|list<string>> $parts
      */
-    private function generatePath(array $parameters, array $parts): string
+    private function generatePath(array $arguments, array $queryParameters, array $parts): string
     {
-        $notSubstitutedParams = $parameters;
+        $notSubstitutedArguments = $arguments;
         $path = $this->getUriPrefix();
 
         foreach ($parts as $part) {
@@ -276,10 +278,10 @@ final class UrlGenerator implements UrlGeneratorInterface
 
             // Check substitute value with regex.
             $pattern = str_replace('~', '\~', $part[1]);
-            if (preg_match('~^' . $pattern . '$~', $parameters[$part[0]]) === 0) {
+            if (preg_match('~^' . $pattern . '$~', $arguments[$part[0]]) === 0) {
                 throw new RuntimeException(
                     sprintf(
-                        'Parameter value for [%s] did not match the regex `%s`',
+                        'Argument value for [%s] did not match the regex `%s`',
                         $part[0],
                         $part[1]
                     )
@@ -288,11 +290,15 @@ final class UrlGenerator implements UrlGeneratorInterface
 
             // Append the substituted value.
             $path .= $this->encodeRaw
-                ? rawurlencode($parameters[$part[0]])
-                : urlencode($parameters[$part[0]]);
-            unset($notSubstitutedParams[$part[0]]);
+                ? rawurlencode($arguments[$part[0]])
+                : urlencode($arguments[$part[0]]);
+            unset($notSubstitutedArguments[$part[0]]);
         }
 
-        return $path . ($notSubstitutedParams !== [] ? '?' . http_build_query($notSubstitutedParams) : '');
+        return $path . (
+            $notSubstitutedArguments !== [] || $queryParameters !== [] ?
+                '?' . http_build_query(array_merge($notSubstitutedArguments, $queryParameters))
+                : ''
+            );
     }
 }

@@ -65,7 +65,7 @@ final class UrlGeneratorTest extends TestCase
         $urlGenerator->generate('index');
     }
 
-    public function testParametersSubstituted(): void
+    public function testArgumentsSubstituted(): void
     {
         $routes = [
             Route::get('/view/{id:\d+}/{text:~[\w]+}#{tag:\w+}')->name('view'),
@@ -75,33 +75,33 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('/view/100/~test#yii', $url);
     }
 
-    public function testParametersUrlencode(): void
+    public function testArgumentsAndQueryParametersUrlencode(): void
     {
         $routes = [
             Route::get('/view/{name:.*?}/{text:~[\w]+}')->name('view'),
         ];
         $urlGenerator = $this->createUrlGenerator($routes);
 
-        $url = $urlGenerator->generate('view', ['name' => 'with space', 'text' => '~test', 'param' => 'also space']);
+        $url = $urlGenerator->generate('view', ['name' => 'with space', 'text' => '~test'], ['param' => 'also space']);
         $this->assertEquals('/view/with%20space/~test?param=also+space', $url);
 
         $urlGenerator->setEncodeRaw(false);
-        $url = $urlGenerator->generate('view', ['name' => 'with space', 'text' => '~test', 'param' => 'also space']);
+        $url = $urlGenerator->generate('view', ['name' => 'with space', 'text' => '~test'], ['param' => 'also space']);
         $this->assertEquals('/view/with+space/%7Etest?param=also+space', $url);
     }
 
-    public function testExceptionThrownIfParameterPatternDoesntMatch(): void
+    public function testExceptionThrownIfArgumentPatternDoesntMatch(): void
     {
         $routes = [
             Route::get('/view/{id:\w+}')->name('view'),
         ];
         $urlGenerator = $this->createUrlGenerator($routes);
 
-        $this->expectExceptionMessage('Parameter value for [id] did not match the regex `\w+`');
+        $this->expectExceptionMessage('Argument value for [id] did not match the regex `\w+`');
         $urlGenerator->generate('view', ['id' => null]);
     }
 
-    public function testExceptionThrownIfAnyParameterIsMissing(): void
+    public function testExceptionThrownIfAnyArgumentIsMissing(): void
     {
         $routes = [
             Route::get('/view/{id:\d+}/{value}')->name('view'),
@@ -109,7 +109,7 @@ final class UrlGeneratorTest extends TestCase
         $urlGenerator = $this->createUrlGenerator($routes);
 
         $this->expectExceptionMessage(
-            'Route `view` expects at least parameter values for [id,value], but received [id]'
+            'Route `view` expects at least argument values for [id,value], but received [id]'
         );
         $urlGenerator->generate('view', ['id' => 123]);
     }
@@ -179,7 +179,18 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('/api/v1/note/42', $url);
     }
 
-    public function testExtraParametersAddedAsQueryString(): void
+    public function testQueryParametersAddedAsQueryString(): void
+    {
+        $routes = [
+            Route::get('/test/{name}')
+                ->name('test'),
+        ];
+
+        $url = $this->createUrlGenerator($routes)->generate('test', ['name' => 'post'], ['id' => 12, 'sort' => 'asc']);
+        $this->assertEquals('/test/post?id=12&sort=asc', $url);
+    }
+
+    public function testExtraArgumentsAddedAsQueryString(): void
     {
         $routes = [
             Route::get('/test/{name}')
@@ -190,7 +201,29 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('/test/post?id=12&sort=asc', $url);
     }
 
-    public function testDefaultNotUsedForOptionalParameter(): void
+    public function testQueryParametersOverrideExtraArguments(): void
+    {
+        $routes = [
+            Route::get('/test/{name}')
+                ->name('test'),
+        ];
+
+        $url = $this->createUrlGenerator($routes)->generate('test', ['name' => 'post', 'id' => 11], ['id' => 12, 'sort' => 'asc']);
+        $this->assertEquals('/test/post?id=12&sort=asc', $url);
+    }
+
+    public function testQueryParametersMergedWithExtraArguments(): void
+    {
+        $routes = [
+            Route::get('/test/{name}')
+                ->name('test'),
+        ];
+
+        $url = $this->createUrlGenerator($routes)->generate('test', ['name' => 'post', 'id' => 11], ['sort' => 'asc']);
+        $this->assertEquals('/test/post?id=11&sort=asc', $url);
+    }
+
+    public function testDefaultNotUsedForOptionalArgument(): void
     {
         $routes = [
             Route::get('/[{name}]')
@@ -202,7 +235,7 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('/', $url);
     }
 
-    public function testValueUsedForOptionalParameter(): void
+    public function testValueUsedForOptionalArgument(): void
     {
         $routes = [
             Route::get('/[{name}]')
@@ -222,7 +255,7 @@ final class UrlGeneratorTest extends TestCase
                 ->defaults(['name' => 'default']),
         ];
 
-        $this->expectExceptionMessage('Route `defaults` expects at least parameter values for [name], but received []');
+        $this->expectExceptionMessage('Route `defaults` expects at least argument values for [name], but received []');
         $this->createUrlGenerator($routes)->generate('defaults');
     }
 
@@ -234,7 +267,7 @@ final class UrlGeneratorTest extends TestCase
         $routes = [
             Route::get('/home/index')->name('index')->host('http://test.com'),
         ];
-        $url = $this->createUrlGenerator($routes)->generateAbsolute('index', [], null, 'http://mysite.com');
+        $url = $this->createUrlGenerator($routes)->generateAbsolute('index', [], [], null, 'http://mysite.com');
 
         $this->assertEquals('http://mysite.com/home/index', $url);
     }
@@ -247,7 +280,7 @@ final class UrlGeneratorTest extends TestCase
         $routes = [
             Route::get('/home/index')->name('index')->host('http://test.com'),
         ];
-        $url = $this->createUrlGenerator($routes)->generateAbsolute('index', [], null, 'http://mysite.com/');
+        $url = $this->createUrlGenerator($routes)->generateAbsolute('index', [], [], null, 'http://mysite.com/');
 
         $this->assertEquals('http://mysite.com/home/index', $url);
     }
@@ -260,7 +293,7 @@ final class UrlGeneratorTest extends TestCase
         $routes = [
             Route::get('/home/index')->name('index')->host('http://test.com'),
         ];
-        $url = $this->createUrlGenerator($routes)->generateAbsolute('index', [], 'https');
+        $url = $this->createUrlGenerator($routes)->generateAbsolute('index', [], [], 'https');
 
         $this->assertEquals('https://test.com/home/index', $url);
     }
@@ -273,7 +306,7 @@ final class UrlGeneratorTest extends TestCase
         $routes = [
             Route::get('/home/index')->name('index'),
         ];
-        $url = $this->createUrlGenerator($routes)->generateAbsolute('index', [], 'https', 'http://test.com');
+        $url = $this->createUrlGenerator($routes)->generateAbsolute('index', [], [], 'https', 'http://test.com');
 
         $this->assertEquals('https://test.com/home/index', $url);
     }
@@ -289,7 +322,7 @@ final class UrlGeneratorTest extends TestCase
         ];
         $currentRoute = new CurrentRoute();
         $currentRoute->setUri($request->getUri());
-        $url = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], 'https');
+        $url = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], [], 'https');
 
         $this->assertEquals('https://test.com/home/index', $url);
     }
@@ -386,7 +419,7 @@ final class UrlGeneratorTest extends TestCase
 
         $currentRoute = new CurrentRoute();
         $currentRoute->setUri($request->getUri());
-        $url = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], null, '//test.com');
+        $url = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], [], null, '//test.com');
 
         $this->assertEquals('//test.com/home/index', $url);
     }
@@ -401,8 +434,8 @@ final class UrlGeneratorTest extends TestCase
 
         $currentRoute = new CurrentRoute();
         $currentRoute->setUri($request->getUri());
-        $url1 = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], '');
-        $url2 = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('view', [], '');
+        $url1 = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], [], '');
+        $url2 = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('view', [], [], '');
 
         $this->assertEquals('//test.com/home/index', $url1);
         $this->assertEquals('//test.com/home/view', $url2);
@@ -417,15 +450,16 @@ final class UrlGeneratorTest extends TestCase
 
         $currentRoute = new CurrentRoute();
         $currentRoute->setUri($request->getUri());
-        $url1 = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], '', 'http://test.com');
-        $url2 = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], '', 'test.com');
+        $url1 = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], [], '', 'http://test.com');
+        $url2 = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], [], '', 'test.com');
         $url3 = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute(
             'index',
+            [],
             [],
             null,
             'http://test.com'
         );
-        $url4 = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], null, 'test.com');
+        $url4 = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], [], null, 'test.com');
 
         $this->assertEquals('//test.com/home/index', $url1);
         $this->assertEquals('//test.com/home/index', $url2);
@@ -442,7 +476,7 @@ final class UrlGeneratorTest extends TestCase
 
         $currentRoute = new CurrentRoute();
         $currentRoute->setUri($request->getUri());
-        $url = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], '');
+        $url = $this->createUrlGenerator($routes, $currentRoute)->generateAbsolute('index', [], [], '');
 
         $this->assertEquals('//test.com/home/index', $url);
     }
@@ -484,7 +518,7 @@ final class UrlGeneratorTest extends TestCase
         ];
 
         $urlGenerator = $this->createUrlGenerator($routes);
-        $urlGenerator->setDefault('_locale', 'uz');
+        $urlGenerator->setDefaultArgument('_locale', 'uz');
         $url = $urlGenerator->generate('index');
 
         $this->assertEquals('/uz/home/index', $url);
@@ -497,7 +531,7 @@ final class UrlGeneratorTest extends TestCase
         ];
 
         $urlGenerator = $this->createUrlGenerator($routes);
-        $urlGenerator->setDefault('_locale', 'uz');
+        $urlGenerator->setDefaultArgument('_locale', 'uz');
         $url = $urlGenerator->generate('index', ['_locale' => 'ru']);
 
         $this->assertEquals('/ru/home/index', $url);
@@ -514,7 +548,7 @@ final class UrlGeneratorTest extends TestCase
         $currentRoute = new CurrentRoute();
         $currentRoute->setUri($request->getUri());
         $urlGenerator = $this->createUrlGenerator($routes, $currentRoute);
-        $urlGenerator->setDefault('_locale', 'uz');
+        $urlGenerator->setDefaultArgument('_locale', 'uz');
 
         $url = $urlGenerator->generateAbsolute('index');
 
@@ -532,7 +566,7 @@ final class UrlGeneratorTest extends TestCase
         $currentRoute = new CurrentRoute();
         $currentRoute->setUri($request->getUri());
         $urlGenerator = $this->createUrlGenerator($routes, $currentRoute);
-        $urlGenerator->setDefault('_locale', 'uz');
+        $urlGenerator->setDefaultArgument('_locale', 'uz');
 
         $url = $urlGenerator->generateAbsolute('index', ['_locale' => 'ru']);
 
@@ -548,7 +582,7 @@ final class UrlGeneratorTest extends TestCase
         $currentRoute->setUri($request->getUri());
         $currentRoute->setRouteWithArguments($route, ['_locale' => 'en']);
         $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
-        $urlGenerator->setDefault('_locale', 'uz');
+        $urlGenerator->setDefaultArgument('_locale', 'uz');
 
         $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru']);
 
@@ -563,7 +597,7 @@ final class UrlGeneratorTest extends TestCase
         $currentRoute = new CurrentRoute();
         $currentRoute->setUri($request->getUri());
         $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
-        $urlGenerator->setDefault('_locale', 'uz');
+        $urlGenerator->setDefaultArgument('_locale', 'uz');
 
         $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru'], 'index');
 
@@ -575,7 +609,7 @@ final class UrlGeneratorTest extends TestCase
         $route =  Route::get('/{_locale}/home/index')->name('index');
 
         $urlGenerator = $this->createUrlGenerator([$route], null);
-        $urlGenerator->setDefault('_locale', 'uz');
+        $urlGenerator->setDefaultArgument('_locale', 'uz');
 
         $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru'], 'index');
 
@@ -588,7 +622,7 @@ final class UrlGeneratorTest extends TestCase
 
         $currentRoute = new CurrentRoute();
         $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
-        $urlGenerator->setDefault('_locale', 'uz');
+        $urlGenerator->setDefaultArgument('_locale', 'uz');
 
         $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru'], 'index');
 
@@ -603,7 +637,7 @@ final class UrlGeneratorTest extends TestCase
         $currentRoute = new CurrentRoute();
         $currentRoute->setUri($request->getUri());
         $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
-        $urlGenerator->setDefault('_locale', 'uz');
+        $urlGenerator->setDefaultArgument('_locale', 'uz');
 
         $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru']);
 
@@ -616,7 +650,7 @@ final class UrlGeneratorTest extends TestCase
 
         $currentRoute = new CurrentRoute();
         $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
-        $urlGenerator->setDefault('_locale', 'uz');
+        $urlGenerator->setDefaultArgument('_locale', 'uz');
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Current route is not detected.');
@@ -631,7 +665,7 @@ final class UrlGeneratorTest extends TestCase
 
         $currentRoute = new CurrentRoute();
         $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
-        $urlGenerator->setDefault('_locale', 'uz');
+        $urlGenerator->setDefaultArgument('_locale', 'uz');
 
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Current route is not detected.');
