@@ -135,6 +135,7 @@ final class UrlGenerator implements UrlGeneratorInterface
             throw new RuntimeException('Current route is not detected.');
         }
 
+        /** @psalm-suppress PossiblyNullArgument Checked route name on null above. */
         return $this->generate(
             $this->currentRoute->getName(),
             array_merge($this->currentRoute->getArguments(), $replacedParameters)
