@@ -11,5 +11,8 @@ return [
     UrlGeneratorInterface::class => [
         'class' => UrlGenerator::class,
         'setEncodeRaw()' => [$params['yiisoft/router-fastroute']['encodeRaw']],
+        'reset' => function () {
+            $this->defaultArguments = [];
+        }
     ],
 ];

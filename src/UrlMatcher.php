@@ -208,6 +208,9 @@ final class UrlMatcher implements UrlMatcherInterface
 
         $route = $this->routeCollection->getRoute($name);
 
+        if (isset($arguments['_host'])) {
+            unset($arguments['_host']);
+        }
         $arguments = array_merge($route->getData('defaults'), $arguments);
 
         return MatchingResult::fromSuccess($route, $arguments);
