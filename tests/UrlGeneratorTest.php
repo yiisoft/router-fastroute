@@ -93,12 +93,12 @@ final class UrlGeneratorTest extends TestCase
     public function testExceptionThrownIfArgumentPatternDoesntMatch(): void
     {
         $routes = [
-            Route::get('/view/{id:\w+}')->name('view'),
+            Route::get('/view/{id:\d+}')->name('view'),
         ];
         $urlGenerator = $this->createUrlGenerator($routes);
 
-        $this->expectExceptionMessage('Argument value for [id] did not match the regex `\w+`');
-        $urlGenerator->generate('view', ['id' => null]);
+        $this->expectExceptionMessage('Argument value for [id] did not match the regex `\d+`');
+        $urlGenerator->generate('view', ['id' => 'smth']);
     }
 
     public function testExceptionThrownIfAnyArgumentIsMissing(): void
