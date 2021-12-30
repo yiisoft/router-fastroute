@@ -146,7 +146,7 @@ final class UrlGenerator implements UrlGeneratorInterface
      */
     public function setDefaultArgument(string $name, $value): void
     {
-        if (!is_scalar($value) && !$value instanceof Stringable) {
+        if (!is_scalar($value) && !$value instanceof Stringable && $value !== null) {
             throw new InvalidArgumentException('Default should be either scalar value or an instance of \Stringable.');
         }
         $this->defaultArguments[$name] = (string) $value;
@@ -276,24 +276,28 @@ final class UrlGenerator implements UrlGeneratorInterface
                 continue;
             }
 
-            // Check substitute value with regex.
-            $pattern = str_replace('~', '\~', $part[1]);
-            if (preg_match('~^' . $pattern . '$~', $arguments[$part[0]]) === 0) {
-                throw new RuntimeException(
-                    sprintf(
-                        'Argument value for [%s] did not match the regex `%s`',
-                        $part[0],
-                        $part[1]
-                    )
-                );
-            }
+            if ($arguments[$part[0]] !== '') {
+                // Check substitute value with regex.
+                $pattern = str_replace('~', '\~', $part[1]);
+                if (preg_match('~^' . $pattern . '$~', $arguments[$part[0]]) === 0) {
+                    throw new RuntimeException(
+                        sprintf(
+                            'Argument value for [%s] did not match the regex `%s`',
+                            $part[0],
+                            $part[1]
+                        )
+                    );
+                }
 
-            // Append the substituted value.
-            $path .= $this->encodeRaw
-                ? rawurlencode($arguments[$part[0]])
-                : urlencode($arguments[$part[0]]);
+                // Append the substituted value.
+                $path .= $this->encodeRaw
+                    ? rawurlencode($arguments[$part[0]])
+                    : urlencode($arguments[$part[0]]);
+            }
             unset($notSubstitutedArguments[$part[0]]);
         }
+
+        $path = str_replace('//', '/', $path);
 
         return $path . (
             $notSubstitutedArguments !== [] || $queryParameters !== [] ?
