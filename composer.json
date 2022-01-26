@@ -13,6 +13,7 @@
         "forum": "https://www.yiiframework.com/forum/",
         "wiki": "https://www.yiiframework.com/wiki/",
         "irc": "irc://irc.freenode.net/yii",
+        "chat": "https://t.me/yii3en",
         "source": "https://github.com/yiisoft/router-fastroute"
     },
     "require": {
@@ -27,9 +28,9 @@
         "nyholm/psr7": "^1.4",
         "phpunit/phpunit": "^9.5",
         "psr/container": "^1.0|^2.0",
-        "roave/infection-static-analysis-plugin": "^1.14",
+        "roave/infection-static-analysis-plugin": "^1.16",
         "spatie/phpunit-watcher": "^1.23",
-        "vimeo/psalm": "^4.16"
+        "vimeo/psalm": "^4.18"
     },
     "provide": {
         "yiisoft/router-implementation": "1.0.0"
