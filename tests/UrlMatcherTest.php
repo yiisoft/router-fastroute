@@ -20,7 +20,9 @@ final class UrlMatcherTest extends TestCase
     public function testDefaultsAreInResult(): void
     {
         $routes = [
-            Route::get('/[{name}]')->action(fn () => 1)->defaults(['name' => 'test']),
+            Route::get('/[{name}]')
+                ->action(fn () => 1)
+                ->defaults(['name' => 'test']),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
@@ -107,15 +109,23 @@ final class UrlMatcherTest extends TestCase
     public function testSimpleRouteWithHostSuccess(): void
     {
         $routes = [
-            Route::get('/site/index')->action(fn () => 1)->host('yii.test'),
-            Route::get('/site/index')->action(fn () => 1)->host('{user}.yiiframework.com'),
+            Route::get('/site/index')
+                ->action(fn () => 1)
+                ->host('yii.test'),
+            Route::get('/site/index')
+                ->action(fn () => 1)
+                ->host('{user}.yiiframework.com'),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
 
         $request = new ServerRequest('GET', '/site/index');
-        $request1 = $request->withUri($request->getUri()->withHost('yii.test'));
-        $request2 = $request->withUri($request->getUri()->withHost('rustamwin.yiiframework.com'));
+        $request1 = $request->withUri($request
+            ->getUri()
+            ->withHost('yii.test'));
+        $request2 = $request->withUri($request
+            ->getUri()
+            ->withHost('rustamwin.yiiframework.com'));
 
         $result1 = $urlMatcher->match($request1);
         $result2 = $urlMatcher->match($request2);
@@ -130,15 +140,23 @@ final class UrlMatcherTest extends TestCase
     public function testSimpleRouteWithHostFailed(): void
     {
         $routes = [
-            Route::get('/site/index')->action(fn () => 1)->host('yii.test'),
-            Route::get('/site/index')->action(fn () => 1)->host('yiiframework.{zone:ru|com}'),
+            Route::get('/site/index')
+                ->action(fn () => 1)
+                ->host('yii.test'),
+            Route::get('/site/index')
+                ->action(fn () => 1)
+                ->host('yiiframework.{zone:ru|com}'),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
 
         $request = new ServerRequest('GET', '/site/index');
-        $request1 = $request->withUri($request->getUri()->withHost('yee.test'));
-        $request2 = $request->withUri($request->getUri()->withHost('yiiframework.uz'));
+        $request1 = $request->withUri($request
+            ->getUri()
+            ->withHost('yee.test'));
+        $request2 = $request->withUri($request
+            ->getUri()
+            ->withHost('yiiframework.uz'));
 
         $result1 = $urlMatcher->match($request1);
         $result2 = $urlMatcher->match($request2);
@@ -307,14 +325,19 @@ final class UrlMatcherTest extends TestCase
     public function testNoCache(): void
     {
         $routes = [
-            Route::get('/')->action(fn () => 1)->name('site/index'),
-            Route::methods(['GET', 'POST'], '/contact')->action(fn () => 1)->name('site/contact'),
+            Route::get('/')
+                ->action(fn () => 1)
+                ->name('site/index'),
+            Route::methods(['GET', 'POST'], '/contact')
+                ->action(fn () => 1)
+                ->name('site/contact'),
         ];
 
         $request = new ServerRequest('GET', '/contact');
 
         $cache = $this->createMock(CacheInterface::class);
-        $cache->method('has')
+        $cache
+            ->method('has')
             ->willReturn(false);
         $matcher = $this->createUrlMatcher($routes, $cache);
         $result = $matcher->match($request);
@@ -346,9 +369,11 @@ final class UrlMatcherTest extends TestCase
         $request = new ServerRequest('GET', '/contact');
 
         $cache = $this->createMock(CacheInterface::class);
-        $cache->method('has')
+        $cache
+            ->method('has')
             ->willReturn(true);
-        $cache->method('get')
+        $cache
+            ->method('get')
             ->willReturn($cacheArray);
         $matcher = $this->createUrlMatcher($routes, $cache);
         $result = $matcher->match($request);
@@ -358,7 +383,9 @@ final class UrlMatcherTest extends TestCase
     public function testStaticRouteExcludeFromMatching(): void
     {
         $routes = [
-            Route::get('/test')->action(fn () => 1)->name('test'),
+            Route::get('/test')
+                ->action(fn () => 1)
+                ->name('test'),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
@@ -371,14 +398,19 @@ final class UrlMatcherTest extends TestCase
     public function testCacheError(): void
     {
         $routes = [
-            Route::get('/')->action(fn () => 1)->name('site/index'),
-            Route::methods(['GET', 'POST'], '/contact')->action(fn () => 1)->name('site/contact'),
+            Route::get('/')
+                ->action(fn () => 1)
+                ->name('site/index'),
+            Route::methods(['GET', 'POST'], '/contact')
+                ->action(fn () => 1)
+                ->name('site/contact'),
         ];
 
         $request = new ServerRequest('GET', '/contact');
 
         $cache = $this->createMock(CacheInterface::class);
-        $cache->method('get')
+        $cache
+            ->method('get')
             ->will($this->throwException(new RuntimeException()));
         $matcher = $this->createUrlMatcher($routes, $cache);
         $result = $matcher->match($request);
