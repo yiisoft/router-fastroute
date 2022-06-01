@@ -305,6 +305,6 @@ final class UrlGenerator implements UrlGeneratorInterface
             $notSubstitutedArguments !== [] || $queryParameters !== [] ?
                 '?' . http_build_query(array_merge($notSubstitutedArguments, $queryParameters))
                 : ''
-            );
+        );
     }
 }
