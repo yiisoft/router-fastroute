@@ -98,13 +98,19 @@ final class UrlMatcher implements UrlMatcherInterface
         }
 
         $dispatchData = $this->getDispatchData();
-        $path = urldecode($request->getUri()->getPath());
+        $path = urldecode($request
+            ->getUri()
+            ->getPath());
         $method = $request->getMethod();
 
         /**
          * @psalm-var ResultNotFound|ResultMethodNotAllowed|ResultFound $result
          */
-        $result = $this->getDispatcher($dispatchData)->dispatch($method, $request->getUri()->getHost() . $path);
+        $result = $this
+            ->getDispatcher($dispatchData)
+            ->dispatch($method, $request
+                    ->getUri()
+                    ->getHost() . $path);
 
         /** @psalm-suppress ArgumentTypeCoercion Psalm can't determine correct type here */
         return $result[0] !== Dispatcher::FOUND

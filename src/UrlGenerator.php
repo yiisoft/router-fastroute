@@ -128,7 +128,9 @@ final class UrlGenerator implements UrlGeneratorInterface
             }
 
             if ($this->currentRoute !== null && $this->currentRoute->getUri() !== null) {
-                return $this->currentRoute->getUri()->getPath();
+                return $this->currentRoute
+                    ->getUri()
+                    ->getPath();
             }
 
             throw new RuntimeException('Current route is not detected.');
@@ -303,6 +305,6 @@ final class UrlGenerator implements UrlGeneratorInterface
             $notSubstitutedArguments !== [] || $queryParameters !== [] ?
                 '?' . http_build_query(array_merge($notSubstitutedArguments, $queryParameters))
                 : ''
-        );
+            );
     }
 }
