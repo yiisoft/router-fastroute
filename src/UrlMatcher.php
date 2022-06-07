@@ -231,7 +231,16 @@ final class UrlMatcher implements UrlMatcherInterface
             if (!$route->getData('hasMiddlewares')) {
                 continue;
             }
-            $hostPattern = $route->getData('host') ?? '{_host:[a-zA-Z0-9\.\-]*}';
+
+            if ($route->isMultiHost()) {
+                /** @psalm-suppress PossiblyNullOperand */
+                $hostPattern = '{_host:' . $route->getData('hosts') . '}';
+            } elseif ($host = $route->getData('host')) {
+                $hostPattern = $host;
+            } else {
+                $hostPattern = '{_host:[a-zA-Z0-9\.\-]*}';
+            }
+
             $methods = $route->getData('methods');
             $this->fastRouteCollector->addRoute(
                 $methods,
