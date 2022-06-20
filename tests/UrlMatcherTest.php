@@ -142,7 +142,7 @@ final class UrlMatcherTest extends TestCase
         $routes = [
             Route::get('/site/index')
                 ->action(fn () => 1)
-                ->host('yii.test', 'yii.com', 'yii.ru'),
+                ->hosts('yii.test', 'yii.com', 'yii.ru'),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
@@ -170,16 +170,14 @@ final class UrlMatcherTest extends TestCase
     {
         $route = Route::get('/')
                     ->action(fn () => 1)
-                    ->host(
+                    ->hosts(
                         'https://yiiframework.com/',
                         'yf.com',
                         '{user}.yii.com'
                     );
 
-        $this->assertTrue($route->isMultiHost());
-
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Submasks not allowed with multiple host names.');
+        $this->expectExceptionMessage('Attributes are not allowed with multiple host names.');
 
         $urlMatcher = $this->createUrlMatcher([$route]);
         $urlMatcher->match(new ServerRequest('GET', '/site/index'));

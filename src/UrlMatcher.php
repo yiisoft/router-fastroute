@@ -233,17 +233,19 @@ final class UrlMatcher implements UrlMatcherInterface
                 continue;
             }
 
-            if ($route->isMultiHost()) {
-                /** @var string $hosts */
-                $hosts = $route->getData('hosts');
+            $hosts = $route->getData('hosts');
+            $count = count($hosts);
+
+            if ($count > 1) {
+                $hosts = implode('|', $hosts);
 
                 if (preg_match('~' . RouteParser::VARIABLE_REGEX . '~x', $hosts)) {
-                    throw new RuntimeException('Submasks not allowed with multiple host names.');
+                    throw new RuntimeException('Attributes are not allowed with multiple host names.');
                 }
 
                 $hostPattern = '{_host:' . $hosts . '}';
-            } elseif ($host = $route->getData('host')) {
-                $hostPattern = $host;
+            } elseif ($count === 1) {
+                $hostPattern = $hosts[0];
             } else {
                 $hostPattern = '{_host:[a-zA-Z0-9\.\-]*}';
             }
