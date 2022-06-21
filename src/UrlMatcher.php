@@ -240,7 +240,7 @@ final class UrlMatcher implements UrlMatcherInterface
                 $hosts = implode('|', $hosts);
 
                 if (preg_match('~' . RouteParser::VARIABLE_REGEX . '~x', $hosts)) {
-                    throw new RuntimeException('Attributes are not allowed with multiple host names.');
+                    throw new RuntimeException('Placeholders are not allowed with multiple host names.');
                 }
 
                 $hostPattern = '{_host:' . $hosts . '}';

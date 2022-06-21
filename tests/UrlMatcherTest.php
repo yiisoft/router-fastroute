@@ -177,7 +177,7 @@ final class UrlMatcherTest extends TestCase
                     );
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Attributes are not allowed with multiple host names.');
+        $this->expectExceptionMessage('Placeholders are not allowed with multiple host names.');
 
         $urlMatcher = $this->createUrlMatcher([$route]);
         $urlMatcher->match(new ServerRequest('GET', '/site/index'));
