@@ -2,7 +2,7 @@
 
 ## 1.0.1 under development
 
-- Add support multiple route hosts.
+- Enh #100: Add support multiple route hosts (Gerych1984)
 
 ## 1.0.0 December 30, 2021
 
