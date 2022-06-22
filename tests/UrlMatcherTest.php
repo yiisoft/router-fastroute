@@ -137,6 +137,52 @@ final class UrlMatcherTest extends TestCase
         $this->assertTrue($result2->isSuccess());
     }
 
+    public function testSimpleRouteWithMultipleHostSuccess(): void
+    {
+        $routes = [
+            Route::get('/site/index')
+                ->action(fn () => 1)
+                ->hosts('yii.test', 'yii.com', 'yii.ru'),
+        ];
+
+        $urlMatcher = $this->createUrlMatcher($routes);
+        $request = new ServerRequest('GET', '/site/index');
+        $request1 = $request->withUri($request
+            ->getUri()
+            ->withHost('yii.test'));
+        $request2 = $request->withUri($request
+            ->getUri()
+            ->withHost('yii.com'));
+        $errorRequest = $request->withUri($request
+            ->getUri()
+            ->withHost('example.com'));
+
+        $result1 = $urlMatcher->match($request1);
+        $result2 = $urlMatcher->match($request2);
+        $errorResult = $urlMatcher->match($errorRequest);
+
+        $this->assertTrue($result1->isSuccess());
+        $this->assertTrue($result2->isSuccess());
+        $this->assertFalse($errorResult->isSuccess());
+    }
+
+    public function testMultipleHostException(): void
+    {
+        $route = Route::get('/')
+                    ->action(fn () => 1)
+                    ->hosts(
+                        'https://yiiframework.com/',
+                        'yf.com',
+                        '{user}.yii.com'
+                    );
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Placeholders are not allowed with multiple host names.');
+
+        $urlMatcher = $this->createUrlMatcher([$route]);
+        $urlMatcher->match(new ServerRequest('GET', '/site/index'));
+    }
+
     public function testSimpleRouteWithHostFailed(): void
     {
         $routes = [

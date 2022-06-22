@@ -11,6 +11,7 @@ use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std as RouteParser;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\SimpleCache\CacheInterface;
+use RuntimeException;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\MatchingResult;
 use Yiisoft\Router\RouteCollectionInterface;
@@ -231,10 +232,26 @@ final class UrlMatcher implements UrlMatcherInterface
             if (!$route->getData('hasMiddlewares')) {
                 continue;
             }
-            $hostPattern = $route->getData('host') ?? '{_host:[a-zA-Z0-9\.\-]*}';
-            $methods = $route->getData('methods');
+
+            $hosts = $route->getData('hosts');
+            $count = count($hosts);
+
+            if ($count > 1) {
+                $hosts = implode('|', $hosts);
+
+                if (preg_match('~' . RouteParser::VARIABLE_REGEX . '~x', $hosts)) {
+                    throw new RuntimeException('Placeholders are not allowed with multiple host names.');
+                }
+
+                $hostPattern = '{_host:' . $hosts . '}';
+            } elseif ($count === 1) {
+                $hostPattern = $hosts[0];
+            } else {
+                $hostPattern = '{_host:[a-zA-Z0-9\.\-]*}';
+            }
+
             $this->fastRouteCollector->addRoute(
-                $methods,
+                $route->getData('methods'),
                 $hostPattern . $route->getData('pattern'),
                 $route->getData('name')
             );
