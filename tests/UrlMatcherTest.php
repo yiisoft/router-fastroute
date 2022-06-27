@@ -111,7 +111,7 @@ final class UrlMatcherTest extends TestCase
         $routes = [
             Route::get('/site/index')
                 ->action(fn () => 1)
-                ->host('yii.test'),
+                ->hosts('yii.test', 'yii.dev'),
             Route::get('/site/index')
                 ->action(fn () => 1)
                 ->host('{user}.yiiframework.com'),
