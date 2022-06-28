@@ -1,6 +1,6 @@
 # Yii Router FastRoute adapter Change Log
 
-## 1.1.1 under development
+## 1.1.1 June 28, 2022
 
 - Enh #103: Add support for `psr/simple-cache` version `^2.0|^3.0` (@vjik)
 
