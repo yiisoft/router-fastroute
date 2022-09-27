@@ -29,17 +29,13 @@ final class UrlGenerator implements UrlGeneratorInterface
      */
     private array $defaultArguments = [];
     private bool $encodeRaw = true;
-    private RouteCollectionInterface $routeCollection;
-    private ?CurrentRoute $currentRoute;
     private RouteParser $routeParser;
 
     public function __construct(
-        RouteCollectionInterface $routeCollection,
-        CurrentRoute $currentRoute = null,
+        private RouteCollectionInterface $routeCollection,
+        private ?\Yiisoft\Router\CurrentRoute $currentRoute = null,
         RouteParser $parser = null
     ) {
-        $this->currentRoute = $currentRoute;
-        $this->routeCollection = $routeCollection;
         $this->routeParser = $parser ?? new RouteParser\Std();
     }
 
@@ -182,7 +178,7 @@ final class UrlGenerator implements UrlGeneratorInterface
             return $url;
         }
 
-        if (strpos($url, '//') === 0) {
+        if (str_starts_with($url, '//')) {
             // e.g. //example.com/path/to/resource
             return $scheme === '' ? $url : "$scheme:$url";
         }
@@ -208,7 +204,7 @@ final class UrlGenerator implements UrlGeneratorInterface
      */
     private function isRelative(string $url): bool
     {
-        return strncmp($url, '//', 2) && strpos($url, '://') === false;
+        return strncmp($url, '//', 2) && !str_contains($url, '://');
     }
 
     public function getUriPrefix(): string
@@ -229,8 +225,6 @@ final class UrlGenerator implements UrlGeneratorInterface
     /**
      * Checks for any missing route parameters.
      *
-     * @param array $parts
-     * @param array $substitutions
      *
      * @return string[] Either an array containing missing required parameters or an empty array if none are missing.
      *
