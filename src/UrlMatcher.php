@@ -75,7 +75,7 @@ final class UrlMatcher implements UrlMatcherInterface
      */
     public function __construct(
         private RouteCollectionInterface $routeCollection,
-        private ?\Psr\SimpleCache\CacheInterface $cache = null,
+        private ?CacheInterface $cache = null,
         ?array $config = null,
         ?RouteCollector $fastRouteCollector = null,
         ?callable $dispatcherFactory = null
@@ -165,7 +165,7 @@ final class UrlMatcher implements UrlMatcherInterface
      */
     private function createDispatcherCallback(): callable
     {
-        return static fn(array $data) => new GroupCountBased($data);
+        return static fn (array $data) => new GroupCountBased($data);
     }
 
     /**
@@ -192,9 +192,7 @@ final class UrlMatcher implements UrlMatcherInterface
     /**
      * Marshals a route result based on the results of matching.
      *
-     *
      * @psalm-param ResultFound $result
-     *
      */
     private function marshalMatchedRoute(array $result): MatchingResult
     {

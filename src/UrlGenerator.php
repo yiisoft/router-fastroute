@@ -33,7 +33,7 @@ final class UrlGenerator implements UrlGeneratorInterface
 
     public function __construct(
         private RouteCollectionInterface $routeCollection,
-        private ?\Yiisoft\Router\CurrentRoute $currentRoute = null,
+        private ?CurrentRoute $currentRoute = null,
         RouteParser $parser = null
     ) {
         $this->routeParser = $parser ?? new RouteParser\Std();
@@ -224,7 +224,6 @@ final class UrlGenerator implements UrlGeneratorInterface
 
     /**
      * Checks for any missing route parameters.
-     *
      *
      * @return string[] Either an array containing missing required parameters or an empty array if none are missing.
      *
