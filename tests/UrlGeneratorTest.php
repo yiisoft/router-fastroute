@@ -671,6 +671,22 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('/ru/home/index', $url);
     }
 
+    public function testGenerateFromCurrentWithQueryString(): void
+    {
+        $request = new ServerRequest('GET', 'http://example.com/en/home/index?test=1');
+        $route = Route::get('/{_locale}/home/index')->name('index');
+
+        $currentRoute = new CurrentRoute();
+        $currentRoute->setUri($request->getUri());
+        $currentRoute->setRouteWithArguments($route, ['_locale' => 'en']);
+        $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
+        $urlGenerator->setDefaultArgument('_locale', 'uz');
+
+        $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru']);
+
+        $this->assertEquals('/ru/home/index?test=1', $url);
+    }
+
     public function testGenerateFromCurrentWithFallbackRoute(): void
     {
         $request = new ServerRequest('GET', 'http://example.com/en/home/index');
