@@ -95,8 +95,6 @@ final class UrlGenerator implements UrlGeneratorInterface
         string $scheme = null,
         string $host = null
     ): string {
-        $arguments = array_map('\strval', $arguments);
-
         $url = $this->generate($name, $arguments, $queryParameters);
         $route = $this->routeCollection->getRoute($name);
         $uri = $this->currentRoute && $this->currentRoute->getUri() !== null ? $this->currentRoute->getUri() : null;
