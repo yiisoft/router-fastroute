@@ -658,6 +658,68 @@ final class UrlGeneratorTest extends TestCase
     public function testGenerateFromCurrent(): void
     {
         $request = new ServerRequest('GET', 'http://example.com/en/home/index');
+        $route = Route::get('/home/index')->name('index');
+
+        $currentRoute = new CurrentRoute();
+        $currentRoute->setUri($request->getUri());
+        $currentRoute->setRouteWithArguments($route, []);
+        $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
+
+        $url = $urlGenerator->generateFromCurrent([]);
+
+        $this->assertEquals('/home/index', $url);
+    }
+
+    public function testGenerateFromCurrentWithRouteArguments(): void
+    {
+        $request = new ServerRequest('GET', 'http://example.com/en/home/index');
+        $route = Route::get('/{_locale}/home/index')->name('index');
+
+        $currentRoute = new CurrentRoute();
+        $currentRoute->setUri($request->getUri());
+        $currentRoute->setRouteWithArguments($route, ['_locale' => 'en']);
+        $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
+
+        $url = $urlGenerator->generateFromCurrent([]);
+
+        $this->assertEquals('/en/home/index', $url);
+    }
+
+    public function testGenerateFromCurrentWithDefaultArguments(): void
+    {
+        $request = new ServerRequest('GET', 'http://example.com/en/home/index');
+        $route = Route::get('/{_locale}/home/index')->name('index');
+
+        $currentRoute = new CurrentRoute();
+        $currentRoute->setUri($request->getUri());
+        $currentRoute->setRouteWithArguments($route, []);
+        $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
+        $urlGenerator->setDefaultArgument('_locale', 'uz');
+
+        $url = $urlGenerator->generateFromCurrent([]);
+
+        $this->assertEquals('/uz/home/index', $url);
+    }
+
+    public function testGenerateFromCurrentWithDefaultArgumentsAndRouteArguments(): void
+    {
+        $request = new ServerRequest('GET', 'http://example.com/en/home/index');
+        $route = Route::get('/{_locale}/home/index')->name('index');
+
+        $currentRoute = new CurrentRoute();
+        $currentRoute->setUri($request->getUri());
+        $currentRoute->setRouteWithArguments($route, ['_locale' => 'en']);
+        $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
+        $urlGenerator->setDefaultArgument('_locale', 'uz');
+
+        $url = $urlGenerator->generateFromCurrent([]);
+
+        $this->assertEquals('/en/home/index', $url);
+    }
+
+    public function testGenerateFromCurrentWithDefaultArgumentsAndReplacedArguments(): void
+    {
+        $request = new ServerRequest('GET', 'http://example.com/en/home/index');
         $route = Route::get('/{_locale}/home/index')->name('index');
 
         $currentRoute = new CurrentRoute();
