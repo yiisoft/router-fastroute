@@ -187,7 +187,7 @@ final class UrlGeneratorTest extends TestCase
     {
         $routes = [
             Route::get('/test/{name}')
-                ->name('test'),
+                 ->name('test'),
         ];
 
         $url = $this
@@ -200,7 +200,7 @@ final class UrlGeneratorTest extends TestCase
     {
         $routes = [
             Route::get('/test/{name}')
-                ->name('test'),
+                 ->name('test'),
         ];
 
         $url = $this
@@ -213,7 +213,7 @@ final class UrlGeneratorTest extends TestCase
     {
         $routes = [
             Route::get('/test/{name}')
-                ->name('test'),
+                 ->name('test'),
         ];
 
         $url = $this
@@ -226,7 +226,7 @@ final class UrlGeneratorTest extends TestCase
     {
         $routes = [
             Route::get('/test/{name}')
-                ->name('test'),
+                 ->name('test'),
         ];
 
         $url = $this
@@ -239,8 +239,8 @@ final class UrlGeneratorTest extends TestCase
     {
         $routes = [
             Route::get('/[{name}]')
-                ->name('defaults')
-                ->defaults(['name' => 'default']),
+                 ->name('defaults')
+                 ->defaults(['name' => 'default']),
         ];
 
         $url = $this
@@ -253,8 +253,8 @@ final class UrlGeneratorTest extends TestCase
     {
         $routes = [
             Route::get('/[{name}]')
-                ->name('defaults')
-                ->defaults(['name' => 'default']),
+                 ->name('defaults')
+                 ->defaults(['name' => 'default']),
         ];
 
         $url = $this
@@ -267,8 +267,8 @@ final class UrlGeneratorTest extends TestCase
     {
         $routes = [
             Route::get('/{name}')
-                ->name('defaults')
-                ->defaults(['name' => 'default']),
+                 ->name('defaults')
+                 ->defaults(['name' => 'default']),
         ];
 
         $this->expectExceptionMessage('Route `defaults` expects at least argument values for [name], but received []');
@@ -284,8 +284,8 @@ final class UrlGeneratorTest extends TestCase
     {
         $routes = [
             Route::get('/home/index')
-                ->name('index')
-                ->host('http://test.com'),
+                 ->name('index')
+                 ->host('http://test.com'),
         ];
         $url = $this
             ->createUrlGenerator($routes)
@@ -301,8 +301,8 @@ final class UrlGeneratorTest extends TestCase
     {
         $routes = [
             Route::get('/home/index')
-                ->name('index')
-                ->host('http://test.com'),
+                 ->name('index')
+                 ->host('http://test.com'),
         ];
         $url = $this
             ->createUrlGenerator($routes)
@@ -318,8 +318,8 @@ final class UrlGeneratorTest extends TestCase
     {
         $routes = [
             Route::get('/home/index')
-                ->name('index')
-                ->host('http://test.com'),
+                 ->name('index')
+                 ->host('http://test.com'),
         ];
         $url = $this
             ->createUrlGenerator($routes)
@@ -368,8 +368,8 @@ final class UrlGeneratorTest extends TestCase
     {
         $routes = [
             Route::get('/home/index')
-                ->name('index')
-                ->host('http://test.com'),
+                 ->name('index')
+                 ->host('http://test.com'),
         ];
         $url = $this
             ->createUrlGenerator($routes)
@@ -385,8 +385,8 @@ final class UrlGeneratorTest extends TestCase
     {
         $routes = [
             Route::get('/home/index')
-                ->name('index')
-                ->host('http://test.com/'),
+                 ->name('index')
+                 ->host('http://test.com/'),
         ];
         $url = $this
             ->createUrlGenerator($routes)
@@ -443,8 +443,8 @@ final class UrlGeneratorTest extends TestCase
         $request = new ServerRequest('GET', 'http://test.com/home/index');
         $routes = [
             Route::get('/home/index')
-                ->name('index')
-                ->host('//test.com'),
+                 ->name('index')
+                 ->host('//test.com'),
         ];
 
         $currentRoute = new CurrentRoute();
@@ -465,8 +465,8 @@ final class UrlGeneratorTest extends TestCase
         $request = new ServerRequest('GET', 'http://test.com/home/index');
         $routes = [
             Route::get('/home/index')
-                ->name('index')
-                ->host('//mysite.com'),
+                 ->name('index')
+                 ->host('//mysite.com'),
         ];
 
         $currentRoute = new CurrentRoute();
@@ -483,11 +483,11 @@ final class UrlGeneratorTest extends TestCase
         $request = new ServerRequest('GET', 'http://test.com/home/index');
         $routes = [
             Route::get('/home/index')
-                ->name('index')
-                ->host('http://test.com'),
+                 ->name('index')
+                 ->host('http://test.com'),
             Route::get('/home/view')
-                ->name('view')
-                ->host('test.com'),
+                 ->name('view')
+                 ->host('test.com'),
         ];
 
         $currentRoute = new CurrentRoute();
@@ -508,8 +508,8 @@ final class UrlGeneratorTest extends TestCase
         $request = new ServerRequest('GET', 'http://test.com/home/index');
         $routes = [
             Route::get('/home/index')
-                ->name('index')
-                ->host('//mysite.com'),
+                 ->name('index')
+                 ->host('//mysite.com'),
         ];
 
         $currentRoute = new CurrentRoute();
@@ -560,8 +560,8 @@ final class UrlGeneratorTest extends TestCase
         $request = new ServerRequest('GET', 'http://example.com/home/index');
         $routes = [
             Route::get('/home/index')
-                ->name('index')
-                ->host('example.com'),
+                 ->name('index')
+                 ->host('example.com'),
         ];
 
         $currentRoute = new CurrentRoute();
@@ -655,20 +655,84 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('http://example.com/ru/home/index', $url);
     }
 
-    public function testGenerateFromCurrent(): void
+    public function currentRouteArgumentsProvider(): array
     {
-        $request = new ServerRequest('GET', 'http://example.com/en/home/index');
-        $route = Route::get('/{_locale}/home/index')->name('index');
+        return [
+            [
+                'http://example.com/en/home/index',
+                '/home/index',
+                Route::get('/home/index')->name('index'),
+                [],
+                [],
+                [],
+            ],
+            [
+                'http://example.com/en/home/index',
+                '/en/home/index',
+                Route::get('/{_locale}/home/index')->name('index'),
+                ['_locale' => 'en'],
+                [],
+                [],
+            ],
+            [
+                'http://example.com/en/home/index',
+                '/uz/home/index',
+                Route::get('/{_locale}/home/index')->name('index'),
+                [],
+                ['_locale', 'uz'],
+                [],
+            ],
+            [
+                'http://example.com/en/home/index',
+                '/en/home/index',
+                Route::get('/{_locale}/home/index')->name('index'),
+                ['_locale' => 'en'],
+                ['_locale', 'en'],
+                [],
+            ],
+            [
+                'http://example.com/en/home/index',
+                '/ru/home/index',
+                Route::get('/{_locale}/home/index')->name('index'),
+                ['_locale' => 'en'],
+                ['_locale', 'uz'],
+                ['_locale' => 'ru'],
+            ],
+            [
+                'http://example.com/en/home/index?test=1',
+                '/ru/home/index?test=1',
+                Route::get('/{_locale}/home/index')->name('index'),
+                ['_locale' => 'en'],
+                ['_locale', 'uz'],
+                ['_locale' => 'ru'],
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider currentRouteArgumentsProvider
+     */
+    public function testGenerateFromCurrentWithArguments(
+        string $uri,
+        string $expectedUrl,
+        Route $route,
+        array $routeArguments,
+        array $defaultArgument,
+        array $replacedArguments
+    ): void {
+        $request = new ServerRequest('GET', $uri);
 
         $currentRoute = new CurrentRoute();
         $currentRoute->setUri($request->getUri());
-        $currentRoute->setRouteWithArguments($route, ['_locale' => 'en']);
+        $currentRoute->setRouteWithArguments($route, $routeArguments);
         $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
-        $urlGenerator->setDefaultArgument('_locale', 'uz');
+        if ($defaultArgument !== []) {
+            $urlGenerator->setDefaultArgument($defaultArgument[0], $defaultArgument[1]);
+        }
 
-        $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru']);
+        $url = $urlGenerator->generateFromCurrent($replacedArguments);
 
-        $this->assertEquals('/ru/home/index', $url);
+        $this->assertEquals($expectedUrl, $url);
     }
 
     public function testGenerateFromCurrentWithFallbackRoute(): void

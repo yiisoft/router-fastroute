@@ -95,8 +95,6 @@ final class UrlGenerator implements UrlGeneratorInterface
         string $scheme = null,
         string $host = null
     ): string {
-        $arguments = array_map('\strval', $arguments);
-
         $url = $this->generate($name, $arguments, $queryParameters);
         $route = $this->routeCollection->getRoute($name);
         $uri = $this->currentRoute && $this->currentRoute->getUri() !== null ? $this->currentRoute->getUri() : null;
@@ -128,18 +126,22 @@ final class UrlGenerator implements UrlGeneratorInterface
             }
 
             if ($this->currentRoute !== null && $this->currentRoute->getUri() !== null) {
-                return $this->currentRoute
-                    ->getUri()
-                    ->getPath();
+                return $this->currentRoute->getUri()->getPath();
             }
 
             throw new RuntimeException('Current route is not detected.');
         }
 
+        $queryParameters = [];
+        if ($this->currentRoute->getUri() !== null) {
+            parse_str($this->currentRoute->getUri()->getQuery(), $queryParameters);
+        }
+
         /** @psalm-suppress PossiblyNullArgument Checked route name on null above. */
         return $this->generate(
             $this->currentRoute->getName(),
-            array_merge($this->currentRoute->getArguments(), $replacedArguments)
+            array_merge($this->currentRoute->getArguments(), $replacedArguments),
+            $queryParameters,
         );
     }
 

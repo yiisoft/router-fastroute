@@ -2,7 +2,7 @@
 
 ## 1.1.2 under development
 
-- no changes in this release.
+- Bug #107: Keep query string when generating from current route (@rustamwin)
 
 ## 1.1.1 June 28, 2022
 
