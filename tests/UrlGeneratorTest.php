@@ -655,7 +655,7 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('http://example.com/ru/home/index', $url);
     }
 
-    private function currentRouteArgumentsProvider(): array
+    public function currentRouteArgumentsProvider(): array
     {
         return [
             [
