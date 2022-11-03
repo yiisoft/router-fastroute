@@ -702,7 +702,7 @@ final class UrlGeneratorTest extends TestCase
                 Route::get('/{_locale}/home/index')->name('index'),
                 ['_locale' => 'en'],
                 ['_locale', 'en'],
-                []
+                [],
             ],
             [
                 'http://example.com/en/home/index',
@@ -711,7 +711,7 @@ final class UrlGeneratorTest extends TestCase
                 ['_locale' => 'en'],
                 ['_locale', 'uz'],
                 ['_locale' => 'ru'],
-        ],
+            ],
             [
                 'http://example.com/en/home/index?test=1',
                 '/ru/home/index?test=1',
@@ -719,7 +719,7 @@ final class UrlGeneratorTest extends TestCase
                 ['_locale' => 'en'],
                 ['_locale', 'uz'],
                 ['_locale' => 'ru'],
-            ]
+            ],
         ];
     }
 
