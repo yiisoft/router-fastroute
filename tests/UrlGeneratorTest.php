@@ -655,39 +655,25 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('http://example.com/ru/home/index', $url);
     }
 
-    public function testGenerateFromCurrent(): void
-    {
-        $request = new ServerRequest('GET', 'http://example.com/en/home/index');
-        $route = Route::get('/home/index')->name('index');
-
-        $currentRoute = new CurrentRoute();
-        $currentRoute->setUri($request->getUri());
-        $currentRoute->setRouteWithArguments($route, []);
-        $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
-
-        $url = $urlGenerator->generateFromCurrent([]);
-
-        $this->assertEquals('/home/index', $url);
-    }
-
-    public function testGenerateFromCurrentWithRouteArguments(): void
-    {
-        $request = new ServerRequest('GET', 'http://example.com/en/home/index');
-        $route = Route::get('/{_locale}/home/index')->name('index');
-
-        $currentRoute = new CurrentRoute();
-        $currentRoute->setUri($request->getUri());
-        $currentRoute->setRouteWithArguments($route, ['_locale' => 'en']);
-        $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
-
-        $url = $urlGenerator->generateFromCurrent([]);
-
-        $this->assertEquals('/en/home/index', $url);
-    }
-
     private function currentRouteArgumentsProvider(): array
     {
         return [
+            [
+                'http://example.com/en/home/index',
+                '/home/index',
+                Route::get('/home/index')->name('index'),
+                [],
+                [],
+                [],
+            ],
+            [
+                'http://example.com/en/home/index',
+                '/en/home/index',
+                Route::get('/{_locale}/home/index')->name('index'),
+                ['_locale' => 'en'],
+                [],
+                [],
+            ],
             [
                 'http://example.com/en/home/index',
                 '/uz/home/index',
