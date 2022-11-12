@@ -140,7 +140,7 @@ final class UrlGenerator implements UrlGeneratorInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @psalm-param null|object|scalar $value
      */
     public function setDefaultArgument(string $name, $value): void
     {
