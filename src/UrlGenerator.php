@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Router\FastRoute;
 
 use FastRoute\RouteParser;
+use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
 use RuntimeException;
 use Stringable;
@@ -141,8 +142,11 @@ final class UrlGenerator implements UrlGeneratorInterface
     /**
      * {@inheritDoc}
      */
-    public function setDefaultArgument(string $name, bool|float|int|string|Stringable|null $value): void
+    public function setDefaultArgument(string $name, $value): void
     {
+        if (!is_scalar($value) && !$value instanceof Stringable && $value !== null) {
+            throw new InvalidArgumentException('Default should be either scalar value or an instance of \Stringable.');
+        }
         $this->defaultArguments[$name] = (string) $value;
     }
 
