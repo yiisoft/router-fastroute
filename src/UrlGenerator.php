@@ -114,7 +114,7 @@ final class UrlGenerator implements UrlGeneratorInterface
     /**
      * {@inheritdoc}
      */
-    public function generateFromCurrent(array $replacedArguments, string $fallbackRouteName = null): string
+    public function generateFromCurrent(array $replacedArguments, array $queryParameters = [], string $fallbackRouteName = null): string
     {
         if ($this->currentRoute === null || $this->currentRoute->getName() === null) {
             if ($fallbackRouteName !== null) {
@@ -128,9 +128,10 @@ final class UrlGenerator implements UrlGeneratorInterface
             throw new RuntimeException('Current route is not detected.');
         }
 
-        $queryParameters = [];
         if ($this->currentRoute->getUri() !== null) {
-            parse_str($this->currentRoute->getUri()->getQuery(), $queryParameters);
+            $currentQueryParameters = [];
+            parse_str($this->currentRoute->getUri()->getQuery(), $currentQueryParameters);
+            $queryParameters = array_merge($currentQueryParameters, $queryParameters);
         }
 
         /** @psalm-suppress PossiblyNullArgument Checked route name on null above. */

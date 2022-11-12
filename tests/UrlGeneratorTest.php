@@ -706,6 +706,15 @@ final class UrlGeneratorTest extends TestCase
                 ['_locale', 'uz'],
                 ['_locale' => 'ru'],
             ],
+            [
+                'http://example.com/en/home/index?test=1',
+                '/ru/home/index?test=2',
+                Route::get('/{_locale}/home/index')->name('index'),
+                ['_locale' => 'en'],
+                ['_locale', 'uz'],
+                ['_locale' => 'ru'],
+                ['test' => 2],
+            ],
         ];
     }
 
@@ -718,7 +727,8 @@ final class UrlGeneratorTest extends TestCase
         Route $route,
         array $routeArguments,
         array $defaultArgument,
-        array $replacedArguments
+        array $replacedArguments,
+        array $queryParameters = []
     ): void {
         $request = new ServerRequest('GET', $uri);
 
@@ -730,7 +740,7 @@ final class UrlGeneratorTest extends TestCase
             $urlGenerator->setDefaultArgument($defaultArgument[0], $defaultArgument[1]);
         }
 
-        $url = $urlGenerator->generateFromCurrent($replacedArguments);
+        $url = $urlGenerator->generateFromCurrent($replacedArguments, $queryParameters);
 
         $this->assertEquals($expectedUrl, $url);
     }
@@ -745,7 +755,7 @@ final class UrlGeneratorTest extends TestCase
         $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
         $urlGenerator->setDefaultArgument('_locale', 'uz');
 
-        $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru'], 'index');
+        $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru'], fallbackRouteName: 'index');
 
         $this->assertEquals('/ru/home/index', $url);
     }
@@ -757,7 +767,7 @@ final class UrlGeneratorTest extends TestCase
         $urlGenerator = $this->createUrlGenerator([$route], null);
         $urlGenerator->setDefaultArgument('_locale', 'uz');
 
-        $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru'], 'index');
+        $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru'], fallbackRouteName: 'index');
 
         $this->assertEquals('/ru/home/index', $url);
     }
@@ -770,7 +780,7 @@ final class UrlGeneratorTest extends TestCase
         $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
         $urlGenerator->setDefaultArgument('_locale', 'uz');
 
-        $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru'], 'index');
+        $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru'], fallbackRouteName: 'index');
 
         $this->assertEquals('/ru/home/index', $url);
     }
