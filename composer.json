@@ -25,6 +25,7 @@
         "yiisoft/http": "^1.2"
     },
     "require-dev": {
+        "maglnet/composer-require-checker": "^4.2",
         "nyholm/psr7": "^1.4",
         "phpunit/phpunit": "^9.5",
         "psr/container": "^2.0",
