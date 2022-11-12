@@ -1,5 +1,9 @@
 # Yii Router FastRoute adapter Change Log
 
+## 2.0.1 under development
+
+- no changes in this release.
+
 ## 2.0.0 November 12, 2022
 
 - Enh #105: Raise the minimum PHP version to 8.0 (@xepozz, @rustamwin)
