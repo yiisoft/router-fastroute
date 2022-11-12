@@ -26,7 +26,7 @@ The package provides FastRoute adapter for [Yii Router](https://github.com/yiiso
 The package could be installed with composer:
 
 ```
-composer require yiisoft/router-fastroute --prefer-dist
+composer require yiisoft/router-fastroute
 ```
 
 ## General usage
@@ -46,10 +46,11 @@ The package is tested with [PHPUnit](https://phpunit.de/). To run tests:
 
 ### Mutation testing
 
-The package tests are checked with [Infection](https://infection.github.io/) mutation framework. To run it:
+The package tests are checked with [Infection](https://infection.github.io/) mutation framework with
+[Infection Static Analysis Plugin](https://github.com/Roave/infection-static-analysis-plugin). To run it:
 
 ```shell
-./vendor/bin/infection
+./vendor/bin/roave-infection-static-analysis-plugin
 ```
 
 ### Static analysis
