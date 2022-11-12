@@ -25,21 +25,17 @@ final class UrlGenerator implements UrlGeneratorInterface
     private string $uriPrefix = '';
 
     /**
-     * @psalm-var array<string,string>
+     * @var array<string,string>
      */
     private array $defaultArguments = [];
     private bool $encodeRaw = true;
-    private RouteCollectionInterface $routeCollection;
-    private ?CurrentRoute $currentRoute;
     private RouteParser $routeParser;
 
     public function __construct(
-        RouteCollectionInterface $routeCollection,
-        CurrentRoute $currentRoute = null,
+        private RouteCollectionInterface $routeCollection,
+        private ?CurrentRoute $currentRoute = null,
         RouteParser $parser = null
     ) {
-        $this->currentRoute = $currentRoute;
-        $this->routeCollection = $routeCollection;
         $this->routeParser = $parser ?? new RouteParser\Std();
     }
 
@@ -56,7 +52,7 @@ final class UrlGenerator implements UrlGeneratorInterface
     {
         $arguments = array_map('\strval', array_merge($this->defaultArguments, $arguments));
         $route = $this->routeCollection->getRoute($name);
-        /** @psalm-var list<list<string|list<string>>> $parsedRoutes */
+        /** @var list<list<list<string>|string>> $parsedRoutes */
         $parsedRoutes = array_reverse($this->routeParser->parse($route->getData('pattern')));
         if ($parsedRoutes === []) {
             throw new RouteNotFoundException($name);
@@ -98,7 +94,7 @@ final class UrlGenerator implements UrlGeneratorInterface
         $url = $this->generate($name, $arguments, $queryParameters);
         $route = $this->routeCollection->getRoute($name);
         $uri = $this->currentRoute && $this->currentRoute->getUri() !== null ? $this->currentRoute->getUri() : null;
-        $lastRequestScheme = $uri !== null ? $uri->getScheme() : null;
+        $lastRequestScheme = $uri?->getScheme();
 
         if ($host !== null || ($host = $route->getData('host')) !== null) {
             if ($scheme === null && !$this->isRelative($host)) {
@@ -184,7 +180,7 @@ final class UrlGenerator implements UrlGeneratorInterface
             return $url;
         }
 
-        if (strpos($url, '//') === 0) {
+        if (str_starts_with($url, '//')) {
             // e.g. //example.com/path/to/resource
             return $scheme === '' ? $url : "$scheme:$url";
         }
@@ -210,7 +206,7 @@ final class UrlGenerator implements UrlGeneratorInterface
      */
     private function isRelative(string $url): bool
     {
-        return strncmp($url, '//', 2) && strpos($url, '://') === false;
+        return strncmp($url, '//', 2) && !str_contains($url, '://');
     }
 
     public function getUriPrefix(): string
@@ -231,12 +227,9 @@ final class UrlGenerator implements UrlGeneratorInterface
     /**
      * Checks for any missing route parameters.
      *
-     * @param array $parts
-     * @param array $substitutions
+     * @param list<list<string>|string> $parts
      *
      * @return string[] Either an array containing missing required parameters or an empty array if none are missing.
-     *
-     * @psalm-param list<string|list<string>> $parts
      */
     private function missingArguments(array $parts, array $substitutions): array
     {
@@ -265,8 +258,8 @@ final class UrlGenerator implements UrlGeneratorInterface
     }
 
     /**
-     * @psalm-param array<string,string> $arguments
-     * @psalm-param list<string|list<string>> $parts
+     * @param array<string,string> $arguments
+     * @param list<list<string>|string> $parts
      */
     private function generatePath(array $arguments, array $queryParameters, array $parts): string
     {
