@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Router\FastRoute;
 
 use FastRoute\RouteParser;
-use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
 use RuntimeException;
 use Stringable;
@@ -52,7 +51,7 @@ final class UrlGenerator implements UrlGeneratorInterface
     {
         $arguments = array_map('\strval', array_merge($this->defaultArguments, $arguments));
         $route = $this->routeCollection->getRoute($name);
-        /** @var list<list<string|list<string>>> $parsedRoutes */
+        /** @var list<list<list<string>|string>> $parsedRoutes */
         $parsedRoutes = array_reverse($this->routeParser->parse($route->getData('pattern')));
         if ($parsedRoutes === []) {
             throw new RouteNotFoundException($name);
@@ -222,9 +221,9 @@ final class UrlGenerator implements UrlGeneratorInterface
     /**
      * Checks for any missing route parameters.
      *
-     * @return string[] Either an array containing missing required parameters or an empty array if none are missing.
+     * @param list<list<string>|string> $parts
      *
-     * @param list<string|list<string>> $parts
+     * @return string[] Either an array containing missing required parameters or an empty array if none are missing.
      */
     private function missingArguments(array $parts, array $substitutions): array
     {
@@ -254,7 +253,7 @@ final class UrlGenerator implements UrlGeneratorInterface
 
     /**
      * @param array<string,string> $arguments
-     * @param list<string|list<string>> $parts
+     * @param list<list<string>|string> $parts
      */
     private function generatePath(array $arguments, array $queryParameters, array $parts): string
     {
