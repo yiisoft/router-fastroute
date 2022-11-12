@@ -54,10 +54,7 @@ final class UrlMatcher implements UrlMatcherInterface
      */
     private bool $hasCache = false;
 
-    private ?CacheInterface $cache;
-
     private RouteCollector $fastRouteCollector;
-    private RouteCollectionInterface $routeCollection;
     private bool $hasInjectedRoutes = false;
 
     /**
@@ -77,17 +74,15 @@ final class UrlMatcher implements UrlMatcherInterface
      * @psalm-param DispatcherCallback|null $dispatcherFactory
      */
     public function __construct(
-        RouteCollectionInterface $routeCollection,
-        CacheInterface $cache = null,
+        private RouteCollectionInterface $routeCollection,
+        private ?CacheInterface $cache = null,
         ?array $config = null,
         ?RouteCollector $fastRouteCollector = null,
         ?callable $dispatcherFactory = null
     ) {
         $this->fastRouteCollector = $fastRouteCollector ?? $this->createRouteCollector();
-        $this->routeCollection = $routeCollection;
         $this->dispatcherCallback = $dispatcherFactory;
         $this->loadConfig($config);
-        $this->cache = $cache;
 
         $this->loadDispatchData();
     }
@@ -143,8 +138,6 @@ final class UrlMatcher implements UrlMatcherInterface
      * approach is done to allow testing against the dispatcher.
      *
      * @param array $data Data from {@see RouteCollector::getData()}.
-     *
-     * @return Dispatcher
      */
     private function getDispatcher(array $data): Dispatcher
     {
@@ -172,9 +165,7 @@ final class UrlMatcher implements UrlMatcherInterface
      */
     private function createDispatcherCallback(): callable
     {
-        return static function (array $data) {
-            return new GroupCountBased($data);
-        };
+        return static fn (array $data) => new GroupCountBased($data);
     }
 
     /**
@@ -186,8 +177,6 @@ final class UrlMatcher implements UrlMatcherInterface
      * @param array $result
      *
      * @psalm-param ResultNotFound|ResultMethodNotAllowed $result
-     *
-     * @return MatchingResult
      */
     private function marshalFailedRoute(array $result): MatchingResult
     {
@@ -203,11 +192,7 @@ final class UrlMatcher implements UrlMatcherInterface
     /**
      * Marshals a route result based on the results of matching.
      *
-     * @param array $result
-     *
      * @psalm-param ResultFound $result
-     *
-     * @return MatchingResult
      */
     private function marshalMatchedRoute(array $result): MatchingResult
     {
@@ -300,7 +285,6 @@ final class UrlMatcher implements UrlMatcherInterface
     /**
      * Save dispatch data to cache.
      *
-     * @param array $dispatchData
      * @psalm-suppress PossiblyNullReference
      */
     private function cacheDispatchData(array $dispatchData): void

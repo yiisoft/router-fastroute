@@ -19,7 +19,7 @@ The package provides FastRoute adapter for [Yii Router](https://github.com/yiiso
 
 ## Requirements
 
-- PHP 7.4 or higher.
+- PHP 8.0 or higher.
 
 ## Installation
 
