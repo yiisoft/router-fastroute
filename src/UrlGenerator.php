@@ -140,13 +140,10 @@ final class UrlGenerator implements UrlGeneratorInterface
     }
 
     /**
-     * @param null|Stringable|scalar $value
+     * {@inheritDoc}
      */
-    public function setDefaultArgument(string $name, $value): void
+    public function setDefaultArgument(string $name, bool|float|int|string|Stringable|null $value): void
     {
-        if (!is_scalar($value) && !$value instanceof Stringable && $value !== null) {
-            throw new InvalidArgumentException('Default should be either scalar value or an instance of \Stringable.');
-        }
         $this->defaultArguments[$name] = (string) $value;
     }
 
