@@ -232,7 +232,7 @@ final class UrlMatcher implements UrlMatcherInterface
             } elseif ($count === 1) {
                 $hostPattern = $hosts[0];
             } else {
-                $hostPattern = '{_host:[a-zA-Z0-9\.\-]*}';
+                $hostPattern = '{_host:[a-zA-Z0-9\.\-:]*}';
             }
 
             $this->fastRouteCollector->addRoute(
