@@ -1,5 +1,9 @@
 # Yii Router FastRoute adapter Change Log
 
+## 2.1.1 under development
+
+- no changes in this release.
+
 ## 2.1.0 January 09, 2023
 
 - Chg #120: Update `yiisoft/router` version to `^2.1` (@rustamwin)
