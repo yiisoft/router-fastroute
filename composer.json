@@ -32,7 +32,8 @@
         "rector/rector": "^0.15.4",
         "roave/infection-static-analysis-plugin": "^1.16",
         "spatie/phpunit-watcher": "^1.23",
-        "vimeo/psalm": "^4.30|^5.4"
+        "vimeo/psalm": "^4.30|^5.6",
+        "yiisoft/di": "^1.2"
     },
     "provide": {
         "yiisoft/router-implementation": "1.0.0"
@@ -53,8 +54,8 @@
         },
         "config-plugin": {
             "params": "params.php",
-            "common": "common.php",
-            "web": "web.php"
+            "di": "di.php",
+            "di-web": "di-web.php"
         }
     },
     "config": {
