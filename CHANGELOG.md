@@ -4,7 +4,7 @@
 
 - Chg #122: Adapt configuration group names to Yii conventions (@vjik)
 - Enh #124: Add support of `yiisoft/router` version `^3.0` (@vjik)
-- 
+
 ## 2.1.0 January 09, 2023
 
 - Chg #120: Update `yiisoft/router` version to `^2.1` (@rustamwin)
