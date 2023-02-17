@@ -3,6 +3,7 @@
 ## 3.0.0 under development
 
 - Chg #122: Adapt configuration group names to Yii conventions (@vjik)
+- Enh #124: Add support of `yiisoft/router` version `^3.0` (@vjik)
 
 ## 2.1.0 January 09, 2023
 
@@ -17,7 +18,7 @@
 
 ## 1.1.1 June 28, 2022
 
-- Enh #103: Add support for `psr/simple-cache` version `^2.0|^3.0` (@vjik)
+- Enh #103: Add support of `psr/simple-cache` version `^2.0|^3.0` (@vjik)
 
 ## 1.1.0 June 27, 2022
 
