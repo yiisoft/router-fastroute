@@ -1,5 +1,9 @@
 # Yii Router FastRoute adapter Change Log
 
+## 3.0.1 under development
+
+- no changes in this release.
+
 ## 3.0.0 February 17, 2023
 
 - Chg #122: Adapt configuration group names to Yii conventions (@vjik)
