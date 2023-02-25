@@ -210,19 +210,9 @@ final class UrlGenerator implements UrlGeneratorInterface
         return strncmp($url, '//', 2) && !str_contains($url, '://');
     }
 
-    public function getUriPrefix(): string
-    {
-        return $this->uriPrefix;
-    }
-
     public function setEncodeRaw(bool $encodeRaw): void
     {
         $this->encodeRaw = $encodeRaw;
-    }
-
-    public function setUriPrefix(string $name): void
-    {
-        $this->uriPrefix = $name;
     }
 
     /**
@@ -265,7 +255,7 @@ final class UrlGenerator implements UrlGeneratorInterface
     private function generatePath(array $arguments, array $queryParameters, array $parts): string
     {
         $notSubstitutedArguments = $arguments;
-        $path = $this->getUriPrefix();
+        $path = '';
 
         foreach ($parts as $part) {
             if (is_string($part)) {
