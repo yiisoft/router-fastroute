@@ -49,7 +49,13 @@ final class ConfigTest extends TestCase
     private function getDiConfig(?string $postfix = null): array
     {
         $params = $this->getParams();
-        return require dirname(__DIR__) . '/config/di' . ($postfix !== null ? '-' . $postfix : '') . '.php';
+        if ($postfix === null) {
+            return require dirname(__DIR__) . '/config/di.php';
+        }
+        $config = require dirname(__DIR__) . '/config/di.php';
+        $postfixConfig = require dirname(__DIR__) . '/config/di' . ($postfix !== null ? '-' . $postfix : '') . '.php';
+
+        return array_merge($config, $postfixConfig);
     }
 
     private function getParams(): array
