@@ -15,6 +15,7 @@ use RuntimeException;
 use Yiisoft\Http\Method;
 use Yiisoft\Router\MatchingResult;
 use Yiisoft\Router\RouteCollectionInterface;
+use Yiisoft\Router\UrlGeneratorInterface;
 use Yiisoft\Router\UrlMatcherInterface;
 
 use function array_merge;
@@ -75,6 +76,7 @@ final class UrlMatcher implements UrlMatcherInterface
      */
     public function __construct(
         private RouteCollectionInterface $routeCollection,
+        private UrlGeneratorInterface $urlGenerator,
         private ?CacheInterface $cache = null,
         ?array $config = null,
         ?RouteCollector $fastRouteCollector = null,
@@ -94,19 +96,21 @@ final class UrlMatcher implements UrlMatcherInterface
         }
 
         $dispatchData = $this->getDispatchData();
-        $path = urldecode($request
-            ->getUri()
-            ->getPath());
+        $path = urldecode($request->getUri()->getPath());
+        $uriPrefix = $this->urlGenerator->getUriPrefix();
+        $prefixLength = strlen($uriPrefix);
         $method = $request->getMethod();
+
+        if ($uriPrefix !== '' && str_starts_with($path, $uriPrefix) && $path[$prefixLength] === '/') {
+            $path = substr($path, $prefixLength);
+        }
 
         /**
          * @psalm-var ResultNotFound|ResultMethodNotAllowed|ResultFound $result
          */
         $result = $this
             ->getDispatcher($dispatchData)
-            ->dispatch($method, $request
-                    ->getUri()
-                    ->getHost() . $path);
+            ->dispatch($method, $request->getUri()->getHost() . $path);
 
         /** @psalm-suppress ArgumentTypeCoercion Psalm can't determine correct type here */
         return $result[0] !== Dispatcher::FOUND
