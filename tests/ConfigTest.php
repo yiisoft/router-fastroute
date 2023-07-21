@@ -65,7 +65,7 @@ final class ConfigTest extends TestCase
 
     private function getDiConfig(?string $postfix = null, ?array $params = null): array
     {
-        $params = $params ?? $this->getParams();
+        $params ??= $this->getParams();
         return require dirname(__DIR__) . '/config/di' . ($postfix !== null ? '-' . $postfix : '') . '.php';
     }
 
