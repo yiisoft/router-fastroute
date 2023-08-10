@@ -174,7 +174,6 @@ final class UrlMatcher implements UrlMatcherInterface
      * If the failure was due to the HTTP method, passes the allowed HTTP
      * methods to the factory.
      *
-     *
      * @psalm-param ResultNotFound|ResultMethodNotAllowed $result
      */
     private function marshalFailedRoute(array $result): MatchingResult
