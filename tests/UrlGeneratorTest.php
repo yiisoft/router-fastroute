@@ -866,7 +866,7 @@ final class UrlGeneratorTest extends TestCase
     {
         $rootGroup = Group::create()->routes(...$routes);
         $collector = new RouteCollector();
-        $collector->addRoute($rootGroup);
+        $collector->addGroup($rootGroup);
         return new RouteCollection($collector);
     }
 }
