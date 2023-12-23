@@ -254,7 +254,7 @@ final class UrlGenerator implements UrlGeneratorInterface
             }
         }
 
-        // All required arguments are availgit logable.
+        // All required arguments are available.
         return [];
     }
 
@@ -297,10 +297,11 @@ final class UrlGenerator implements UrlGeneratorInterface
 
         $path = str_replace('//', '/', $path);
 
-        return $path . (
-            $notSubstitutedArguments !== [] || $queryParameters !== [] ?
-                '?' . http_build_query(array_merge($notSubstitutedArguments, $queryParameters))
-                : ''
-        );
+        $queryString = '';
+        if (!empty($queryParameters)) {
+            $queryString = http_build_query($queryParameters);
+        }
+
+        return $path . (!empty($queryString) ? '?' . $queryString : '');
     }
 }

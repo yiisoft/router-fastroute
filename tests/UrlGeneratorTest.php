@@ -196,7 +196,7 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('/test/post?id=12&sort=asc', $url);
     }
 
-    public function testExtraArgumentsAddedAsQueryString(): void
+    public function testQueryParametersAddedAsQueryStringWithEmptyValues(): void
     {
         $routes = [
             Route::get('/test/{name}')
@@ -205,8 +205,8 @@ final class UrlGeneratorTest extends TestCase
 
         $url = $this
             ->createUrlGenerator($routes)
-            ->generate('test', ['name' => 'post', 'id' => 12, 'sort' => 'asc']);
-        $this->assertEquals('/test/post?id=12&sort=asc', $url);
+            ->generate('test', ['name' => 'post'], ['id' => null]);
+        $this->assertEquals('/test/post', $url);
     }
 
     public function testQueryParametersOverrideExtraArguments(): void
@@ -222,7 +222,7 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('/test/post?id=12&sort=asc', $url);
     }
 
-    public function testQueryParametersMergedWithExtraArguments(): void
+    public function testNotSubstitutedArgumentsRemove(): void
     {
         $routes = [
             Route::get('/test/{name}')
@@ -232,7 +232,7 @@ final class UrlGeneratorTest extends TestCase
         $url = $this
             ->createUrlGenerator($routes)
             ->generate('test', ['name' => 'post', 'id' => 11], ['sort' => 'asc']);
-        $this->assertEquals('/test/post?id=11&sort=asc', $url);
+        $this->assertEquals('/test/post?sort=asc', $url);
     }
 
     public function testDefaultNotUsedForOptionalArgument(): void

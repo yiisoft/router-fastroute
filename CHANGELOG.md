@@ -2,7 +2,8 @@
 
 ## 3.0.1 under development
 
-- no changes in this release.
+- Bug #133: Don't add not substituted arguments to a query string (@rustamwin)
+- Bug #134: Don't add query string if it's empty (@rustamwin)
 
 ## 3.0.0 February 17, 2023
 
