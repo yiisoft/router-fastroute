@@ -32,28 +32,6 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('/home/index', $url);
     }
 
-    public function dataGenerateWithUriPrefix(): array
-    {
-        return [
-            ['/home/index', ''],
-            ['/test/home/index', '/test'],
-        ];
-    }
-
-    /**
-     * @dataProvider dataGenerateWithUriPrefix
-     */
-    public function testGenerateWithUriPrefix(string $expected, string $prefix): void
-    {
-        $generator = $this->createUrlGenerator([
-            Route::get('/home/index')->name('index'),
-        ]);
-
-        $generator->setUriPrefix($prefix);
-
-        $this->assertSame($expected, $generator->generate('index'));
-    }
-
     public function testRouteWithoutNameNotFound(): void
     {
         $routes = [
@@ -828,16 +806,6 @@ final class UrlGeneratorTest extends TestCase
         $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru']);
 
         $this->assertEquals('/ru/home/index', $url);
-    }
-
-    public function testGetUriPrefix(): void
-    {
-        $prefix = '/test';
-
-        $urlGenerator = $this->createUrlGenerator([]);
-        $urlGenerator->setUriPrefix($prefix);
-
-        $this->assertSame($prefix, $urlGenerator->getUriPrefix());
     }
 
     public function testNotFoundRoutes(): void
