@@ -196,6 +196,19 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('/test/post?id=12&sort=asc', $url);
     }
 
+    public function testQueryParametersAddedAsQueryStringWithEmptyValues(): void
+    {
+        $routes = [
+            Route::get('/test/{name}')
+                 ->name('test'),
+        ];
+
+        $url = $this
+            ->createUrlGenerator($routes)
+            ->generate('test', ['name' => 'post'], ['id' => null]);
+        $this->assertEquals('/test/post', $url);
+    }
+
     public function testExtraArgumentsAddedAsQueryString(): void
     {
         $routes = [
@@ -866,7 +879,7 @@ final class UrlGeneratorTest extends TestCase
     {
         $rootGroup = Group::create()->routes(...$routes);
         $collector = new RouteCollector();
-        $collector->addGroup($rootGroup);
+        $collector->addRoute($rootGroup);
         return new RouteCollection($collector);
     }
 }
