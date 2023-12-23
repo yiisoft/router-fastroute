@@ -298,8 +298,8 @@ final class UrlGenerator implements UrlGeneratorInterface
         $path = str_replace('//', '/', $path);
 
         $queryString = '';
-        if (!empty($notSubstitutedArguments) || !empty($queryParameters)) {
-            $queryString = http_build_query(array_merge($notSubstitutedArguments, $queryParameters));
+        if (!empty($queryParameters)) {
+            $queryString = http_build_query($queryParameters);
         }
 
         return $path . (!empty($queryString) ? '?' . $queryString : '');
