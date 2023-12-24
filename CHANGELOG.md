@@ -1,5 +1,9 @@
 # Yii Router FastRoute adapter Change Log
 
+## 3.0.2 under development
+
+- no changes in this release.
+
 ## 3.0.1 December 24, 2023
 
 - Bug #133, #136: Don't add not substituted arguments to a query string (@rustamwin, @vjik)
