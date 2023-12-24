@@ -264,7 +264,6 @@ final class UrlGenerator implements UrlGeneratorInterface
      */
     private function generatePath(array $arguments, array $queryParameters, array $parts): string
     {
-        $notSubstitutedArguments = $arguments;
         $path = $this->getUriPrefix();
 
         foreach ($parts as $part) {
@@ -292,7 +291,6 @@ final class UrlGenerator implements UrlGeneratorInterface
                     ? rawurlencode($arguments[$part[0]])
                     : urlencode($arguments[$part[0]]);
             }
-            unset($notSubstitutedArguments[$part[0]]);
         }
 
         $path = str_replace('//', '/', $path);
