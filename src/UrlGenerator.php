@@ -35,6 +35,8 @@ final class UrlGenerator implements UrlGeneratorInterface
         private RouteCollectionInterface $routeCollection,
         private ?CurrentRoute $currentRoute = null,
         ?RouteParser $parser = null,
+        private ?string $scheme = null,
+        private ?string $host = null,
     ) {
         $this->routeParser = $parser ?? new RouteParser\Std();
     }
@@ -96,16 +98,23 @@ final class UrlGenerator implements UrlGeneratorInterface
         $uri = $this->currentRoute && $this->currentRoute->getUri() !== null ? $this->currentRoute->getUri() : null;
         $lastRequestScheme = $uri?->getScheme();
 
-        if ($host !== null || ($host = $route->getData('host')) !== null) {
-            if ($scheme === null && !$this->isRelative($host)) {
+        $host = $host ?? $route->getData('host') ?? $this->host ?? null;
+        if ($host !== null) {
+            $isRelativeHost = $this->isRelative($host);
+
+            $scheme ??= $isRelativeHost
+                ? $this->scheme ?? $lastRequestScheme
+                : null;
+
+            if ($scheme === null && !$isRelativeHost) {
                 return rtrim($host, '/') . $url;
             }
 
-            if ((empty($scheme) || $lastRequestScheme === null) && $host !== '' && $this->isRelative($host)) {
+            if ($host !== '' && $isRelativeHost) {
                 $host = '//' . $host;
             }
 
-            return $this->ensureScheme(rtrim($host, '/') . $url, $scheme ?? $lastRequestScheme);
+            return $this->ensureScheme(rtrim($host, '/') . $url, $scheme);
         }
 
         return $uri === null ? $url : $this->generateAbsoluteFromLastMatchedRequest($url, $uri, $scheme);

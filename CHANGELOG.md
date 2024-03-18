@@ -2,6 +2,7 @@
 
 ## 3.0.2 under development
 
+- New #144: Add optional default host and scheme to `UrlGenerator` (@vjik)
 - Enh #139: Add support for `psr/http-message` version `^2.0` (@vjik)
 
 ## 3.0.1 December 24, 2023
