@@ -34,7 +34,7 @@ final class UrlGenerator implements UrlGeneratorInterface
     public function __construct(
         private RouteCollectionInterface $routeCollection,
         private ?CurrentRoute $currentRoute = null,
-        RouteParser $parser = null
+        ?RouteParser $parser = null,
     ) {
         $this->routeParser = $parser ?? new RouteParser\Std();
     }
@@ -88,8 +88,8 @@ final class UrlGenerator implements UrlGeneratorInterface
         string $name,
         array $arguments = [],
         array $queryParameters = [],
-        string $scheme = null,
-        string $host = null
+        ?string $scheme = null,
+        ?string $host = null
     ): string {
         $url = $this->generate($name, $arguments, $queryParameters);
         $route = $this->routeCollection->getRoute($name);
@@ -114,8 +114,11 @@ final class UrlGenerator implements UrlGeneratorInterface
     /**
      * {@inheritdoc}
      */
-    public function generateFromCurrent(array $replacedArguments, array $queryParameters = [], string $fallbackRouteName = null): string
-    {
+    public function generateFromCurrent(
+        array $replacedArguments,
+        array $queryParameters = [],
+        ?string $fallbackRouteName = null,
+    ): string {
         if ($this->currentRoute === null || $this->currentRoute->getName() === null) {
             if ($fallbackRouteName !== null) {
                 return $this->generate($fallbackRouteName, $replacedArguments);
