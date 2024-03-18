@@ -98,7 +98,7 @@ final class UrlGenerator implements UrlGeneratorInterface
         $uri = $this->currentRoute && $this->currentRoute->getUri() !== null ? $this->currentRoute->getUri() : null;
         $lastRequestScheme = $uri?->getScheme();
 
-        $host = $host ?? $route->getData('host') ?? $this->host ?? null;
+        $host ??= $route->getData('host') ?? $this->host ?? null;
         if ($host !== null) {
             $isRelativeHost = $this->isRelative($host);
 
