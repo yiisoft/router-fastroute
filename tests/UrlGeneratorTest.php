@@ -885,7 +885,7 @@ final class UrlGeneratorTest extends TestCase
             $this->createRouteCollection([
                 Route::get('/home/index')
                     ->host('//test.yii')
-                    ->name('index')
+                    ->name('index'),
             ]),
             scheme: 'https',
             host: 'example.com',
