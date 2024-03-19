@@ -1,6 +1,6 @@
 # Yii Router FastRoute adapter Change Log
 
-## 3.0.2 under development
+## 3.1.0 March 19, 2024
 
 - New #144: Add optional default host and scheme to `UrlGenerator` (@vjik)
 - Enh #139: Add support for `psr/http-message` version `^2.0` (@vjik)
