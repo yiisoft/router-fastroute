@@ -2,7 +2,7 @@
     <a href="https://github.com/yiisoft" target="_blank">
         <img src="https://avatars0.githubusercontent.com/u/993323" height="100px">
     </a>
-    <h1 align="center">Yii Router FastRoute adapter</h1>
+    <h1 align="center">Yii Router FastRoute Adapter</h1>
     <br>
 </p>
 
@@ -14,7 +14,7 @@
 [![static analysis](https://github.com/yiisoft/router-fastroute/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/router-fastroute/actions?query=workflow%3A%22static+analysis%22)
 [![type-coverage](https://shepherd.dev/github/yiisoft/router-fastroute/coverage.svg)](https://shepherd.dev/github/yiisoft/router-fastroute)
 
-The package provides FastRoute adapter for [Yii Router](https://github.com/yiisoft/router).
+The package provides FastRoute Adapter for [Yii Router](https://github.com/yiisoft/router).
 
 ## Requirements
 
@@ -33,36 +33,16 @@ composer require yiisoft/router-fastroute
 The package is not meant to be used separately so check [Yii Router](https://github.com/yiisoft/router) readme for
 general usage and [FastRoute](https://github.com/nikic/FastRoute) for pattern syntax.
 
-## Testing
+## Documentation
 
-### Unit testing
+- [Internals](docs/internals.md)
 
-The package is tested with [PHPUnit](https://phpunit.de/). To run tests:
-
-```shell
-./vendor/bin/phpunit
-```
-
-### Mutation testing
-
-The package tests are checked with [Infection](https://infection.github.io/) mutation framework with
-[Infection Static Analysis Plugin](https://github.com/Roave/infection-static-analysis-plugin). To run it:
-
-```shell
-./vendor/bin/roave-infection-static-analysis-plugin
-```
-
-### Static analysis
-
-The code is statically analyzed with [Psalm](https://psalm.dev/). To run static analysis:
-
-```shell
-./vendor/bin/psalm
-```
+If you need help or have a question, the [Yii Forum](https://forum.yiiframework.com/c/yii-3-0/63) is a good place for that.
+You may also check out other [Yii Community Resources](https://www.yiiframework.com/community).
 
 ## License
 
-The Yii Router FastRoute adapter is free software. It is released under the terms of the BSD License.
+The Yii Router FastRoute Adapter is free software. It is released under the terms of the BSD License.
 Please see [`LICENSE`](./LICENSE.md) for more information.
 
 Maintained by [Yii Software](https://www.yiiframework.com/).

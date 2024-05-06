@@ -1,4 +1,4 @@
-# Yii Router FastRoute adapter Change Log
+# Yii Router FastRoute Adapter Change Log
 
 ## 3.1.1 under development
 
