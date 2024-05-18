@@ -14,7 +14,7 @@
 [![static analysis](https://github.com/yiisoft/router-fastroute/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/router-fastroute/actions?query=workflow%3A%22static+analysis%22)
 [![type-coverage](https://shepherd.dev/github/yiisoft/router-fastroute/coverage.svg)](https://shepherd.dev/github/yiisoft/router-fastroute)
 
-The package provides FastRoute Adapter for [Yii Router](https://github.com/yiisoft/router).
+The package provides FastRoute adapter for [Yii Router](https://github.com/yiisoft/router).
 
 ## Requirements
 
