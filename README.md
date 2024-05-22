@@ -22,7 +22,7 @@ The package provides FastRoute adapter for [Yii Router](https://github.com/yiiso
 
 ## Installation
 
-The package could be installed with composer:
+The package could be installed with [Composer](https://getcomposer.org):
 
 ```shell
 composer require yiisoft/router-fastroute
