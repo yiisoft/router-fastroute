@@ -6,9 +6,9 @@
     <br>
 </p>
 
-[![Latest Stable Version](https://poser.pugx.org/yiisoft/router-fastroute/v/stable.png)](https://packagist.org/packages/yiisoft/router-fastroute)
-[![Total Downloads](https://poser.pugx.org/yiisoft/router-fastroute/downloads.png)](https://packagist.org/packages/yiisoft/router-fastroute)
-[![Build status](https://github.com/yiisoft/router-fastroute/workflows/build/badge.svg)](https://github.com/yiisoft/router-fastroute/actions?query=workflow%3Abuild)
+[![Latest Stable Version](https://poser.pugx.org/yiisoft/router-fastroute/v)](https://packagist.org/packages/yiisoft/router-fastroute)
+[![Total Downloads](https://poser.pugx.org/yiisoft/router-fastroute/downloads)](https://packagist.org/packages/yiisoft/router-fastroute)
+[![Build status](https://github.com/yiisoft/router-fastroute/actions/workflows/build.yml/badge.svg)](https://github.com/yiisoft/router-fastroute/actions/workflows/build.yml)
 [![Code Coverage](https://codecov.io/gh/yiisoft/router-fastroute/graph/badge.svg?token=OKMPXV2N7P)](https://codecov.io/gh/yiisoft/router-fastroute)
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Frouter-fastroute%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/router-fastroute/master)
 [![static analysis](https://github.com/yiisoft/router-fastroute/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/router-fastroute/actions?query=workflow%3A%22static+analysis%22)
