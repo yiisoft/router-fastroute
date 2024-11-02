@@ -10,6 +10,10 @@ use Yiisoft\Router\UrlGeneratorInterface;
 return [
     UrlGeneratorInterface::class => [
         'class' => UrlGenerator::class,
+        '__construct()' => [
+            'scheme' => $params['yiisoft/router-fastroute']['scheme'],
+            'host' => $params['yiisoft/router-fastroute']['host'],
+        ],
         'setEncodeRaw()' => [$params['yiisoft/router-fastroute']['encodeRaw']],
         'reset' => function () {
             $this->defaultArguments = [];

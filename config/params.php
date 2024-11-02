@@ -13,5 +13,7 @@ return [
          * Default `true` is RFC3986 compliant
          */
         'encodeRaw' => true,
+        'scheme' => null,
+        'host' => null,
     ],
 ];
