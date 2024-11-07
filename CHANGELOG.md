@@ -2,7 +2,7 @@
 
 ## 3.1.1 under development
 
-- no changes in this release.
+- Enh #154: Add `UrlGenerator` host and scheme properties to package config params (@ev-gor)
 
 ## 3.1.0 March 19, 2024
 
