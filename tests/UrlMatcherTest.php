@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Router\FastRoute\Tests;
 
 use Nyholm\Psr7\ServerRequest;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\SimpleCache\CacheInterface;
 use RuntimeException;
@@ -323,7 +324,7 @@ final class UrlMatcherTest extends TestCase
         $this->assertArrayNotHasKey('name', $arguments3);
     }
 
-    public function disallowedMethodsProvider(): array
+    public static function disallowedMethodsProvider(): array
     {
         return [
             [['GET', 'HEAD'], 'POST'],
@@ -332,9 +333,7 @@ final class UrlMatcherTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider disallowedMethodsProvider
-     */
+    #[DataProvider('disallowedMethodsProvider')]
     public function testDisallowedMethod(array $methods, string $disallowedMethod): void
     {
         $routes = [
