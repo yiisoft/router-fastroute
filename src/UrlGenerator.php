@@ -17,8 +17,10 @@ use Yiisoft\Router\UrlGeneratorInterface;
 use function array_key_exists;
 use function array_keys;
 use function implode;
+use function is_scalar;
 use function is_string;
 use function preg_match;
+use function sprintf;
 
 final class UrlGenerator implements UrlGeneratorInterface
 {
@@ -50,7 +52,12 @@ final class UrlGenerator implements UrlGeneratorInterface
      *
      * @throws RuntimeException If parameter value does not match its regex.
      */
-    public function generate(string $name, array $arguments = [], array $queryParameters = []): string
+    public function generate(
+        string $name,
+        array $arguments = [],
+        array $queryParameters = [],
+        ?string $hash = null,
+    ): string
     {
         $arguments = array_map('\strval', array_merge($this->defaultArguments, $arguments));
         $route = $this->routeCollection->getRoute($name);
@@ -72,7 +79,7 @@ final class UrlGenerator implements UrlGeneratorInterface
                 continue;
             }
 
-            return $this->generatePath($arguments, $queryParameters, $parsedRouteParts);
+            return $this->generatePath($arguments, $queryParameters, $parsedRouteParts, $hash);
         }
 
         // No valid route was found: list minimal required parameters.
@@ -90,10 +97,11 @@ final class UrlGenerator implements UrlGeneratorInterface
         string $name,
         array $arguments = [],
         array $queryParameters = [],
+        ?string $hash = null,
         ?string $scheme = null,
-        ?string $host = null
+        ?string $host = null,
     ): string {
-        $url = $this->generate($name, $arguments, $queryParameters);
+        $url = $this->generate($name, $arguments, $queryParameters, $hash);
         $route = $this->routeCollection->getRoute($name);
         $uri = $this->currentRoute && $this->currentRoute->getUri() !== null ? $this->currentRoute->getUri() : null;
         $lastRequestScheme = $uri?->getScheme();
@@ -126,6 +134,7 @@ final class UrlGenerator implements UrlGeneratorInterface
     public function generateFromCurrent(
         array $replacedArguments,
         array $queryParameters = [],
+        ?string $hash = null,
         ?string $fallbackRouteName = null,
     ): string {
         if ($this->currentRoute === null || $this->currentRoute->getName() === null) {
@@ -151,6 +160,7 @@ final class UrlGenerator implements UrlGeneratorInterface
             $this->currentRoute->getName(),
             array_merge($this->currentRoute->getArguments(), $replacedArguments),
             $queryParameters,
+            $hash,
         );
     }
 
@@ -274,7 +284,7 @@ final class UrlGenerator implements UrlGeneratorInterface
      * @param array<string,string> $arguments
      * @param list<list<string>|string> $parts
      */
-    private function generatePath(array $arguments, array $queryParameters, array $parts): string
+    private function generatePath(array $arguments, array $queryParameters, array $parts, ?string $hash): string
     {
         $path = $this->getUriPrefix();
 
@@ -312,6 +322,6 @@ final class UrlGenerator implements UrlGeneratorInterface
             $queryString = http_build_query($queryParameters);
         }
 
-        return $path . (!empty($queryString) ? '?' . $queryString : '');
+        return $path . (!empty($queryString) ? '?' . $queryString : '') . ($hash !== null ? '#' . $hash : '');
     }
 }

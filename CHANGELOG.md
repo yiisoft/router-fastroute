@@ -1,9 +1,12 @@
 # Yii Router FastRoute Adapter Change Log
 
-## 3.1.1 under development
+## 4.0.0 under development
 
 - Enh #154: Add `UrlGenerator` host and scheme properties to package config params (@ev-gor)
 - Chg #157: Bump minimal PHP version to 8.1 and minor refactoring (@vjik)
+- Chg #158: Change PHP constraint in `composer.json` to `8.1 - 8.4` (@vjik)
+- Chg #158: Adapt to `yiisoft/router` version `^4.0` (@vjik)
+- Enh #158: Use FQN for built-in PHP functions (@vjik)
 
 ## 3.1.0 March 19, 2024
 
