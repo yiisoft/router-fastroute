@@ -889,6 +889,84 @@ final class UrlGeneratorTest extends TestCase
         $this->assertSame('https://example.com/home/index', $url);
     }
 
+    public function testGenerateHash(): void
+    {
+        $urlGenerator = new UrlGenerator(
+            $this->createRouteCollection([Route::get('/home/index')->name('index')]),
+            new CurrentRoute(),
+        );
+
+        $url = $urlGenerator->generate('index', hash: 'test');
+
+        $this->assertSame('/home/index#test', $url);
+    }
+
+    public function testGenerateAbsoluteHash(): void
+    {
+        $urlGenerator = new UrlGenerator(
+            $this->createRouteCollection([Route::get('/home/index')->name('index')]),
+            new CurrentRoute(),
+            scheme: 'https',
+            host: 'example.com',
+        );
+
+        $url = $urlGenerator->generateAbsolute('index', hash: 'test');
+
+        $this->assertSame('https://example.com/home/index#test', $url);
+    }
+
+    public function testGenerateFromCurrentHash(): void
+    {
+        $request = new ServerRequest('GET', 'http://test.com/home/index');
+        $route = Route::get('/home/index')->name('index');
+        $currentRoute = new CurrentRoute();
+        $currentRoute->setUri($request->getUri());
+        $currentRoute->setRouteWithArguments($route, []);
+
+        $urlGenerator = new UrlGenerator(
+            $this->createRouteCollection([$route]),
+            $currentRoute,
+        );
+
+        $url = $urlGenerator->generateFromCurrent([], hash: 'test');
+
+        $this->assertSame('/home/index#test', $url);
+    }
+
+    public function testGenerateFromCurrentHashWithFallbackRoute(): void
+    {
+        $request = new ServerRequest('GET', 'http://test.com/home/index');
+        $route = Route::get('/blog/posts')->name('blog');
+        $currentRoute = new CurrentRoute();
+        $currentRoute->setUri($request->getUri());
+
+        $urlGenerator = new UrlGenerator(
+            $this->createRouteCollection([$route]),
+            $currentRoute,
+        );
+
+        $url = $urlGenerator->generateFromCurrent([], hash: 'test', fallbackRouteName: 'blog');
+
+        $this->assertSame('/blog/posts#test', $url);
+    }
+
+    public function testGenerateFromCurrentHashWithoutRoute(): void
+    {
+        $request = new ServerRequest('GET', 'http://test.com/home/index');
+        $route = Route::get('/blog/posts')->name('blog');
+        $currentRoute = new CurrentRoute();
+        $currentRoute->setUri($request->getUri());
+
+        $urlGenerator = new UrlGenerator(
+            $this->createRouteCollection([$route]),
+            $currentRoute,
+        );
+
+        $url = $urlGenerator->generateFromCurrent([], hash: 'test');
+
+        $this->assertSame('/home/index#test', $url);
+    }
+
     private function createUrlGenerator(
         array $routes,
         ?CurrentRoute $currentRoute = null,

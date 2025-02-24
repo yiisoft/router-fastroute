@@ -139,11 +139,11 @@ final class UrlGenerator implements UrlGeneratorInterface
     ): string {
         if ($this->currentRoute === null || $this->currentRoute->getName() === null) {
             if ($fallbackRouteName !== null) {
-                return $this->generate($fallbackRouteName, $replacedArguments);
+                return $this->generate($fallbackRouteName, $replacedArguments, hash: $hash);
             }
 
             if ($this->currentRoute !== null && $this->currentRoute->getUri() !== null) {
-                return $this->currentRoute->getUri()->getPath();
+                return $this->currentRoute->getUri()->getPath() . ($hash !== null ? '#' . $hash : '');
             }
 
             throw new RuntimeException('Current route is not detected.');
