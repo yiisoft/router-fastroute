@@ -57,8 +57,7 @@ final class UrlGenerator implements UrlGeneratorInterface
         array $arguments = [],
         array $queryParameters = [],
         ?string $hash = null,
-    ): string
-    {
+    ): string {
         $arguments = array_map('\strval', array_merge($this->defaultArguments, $arguments));
         $route = $this->routeCollection->getRoute($name);
         /** @var list<list<list<string>|string>> $parsedRoutes */
