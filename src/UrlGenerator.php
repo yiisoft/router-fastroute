@@ -25,18 +25,18 @@ final class UrlGenerator implements UrlGeneratorInterface
     private string $uriPrefix = '';
 
     /**
-     * @var array<string,string>
+     * @psalm-var array<string,string>
      */
     private array $defaultArguments = [];
     private bool $encodeRaw = true;
-    private RouteParser $routeParser;
+    private readonly RouteParser $routeParser;
 
     public function __construct(
-        private RouteCollectionInterface $routeCollection,
-        private ?CurrentRoute $currentRoute = null,
+        private readonly RouteCollectionInterface $routeCollection,
+        private readonly ?CurrentRoute $currentRoute = null,
         ?RouteParser $parser = null,
-        private ?string $scheme = null,
-        private ?string $host = null,
+        private readonly ?string $scheme = null,
+        private readonly ?string $host = null,
     ) {
         $this->routeParser = $parser ?? new RouteParser\Std();
     }

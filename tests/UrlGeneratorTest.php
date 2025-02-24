@@ -6,6 +6,7 @@ namespace Yiisoft\Router\FastRoute\Tests;
 
 use FastRoute\RouteParser;
 use Nyholm\Psr7\ServerRequest;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Router\CurrentRoute;
 use Yiisoft\Router\FastRoute\Tests\Support\NotFoundRouteParser;
@@ -32,7 +33,7 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('/home/index', $url);
     }
 
-    public function dataGenerateWithUriPrefix(): array
+    public static function dataGenerateWithUriPrefix(): array
     {
         return [
             ['/home/index', ''],
@@ -40,9 +41,7 @@ final class UrlGeneratorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataGenerateWithUriPrefix
-     */
+    #[DataProvider('dataGenerateWithUriPrefix')]
     public function testGenerateWithUriPrefix(string $expected, string $prefix): void
     {
         $generator = $this->createUrlGenerator([
@@ -655,7 +654,7 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('http://example.com/ru/home/index', $url);
     }
 
-    public function currentRouteArgumentsProvider(): array
+    public static function currentRouteArgumentsProvider(): array
     {
         return [
             [
@@ -718,9 +717,7 @@ final class UrlGeneratorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider currentRouteArgumentsProvider
-     */
+    #[DataProvider('currentRouteArgumentsProvider')]
     public function testGenerateFromCurrentWithArguments(
         string $uri,
         string $expectedUrl,

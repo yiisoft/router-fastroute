@@ -54,7 +54,7 @@ final class UrlMatcher implements UrlMatcherInterface
      */
     private bool $hasCache = false;
 
-    private RouteCollector $fastRouteCollector;
+    private readonly RouteCollector $fastRouteCollector;
     private bool $hasInjectedRoutes = false;
 
     /**
@@ -74,8 +74,8 @@ final class UrlMatcher implements UrlMatcherInterface
      * @psalm-param DispatcherCallback|null $dispatcherFactory
      */
     public function __construct(
-        private RouteCollectionInterface $routeCollection,
-        private ?CacheInterface $cache = null,
+        private readonly RouteCollectionInterface $routeCollection,
+        private readonly ?CacheInterface $cache = null,
         ?array $config = null,
         ?RouteCollector $fastRouteCollector = null,
         ?callable $dispatcherFactory = null
