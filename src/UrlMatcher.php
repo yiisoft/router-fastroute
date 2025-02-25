@@ -18,6 +18,7 @@ use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\UrlMatcherInterface;
 
 use function array_merge;
+use function count;
 
 /**
  * @psalm-type ResultNotFound = array{0:0}

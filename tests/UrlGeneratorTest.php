@@ -282,13 +282,11 @@ final class UrlGeneratorTest extends TestCase
     public function testAbsoluteUrlHostOverride(): void
     {
         $routes = [
-            Route::get('/home/index')
-                ->name('index')
-                ->host('http://test.com'),
+            Route::get('/home/index')->name('index')->host('http://test.com'),
         ];
         $url = $this
             ->createUrlGenerator($routes)
-            ->generateAbsolute('index', [], [], null, 'http://mysite.com');
+            ->generateAbsolute('index', host: 'http://mysite.com');
 
         $this->assertEquals('http://mysite.com/home/index', $url);
     }
@@ -299,13 +297,11 @@ final class UrlGeneratorTest extends TestCase
     public function testAbsoluteUrlHostOverrideWithTrailingSlash(): void
     {
         $routes = [
-            Route::get('/home/index')
-                ->name('index')
-                ->host('http://test.com'),
+            Route::get('/home/index')->name('index')->host('http://test.com'),
         ];
         $url = $this
             ->createUrlGenerator($routes)
-            ->generateAbsolute('index', [], [], null, 'http://mysite.com/');
+            ->generateAbsolute('index', [], [], host: 'http://mysite.com/');
 
         $this->assertEquals('http://mysite.com/home/index', $url);
     }
@@ -316,13 +312,11 @@ final class UrlGeneratorTest extends TestCase
     public function testAbsoluteUrlSchemeOverrideHostInRouteScheme(): void
     {
         $routes = [
-            Route::get('/home/index')
-                ->name('index')
-                ->host('http://test.com'),
+            Route::get('/home/index')->name('index')->host('http://test.com'),
         ];
         $url = $this
             ->createUrlGenerator($routes)
-            ->generateAbsolute('index', [], [], 'https');
+            ->generateAbsolute('index', scheme: 'https');
 
         $this->assertEquals('https://test.com/home/index', $url);
     }
@@ -337,7 +331,7 @@ final class UrlGeneratorTest extends TestCase
         ];
         $url = $this
             ->createUrlGenerator($routes)
-            ->generateAbsolute('index', [], [], 'https', 'http://test.com');
+            ->generateAbsolute('index', scheme: 'https', host: 'http://test.com');
 
         $this->assertEquals('https://test.com/home/index', $url);
     }
@@ -355,7 +349,7 @@ final class UrlGeneratorTest extends TestCase
         $currentRoute->setUri($request->getUri());
         $url = $this
             ->createUrlGenerator($routes, $currentRoute)
-            ->generateAbsolute('index', [], [], 'https');
+            ->generateAbsolute('index', scheme: 'https');
 
         $this->assertEquals('https://test.com/home/index', $url);
     }
@@ -441,9 +435,7 @@ final class UrlGeneratorTest extends TestCase
     {
         $request = new ServerRequest('GET', 'http://test.com/home/index');
         $routes = [
-            Route::get('/home/index')
-                ->name('index')
-                ->host('//test.com'),
+            Route::get('/home/index')->name('index')->host('//test.com'),
         ];
 
         $currentRoute = new CurrentRoute();
@@ -463,16 +455,14 @@ final class UrlGeneratorTest extends TestCase
     {
         $request = new ServerRequest('GET', 'http://test.com/home/index');
         $routes = [
-            Route::get('/home/index')
-                ->name('index')
-                ->host('//mysite.com'),
+            Route::get('/home/index')->name('index')->host('//mysite.com'),
         ];
 
         $currentRoute = new CurrentRoute();
         $currentRoute->setUri($request->getUri());
         $url = $this
             ->createUrlGenerator($routes, $currentRoute)
-            ->generateAbsolute('index', [], [], null, '//test.com');
+            ->generateAbsolute('index', host: '//test.com');
 
         $this->assertEquals('//test.com/home/index', $url);
     }
@@ -481,22 +471,18 @@ final class UrlGeneratorTest extends TestCase
     {
         $request = new ServerRequest('GET', 'http://test.com/home/index');
         $routes = [
-            Route::get('/home/index')
-                ->name('index')
-                ->host('http://test.com'),
-            Route::get('/home/view')
-                ->name('view')
-                ->host('test.com'),
+            Route::get('/home/index')->name('index')->host('http://test.com'),
+            Route::get('/home/view')->name('view')->host('test.com'),
         ];
 
         $currentRoute = new CurrentRoute();
         $currentRoute->setUri($request->getUri());
         $url1 = $this
             ->createUrlGenerator($routes, $currentRoute)
-            ->generateAbsolute('index', [], [], '');
+            ->generateAbsolute('index', scheme: '');
         $url2 = $this
             ->createUrlGenerator($routes, $currentRoute)
-            ->generateAbsolute('view', [], [], '');
+            ->generateAbsolute('view', scheme: '');
 
         $this->assertEquals('//test.com/home/index', $url1);
         $this->assertEquals('//test.com/home/view', $url2);
@@ -506,31 +492,23 @@ final class UrlGeneratorTest extends TestCase
     {
         $request = new ServerRequest('GET', 'http://test.com/home/index');
         $routes = [
-            Route::get('/home/index')
-                ->name('index')
-                ->host('//mysite.com'),
+            Route::get('/home/index')->name('index')->host('//mysite.com'),
         ];
 
         $currentRoute = new CurrentRoute();
         $currentRoute->setUri($request->getUri());
         $url1 = $this
             ->createUrlGenerator($routes, $currentRoute)
-            ->generateAbsolute('index', [], [], '', 'http://test.com');
+            ->generateAbsolute('index', scheme: '', host: 'http://test.com');
         $url2 = $this
             ->createUrlGenerator($routes, $currentRoute)
-            ->generateAbsolute('index', [], [], '', 'test.com');
+            ->generateAbsolute('index', scheme: '', host: 'test.com');
         $url3 = $this
             ->createUrlGenerator($routes, $currentRoute)
-            ->generateAbsolute(
-                'index',
-                [],
-                [],
-                null,
-                'http://test.com'
-            );
+            ->generateAbsolute('index', host: 'http://test.com');
         $url4 = $this
             ->createUrlGenerator($routes, $currentRoute)
-            ->generateAbsolute('index', [], [], null, 'test.com');
+            ->generateAbsolute('index', host: 'test.com');
 
         $this->assertEquals('//test.com/home/index', $url1);
         $this->assertEquals('//test.com/home/index', $url2);
@@ -549,7 +527,7 @@ final class UrlGeneratorTest extends TestCase
         $currentRoute->setUri($request->getUri());
         $url = $this
             ->createUrlGenerator($routes, $currentRoute)
-            ->generateAbsolute('index', [], [], '');
+            ->generateAbsolute('index', scheme: '');
 
         $this->assertEquals('//test.com/home/index', $url);
     }
@@ -911,10 +889,88 @@ final class UrlGeneratorTest extends TestCase
         $this->assertSame('https://example.com/home/index', $url);
     }
 
+    public function testGenerateHash(): void
+    {
+        $urlGenerator = new UrlGenerator(
+            $this->createRouteCollection([Route::get('/home/index')->name('index')]),
+            new CurrentRoute(),
+        );
+
+        $url = $urlGenerator->generate('index', hash: 'test');
+
+        $this->assertSame('/home/index#test', $url);
+    }
+
+    public function testGenerateAbsoluteHash(): void
+    {
+        $urlGenerator = new UrlGenerator(
+            $this->createRouteCollection([Route::get('/home/index')->name('index')]),
+            new CurrentRoute(),
+            scheme: 'https',
+            host: 'example.com',
+        );
+
+        $url = $urlGenerator->generateAbsolute('index', hash: 'test');
+
+        $this->assertSame('https://example.com/home/index#test', $url);
+    }
+
+    public function testGenerateFromCurrentHash(): void
+    {
+        $request = new ServerRequest('GET', 'http://test.com/home/index');
+        $route = Route::get('/home/index')->name('index');
+        $currentRoute = new CurrentRoute();
+        $currentRoute->setUri($request->getUri());
+        $currentRoute->setRouteWithArguments($route, []);
+
+        $urlGenerator = new UrlGenerator(
+            $this->createRouteCollection([$route]),
+            $currentRoute,
+        );
+
+        $url = $urlGenerator->generateFromCurrent([], hash: 'test');
+
+        $this->assertSame('/home/index#test', $url);
+    }
+
+    public function testGenerateFromCurrentHashWithFallbackRoute(): void
+    {
+        $request = new ServerRequest('GET', 'http://test.com/home/index');
+        $route = Route::get('/blog/posts')->name('blog');
+        $currentRoute = new CurrentRoute();
+        $currentRoute->setUri($request->getUri());
+
+        $urlGenerator = new UrlGenerator(
+            $this->createRouteCollection([$route]),
+            $currentRoute,
+        );
+
+        $url = $urlGenerator->generateFromCurrent([], hash: 'test', fallbackRouteName: 'blog');
+
+        $this->assertSame('/blog/posts#test', $url);
+    }
+
+    public function testGenerateFromCurrentHashWithoutRoute(): void
+    {
+        $request = new ServerRequest('GET', 'http://test.com/home/index');
+        $route = Route::get('/blog/posts')->name('blog');
+        $currentRoute = new CurrentRoute();
+        $currentRoute->setUri($request->getUri());
+
+        $urlGenerator = new UrlGenerator(
+            $this->createRouteCollection([$route]),
+            $currentRoute,
+        );
+
+        $url = $urlGenerator->generateFromCurrent([], hash: 'test');
+
+        $this->assertSame('/home/index#test', $url);
+    }
+
     private function createUrlGenerator(
         array $routes,
-        CurrentRoute $currentRoute = null,
-        RouteParser $parser = null
+        ?CurrentRoute $currentRoute = null,
+        ?RouteParser $parser = null
     ): UrlGeneratorInterface {
         $routeCollection = $this->createRouteCollection($routes);
         return new UrlGenerator($routeCollection, $currentRoute, $parser);
@@ -924,7 +980,7 @@ final class UrlGeneratorTest extends TestCase
     {
         $rootGroup = Group::create()->routes(...$routes);
         $collector = new RouteCollector();
-        $collector->addGroup($rootGroup);
+        $collector->addRoute($rootGroup);
         return new RouteCollection($collector);
     }
 }
