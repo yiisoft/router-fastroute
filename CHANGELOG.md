@@ -1,5 +1,9 @@
 # Yii Router FastRoute Adapter Change Log
 
+## 4.0.1 under development
+
+- no changes in this release.
+
 ## 4.0.0 February 25, 2025
 
 - Chg #157: Bump minimal PHP version to 8.1 and minor refactoring (@vjik)
