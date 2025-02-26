@@ -211,8 +211,7 @@ final class UrlGeneratorTest extends TestCase
     public function testQueryParametersOverrideExtraArguments(): void
     {
         $routes = [
-            Route::get('/test/{name}')
-                ->name('test'),
+            Route::get('/test/{name}')->name('test'),
         ];
 
         $url = $this
@@ -221,17 +220,16 @@ final class UrlGeneratorTest extends TestCase
         $this->assertEquals('/test/post?id=12&sort=asc', $url);
     }
 
-    public function testNotSubstitutedArgumentsRemove(): void
+    public function testQueryParametersMergedWithExtraArguments(): void
     {
         $routes = [
-            Route::get('/test/{name}')
-                ->name('test'),
+            Route::get('/test/{name}')->name('test'),
         ];
 
         $url = $this
             ->createUrlGenerator($routes)
             ->generate('test', ['name' => 'post', 'id' => 11], ['sort' => 'asc']);
-        $this->assertEquals('/test/post?sort=asc', $url);
+        $this->assertEquals('/test/post?sort=asc&id=11', $url);
     }
 
     public function testDefaultNotUsedForOptionalArgument(): void
