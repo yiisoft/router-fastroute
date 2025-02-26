@@ -1,6 +1,6 @@
 # Yii Router FastRoute Adapter Change Log
 
-## 4.0.1 under development
+## 4.0.1 February 26, 2025
 
 - Bug #159: Fix merging of query parameters with non-substituted arguments in `UrlGenerator` (@vjik)
 
