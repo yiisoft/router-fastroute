@@ -286,6 +286,7 @@ final class UrlGenerator implements UrlGeneratorInterface
     private function generatePath(array $arguments, array $queryParameters, array $parts, ?string $hash): string
     {
         $path = $this->getUriPrefix();
+        $notSubstitutedArguments = $arguments;
 
         foreach ($parts as $part) {
             if (is_string($part)) {
@@ -312,11 +313,13 @@ final class UrlGenerator implements UrlGeneratorInterface
                     ? rawurlencode($arguments[$part[0]])
                     : urlencode($arguments[$part[0]]);
             }
+            unset($notSubstitutedArguments[$part[0]]);
         }
 
         $path = str_replace('//', '/', $path);
 
         $queryString = '';
+        $queryParameters += $notSubstitutedArguments;
         if (!empty($queryParameters)) {
             $queryString = http_build_query($queryParameters);
         }

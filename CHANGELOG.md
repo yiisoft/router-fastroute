@@ -2,7 +2,7 @@
 
 ## 4.0.1 under development
 
-- no changes in this release.
+- Bug #159: Fix merging of query parameters with non-substituted arguments in `UrlGenerator` (@vjik)
 
 ## 4.0.0 February 25, 2025
 
