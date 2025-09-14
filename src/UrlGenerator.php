@@ -22,6 +22,9 @@ use function is_string;
 use function preg_match;
 use function sprintf;
 
+/**
+ * @psalm-import-type UrlArgumentsType from UrlGeneratorInterface
+ */
 final class UrlGenerator implements UrlGeneratorInterface
 {
     private string $uriPrefix = '';
@@ -58,7 +61,11 @@ final class UrlGenerator implements UrlGeneratorInterface
         array $queryParameters = [],
         ?string $hash = null,
     ): string {
-        $arguments = array_map('\strval', array_merge($this->defaultArguments, $arguments));
+        $arguments = array_merge(
+            $this->defaultArguments,
+            $this->prepareArguments($arguments),
+        );
+
         $route = $this->routeCollection->getRoute($name);
         /** @var list<list<list<string>|string>> $parsedRoutes */
         $parsedRoutes = array_reverse($this->routeParser->parse($route->getData('pattern')));
@@ -325,5 +332,21 @@ final class UrlGenerator implements UrlGeneratorInterface
         }
 
         return $path . (!empty($queryString) ? '?' . $queryString : '') . ($hash !== null ? '#' . $hash : '');
+    }
+
+    /**
+     * @psalm-param UrlArgumentsType $arguments
+     * @psalm-return array<string, string>
+     */
+    public function prepareArguments(array $arguments): array
+    {
+        $result = [];
+        foreach ($arguments as $name => $value) {
+            if ($value === null) {
+                continue;
+            }
+            $result[$name] = (string) $value;
+        }
+        return $result;
     }
 }

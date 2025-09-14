@@ -7,6 +7,7 @@ namespace Yiisoft\Router\FastRoute\Tests;
 use FastRoute\RouteParser;
 use Nyholm\Psr7\ServerRequest;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Router\CurrentRoute;
 use Yiisoft\Router\FastRoute\Tests\Support\NotFoundRouteParser;
@@ -963,6 +964,24 @@ final class UrlGeneratorTest extends TestCase
         $url = $urlGenerator->generateFromCurrent([], hash: 'test');
 
         $this->assertSame('/home/index#test', $url);
+    }
+
+    #[TestWith(['/blog', []])]
+    #[TestWith(['/blog', ['page' => null]])]
+    #[TestWith(['/blog/page/2', ['page' => 2]])]
+    public function testOptionalArguments(string $expected, array $arguments): void
+    {
+        $urlGenerator = new UrlGenerator(
+            new RouteCollection(
+                (new RouteCollector())->addRoute(
+                    Route::get('/blog[/page/{page}]')->name('blog'),
+                ),
+            ),
+        );
+
+        $url = $urlGenerator->generate('blog', $arguments);
+
+        $this->assertSame($expected, $url);
     }
 
     private function createUrlGenerator(
