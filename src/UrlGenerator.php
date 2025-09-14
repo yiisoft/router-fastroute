@@ -338,7 +338,7 @@ final class UrlGenerator implements UrlGeneratorInterface
      * @psalm-param UrlArgumentsType $arguments
      * @psalm-return array<string, string>
      */
-    public function prepareArguments(array $arguments): array
+    private function prepareArguments(array $arguments): array
     {
         $result = [];
         foreach ($arguments as $name => $value) {
