@@ -983,6 +983,23 @@ final class UrlGeneratorTest extends TestCase
 
         $this->assertSame($expected, $url);
     }
+    public function testOptionalArgumentsEdgeCase(): void
+    {
+        $urlGenerator = new UrlGenerator(
+            new RouteCollection(
+                (new RouteCollector())->addRoute(
+                    Route::get('/blog/{category}[/{page}]')->name('blog'),
+                ),
+            ),
+        );
+
+        $url = $urlGenerator->generate('blog', [
+            'page' => null,
+            'category' => 'news',
+        ]);
+
+        $this->assertSame('/blog/news', $url);
+    }
 
     private function createUrlGenerator(
         array $routes,
