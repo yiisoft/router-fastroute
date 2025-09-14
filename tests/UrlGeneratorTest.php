@@ -983,6 +983,7 @@ final class UrlGeneratorTest extends TestCase
 
         $this->assertSame($expected, $url);
     }
+
     public function testOptionalArgumentsEdgeCase(): void
     {
         $urlGenerator = new UrlGenerator(
