@@ -77,7 +77,6 @@ final class ConfigTest extends TestCase
     private function getPropertyValue(object $object, string $propertyName): mixed
     {
         $property = (new ReflectionObject($object))->getProperty($propertyName);
-        $property->setAccessible(true);
         return $property->getValue($object);
     }
 }
