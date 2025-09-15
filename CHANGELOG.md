@@ -2,7 +2,7 @@
 
 ## 4.0.2 under development
 
-- no changes in this release.
+- Bug #160: Fix URL generation to skip `null` arguments (@vjik)
 
 ## 4.0.1 February 26, 2025
 
