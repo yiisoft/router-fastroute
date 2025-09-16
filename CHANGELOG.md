@@ -1,6 +1,6 @@
 # Yii Router FastRoute Adapter Change Log
 
-## 4.0.2 under development
+## 4.0.2 September 16, 2025
 
 - Bug #160: Fix URL generation to skip `null` arguments (@vjik)
 
