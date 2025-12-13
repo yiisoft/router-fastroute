@@ -1,5 +1,9 @@
 # Yii Router FastRoute Adapter Change Log
 
+## 4.0.4 under development
+
+- no changes in this release.
+
 ## 4.0.3 December 13, 2025
 
 - Enh #162: Add PHP 8.5 support (@vjik)
