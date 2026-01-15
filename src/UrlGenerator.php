@@ -94,8 +94,8 @@ final class UrlGenerator implements UrlGeneratorInterface
                 'Route `%s` expects at least argument values for [%s], but received [%s]',
                 $name,
                 implode(',', $missingArguments),
-                implode(',', array_keys($arguments))
-            )
+                implode(',', array_keys($arguments)),
+            ),
         );
     }
 
@@ -181,6 +181,21 @@ final class UrlGenerator implements UrlGeneratorInterface
         $this->defaultArguments[$name] = (string) $value;
     }
 
+    public function getUriPrefix(): string
+    {
+        return $this->uriPrefix;
+    }
+
+    public function setEncodeRaw(bool $encodeRaw): void
+    {
+        $this->encodeRaw = $encodeRaw;
+    }
+
+    public function setUriPrefix(string $name): void
+    {
+        $this->uriPrefix = $name;
+    }
+
     private function generateAbsoluteFromLastMatchedRequest(string $url, UriInterface $uri, ?string $scheme): string
     {
         $port = '';
@@ -236,21 +251,6 @@ final class UrlGenerator implements UrlGeneratorInterface
     private function isRelative(string $url): bool
     {
         return strncmp($url, '//', 2) && !str_contains($url, '://');
-    }
-
-    public function getUriPrefix(): string
-    {
-        return $this->uriPrefix;
-    }
-
-    public function setEncodeRaw(bool $encodeRaw): void
-    {
-        $this->encodeRaw = $encodeRaw;
-    }
-
-    public function setUriPrefix(string $name): void
-    {
-        $this->uriPrefix = $name;
     }
 
     /**
@@ -310,8 +310,8 @@ final class UrlGenerator implements UrlGeneratorInterface
                         sprintf(
                             'Argument value for [%s] did not match the regex `%s`',
                             $part[0],
-                            $part[1]
-                        )
+                            $part[1],
+                        ),
                     );
                 }
 

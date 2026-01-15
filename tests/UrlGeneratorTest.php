@@ -19,6 +19,7 @@ use Yiisoft\Router\RouteCollectionInterface;
 use Yiisoft\Router\RouteCollector;
 use Yiisoft\Router\RouteNotFoundException;
 use Yiisoft\Router\UrlGeneratorInterface;
+use RuntimeException;
 
 final class UrlGeneratorTest extends TestCase
 {
@@ -113,7 +114,7 @@ final class UrlGeneratorTest extends TestCase
         $urlGenerator = $this->createUrlGenerator($routes);
 
         $this->expectExceptionMessage(
-            'Route `view` expects at least argument values for [id,value], but received [id]'
+            'Route `view` expects at least argument values for [id,value], but received [id]',
         );
         $urlGenerator->generate('view', ['id' => 123]);
     }
@@ -123,7 +124,7 @@ final class UrlGeneratorTest extends TestCase
         $routes = [
             Group::create('/api')->routes(
                 Route::get('/post')->name('post/index'),
-                Route::get('/post/{id}')->name('post/view')
+                Route::get('/post/{id}')->name('post/view'),
             ),
         ];
         $urlGenerator = $this->createUrlGenerator($routes);
@@ -151,8 +152,8 @@ final class UrlGeneratorTest extends TestCase
                         Route::get('/post/{id}')->name('api-v1-blog-post/view'),
                     ),
                     Route::get('/note')->name('api-v1-note/index'),
-                    Route::get('/note/{id}')->name('api-v1-note/view')
-                )
+                    Route::get('/note/{id}')->name('api-v1-note/view'),
+                ),
             ),
         ];
 
@@ -702,7 +703,7 @@ final class UrlGeneratorTest extends TestCase
         array $routeArguments,
         array $defaultArgument,
         array $replacedArguments,
-        array $queryParameters = []
+        array $queryParameters = [],
     ): void {
         $request = new ServerRequest('GET', $uri);
 
@@ -782,7 +783,7 @@ final class UrlGeneratorTest extends TestCase
         $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
         $urlGenerator->setDefaultArgument('_locale', 'uz');
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Current route is not detected.');
         $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru']);
 
@@ -797,7 +798,7 @@ final class UrlGeneratorTest extends TestCase
         $urlGenerator = $this->createUrlGenerator([$route], $currentRoute);
         $urlGenerator->setDefaultArgument('_locale', 'uz');
 
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Current route is not detected.');
         $url = $urlGenerator->generateFromCurrent(['_locale' => 'ru']);
 
@@ -1005,7 +1006,7 @@ final class UrlGeneratorTest extends TestCase
     private function createUrlGenerator(
         array $routes,
         ?CurrentRoute $currentRoute = null,
-        ?RouteParser $parser = null
+        ?RouteParser $parser = null,
     ): UrlGeneratorInterface {
         $routeCollection = $this->createRouteCollection($routes);
         return new UrlGenerator($routeCollection, $currentRoute, $parser);

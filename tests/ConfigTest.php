@@ -16,6 +16,8 @@ use Yiisoft\Router\UrlGeneratorInterface;
 use Yiisoft\Router\UrlMatcherInterface;
 use Yiisoft\Test\Support\SimpleCache\MemorySimpleCache;
 
+use function dirname;
+
 final class ConfigTest extends TestCase
 {
     public function testDi(): void
@@ -54,12 +56,11 @@ final class ConfigTest extends TestCase
         return new Container(
             ContainerConfig::create()->withDefinitions(
                 $this->getDiConfig($postfix, $params)
-                +
-                [
+                + [
                     CacheInterface::class => new MemorySimpleCache(),
                     RouteCollectionInterface::class => $this->createMock(RouteCollectionInterface::class),
-                ]
-            )
+                ],
+            ),
         );
     }
 

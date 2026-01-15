@@ -22,7 +22,7 @@ final class UrlMatcherTest extends TestCase
     {
         $routes = [
             Route::get('/[{name}]')
-                ->action(fn () => 1)
+                ->action(fn() => 1)
                 ->defaults(['name' => 'test']),
         ];
 
@@ -41,7 +41,7 @@ final class UrlMatcherTest extends TestCase
     public function testSimpleRoute(): void
     {
         $routes = [
-            Route::get('/site/index')->action(fn () => 1),
+            Route::get('/site/index')->action(fn() => 1),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
@@ -55,7 +55,7 @@ final class UrlMatcherTest extends TestCase
     public function testSimpleRouteWithDifferentMethods(): void
     {
         $routes = [
-            Route::methods(['GET', 'POST'], '/site/index')->action(fn () => 1),
+            Route::methods(['GET', 'POST'], '/site/index')->action(fn() => 1),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
@@ -72,7 +72,7 @@ final class UrlMatcherTest extends TestCase
     public function testSimpleRouteWithParam(): void
     {
         $routes = [
-            Route::get('/site/post/{id}')->action(fn () => 1),
+            Route::get('/site/post/{id}')->action(fn() => 1),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
@@ -90,7 +90,7 @@ final class UrlMatcherTest extends TestCase
     public function testSimpleRouteWithUrlencodedParam(): void
     {
         $routes = [
-            Route::get('/site/post/{name1:.*?}/{name2:.*?}')->action(fn () => 1),
+            Route::get('/site/post/{name1:.*?}/{name2:.*?}')->action(fn() => 1),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
@@ -111,10 +111,10 @@ final class UrlMatcherTest extends TestCase
     {
         $routes = [
             Route::get('/site/index')
-                ->action(fn () => 1)
+                ->action(fn() => 1)
                 ->hosts('yii.test', 'yii.dev'),
             Route::get('/site/index')
-                ->action(fn () => 1)
+                ->action(fn() => 1)
                 ->host('{user}.yiiframework.com'),
         ];
 
@@ -142,7 +142,7 @@ final class UrlMatcherTest extends TestCase
     {
         $routes = [
             Route::get('/site/index')
-                ->action(fn () => 1)
+                ->action(fn() => 1)
                 ->hosts('yii.test', 'yii.com', 'yii.ru'),
         ];
 
@@ -170,11 +170,11 @@ final class UrlMatcherTest extends TestCase
     public function testMultipleHostException(): void
     {
         $route = Route::get('/')
-                    ->action(fn () => 1)
+                    ->action(fn() => 1)
                     ->hosts(
                         'https://yiiframework.com/',
                         'yf.com',
-                        '{user}.yii.com'
+                        '{user}.yii.com',
                     );
 
         $this->expectException(RuntimeException::class);
@@ -188,10 +188,10 @@ final class UrlMatcherTest extends TestCase
     {
         $routes = [
             Route::get('/site/index')
-                ->action(fn () => 1)
+                ->action(fn() => 1)
                 ->host('yii.test'),
             Route::get('/site/index')
-                ->action(fn () => 1)
+                ->action(fn() => 1)
                 ->host('yiiframework.{zone:ru|com}'),
         ];
 
@@ -218,7 +218,7 @@ final class UrlMatcherTest extends TestCase
     public function testSimpleRouteWithOptionalPartSuccess(): void
     {
         $routes = [
-            Route::get('/site/post[/view]')->action(fn () => 1),
+            Route::get('/site/post[/view]')->action(fn() => 1),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
@@ -236,7 +236,7 @@ final class UrlMatcherTest extends TestCase
     public function testSimpleRouteWithOptionalPartFailed(): void
     {
         $routes = [
-            Route::get('/site/post[/view]')->action(fn () => 1),
+            Route::get('/site/post[/view]')->action(fn() => 1),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
@@ -251,7 +251,7 @@ final class UrlMatcherTest extends TestCase
     public function testSimpleRouteWithOptionalParam(): void
     {
         $routes = [
-            Route::get('/site/post[/{id}]')->action(fn () => 1),
+            Route::get('/site/post[/{id}]')->action(fn() => 1),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
@@ -274,7 +274,7 @@ final class UrlMatcherTest extends TestCase
     public function testSimpleRouteWithNestedOptionalParts(): void
     {
         $routes = [
-            Route::get('/site[/post[/view]]')->action(fn () => 1),
+            Route::get('/site[/post[/view]]')->action(fn() => 1),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
@@ -295,7 +295,7 @@ final class UrlMatcherTest extends TestCase
     public function testSimpleRouteWithNestedOptionalParamsSuccess(): void
     {
         $routes = [
-            Route::get('/site[/{name}[/{id}]]')->action(fn () => 1),
+            Route::get('/site[/{name}[/{id}]]')->action(fn() => 1),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
@@ -337,7 +337,7 @@ final class UrlMatcherTest extends TestCase
     public function testDisallowedMethod(array $methods, string $disallowedMethod): void
     {
         $routes = [
-            Route::methods($methods, '/site/index')->action(fn () => 1),
+            Route::methods($methods, '/site/index')->action(fn() => 1),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
@@ -353,9 +353,9 @@ final class UrlMatcherTest extends TestCase
     public function testAutoAllowedHEADMethod(): void
     {
         $routes = [
-            Route::post('/site/post/view')->action(fn () => 1),
-            Route::get('/site/index')->action(fn () => 1),
-            Route::post('/site/index')->action(fn () => 1),
+            Route::post('/site/post/view')->action(fn() => 1),
+            Route::get('/site/index')->action(fn() => 1),
+            Route::post('/site/index')->action(fn() => 1),
         ];
 
         $urlMatcher = $this->createUrlMatcher($routes);
@@ -371,10 +371,10 @@ final class UrlMatcherTest extends TestCase
     {
         $routes = [
             Route::get('/')
-                ->action(fn () => 1)
+                ->action(fn() => 1)
                 ->name('site/index'),
             Route::methods(['GET', 'POST'], '/contact')
-                ->action(fn () => 1)
+                ->action(fn() => 1)
                 ->name('site/contact'),
         ];
 
@@ -429,7 +429,7 @@ final class UrlMatcherTest extends TestCase
     {
         $routes = [
             Route::get('/test')
-                ->action(fn () => 1)
+                ->action(fn() => 1)
                 ->name('test'),
         ];
 
@@ -444,10 +444,10 @@ final class UrlMatcherTest extends TestCase
     {
         $routes = [
             Route::get('/')
-                ->action(fn () => 1)
+                ->action(fn() => 1)
                 ->name('site/index'),
             Route::methods(['GET', 'POST'], '/contact')
-                ->action(fn () => 1)
+                ->action(fn() => 1)
                 ->name('site/contact'),
         ];
 
@@ -466,8 +466,8 @@ final class UrlMatcherTest extends TestCase
     {
         $matcher = new UrlMatcher(
             new RouteCollection(
-                new RouteCollector()
-            )
+                new RouteCollector(),
+            ),
         );
 
         $result = $matcher->match(new ServerRequest('GET', '/contact'));
