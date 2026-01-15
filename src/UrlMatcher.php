@@ -79,7 +79,7 @@ final class UrlMatcher implements UrlMatcherInterface
         private readonly ?CacheInterface $cache = null,
         ?array $config = null,
         ?RouteCollector $fastRouteCollector = null,
-        ?callable $dispatcherFactory = null
+        ?callable $dispatcherFactory = null,
     ) {
         $this->fastRouteCollector = $fastRouteCollector ?? $this->createRouteCollector();
         $this->dispatcherCallback = $dispatcherFactory;
@@ -166,7 +166,7 @@ final class UrlMatcher implements UrlMatcherInterface
      */
     private function createDispatcherCallback(): callable
     {
-        return static fn (array $data) => new GroupCountBased($data);
+        return static fn(array $data) => new GroupCountBased($data);
     }
 
     /**
@@ -237,7 +237,7 @@ final class UrlMatcher implements UrlMatcherInterface
             $this->fastRouteCollector->addRoute(
                 $route->getData('methods'),
                 $hostPattern . $route->getData('pattern'),
-                $route->getData('name')
+                $route->getData('name'),
             );
         }
         $this->hasInjectedRoutes = true;
